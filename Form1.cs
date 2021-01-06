@@ -10,7 +10,8 @@ using System.Reflection;
 using System.Windows.Forms;
 using Point = System.Drawing.Point;
 using OpenCvSharp;
-using OpenCvSharp.Extensions;
+using Microsoft.ML.OnnxRuntime;
+using Microsoft.ML.OnnxRuntime.Tensors;
 
 namespace YOLIC
 {
@@ -291,7 +292,43 @@ namespace YOLIC
                 button16.Enabled = true;
             }
         }
+        static void PrintInputMetadata(IReadOnlyDictionary<string, NodeMetadata> inputMeta)
+        {
+            foreach (var name in inputMeta.Keys)
+            {
+                Console.WriteLine(name);
+                Console.WriteLine("Dimension Length: " + inputMeta[name].Dimensions.Length);
+                for (int i = 0; i < inputMeta[name].Dimensions.Length; ++i)
+                {
+                    Console.WriteLine(inputMeta[name].Dimensions[i]);
+                }
+                Console.WriteLine(inputMeta[name].ElementType.ToString());
+                Console.WriteLine(inputMeta[name].IsTensor.ToString());
+                Console.WriteLine(inputMeta[name].OnnxValueType.ToString());
+                Console.WriteLine(inputMeta[name].SymbolicDimensions.ToString());
+            }
 
+        }
+
+        public Tensor<float> ConvertImageToFloatTensor(Mat image)
+        {
+            Tensor<float> data = new DenseTensor<float>(new[] { 1, 4, image.Width, image.Height  });
+            Bitmap bitimg = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(image);
+
+            for (int x = 0; x < bitimg.Width; x++)
+            {
+                for (int y = 0; y < bitimg.Height; y++)
+                {
+                    Color color = bitimg.GetPixel(x, y);
+
+                    data[0, 0, x, y] = color.R / (float)255.0;
+                    data[0, 1, x, y] = color.G / (float)255.0;
+                    data[0, 2, x, y] = color.B / (float)255.0;
+                    data[0, 3, x, y] = color.A / (float)255.0;
+                }
+            }
+            return data;
+        }
         private void Display(int currentIndex)
         {
 
@@ -304,15 +341,47 @@ namespace YOLIC
             Image OriginalImage = Image.FromFile(list_Img[CurrentIndex]);
             Image OriginalDapthImage = Image.FromFile(list_depthImg[CurrentIndex]);
 
-            Console.WriteLine(list_Img[CurrentIndex]);
-            Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.AnyColor);
-            Mat depth_image = Cv2.ImRead(list_depthImg[CurrentIndex], ImreadModes.AnyColor);
-            Mat[] cvd = Cv2.Split(depth_image);
-            Mat[] cvrgb = Cv2.Split(color_image);
-            Mat merged = new Mat();
-            Cv2.Merge(new Mat[]{cvrgb[0], cvrgb[1], cvrgb[2], cvd[0]}, merged);
-            Mat outimg = new Mat();
-            Cv2.Resize(merged, outimg, new OpenCvSharp.Size(224, 224));
+            if (SemiAutomatic == true)
+            {
+                Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.AnyColor);
+                Mat depth_image = Cv2.ImRead(list_depthImg[CurrentIndex], ImreadModes.AnyColor);
+                Mat[] cvd = Cv2.Split(depth_image);
+                Mat[] cvrgb = Cv2.Split(color_image);
+                Mat merged = new Mat();
+                Cv2.Merge(new Mat[] { cvrgb[0], cvrgb[1], cvrgb[2], cvd[0] }, merged);
+                Mat outimg = new Mat();
+                Cv2.Resize(merged, outimg, new OpenCvSharp.Size(224, 224));
+                string ModelName = OpenOnnx.FileName;
+                Console.WriteLine(ModelName);
+                using (var session = new InferenceSession(ModelName))
+                {
+                    Tensor<float> inputdata = ConvertImageToFloatTensor(outimg);
+                    var inputMeta = session.InputMetadata;
+                   
+                    var container = new List<NamedOnnxValue>();
+                    PrintInputMetadata(inputMeta);
+
+                    foreach (var name in inputMeta.Keys)
+                    {
+                        //var tensor = new DenseTensor<float>(, inputMeta[name].Dimensions);
+                        container.Add(NamedOnnxValue.CreateFromTensor<float>(name, inputdata));
+                    }
+
+                    using (var results = session.Run(container))  // results is an IDisposableReadOnlyCollection<DisposableNamedOnnxValue> container
+                    {
+                        // Get the results
+                        foreach (var r in results)
+                        {
+                            Console.WriteLine("Output Name: {0}", r.Name);
+                            //int prediction = MaxProbability(r.AsTensor<float>());
+                            //Console.WriteLine("Prediction: " + prediction.ToString());
+                            Console.WriteLine(r.AsTensor<float>().GetArrayString());
+                        }
+                    }
+                }
+
+                
+            }
 
 
             Image DetectedImage = cutImage(OriginalImage, new Point(0, 0), OriginalImage.Width, OriginalImage.Height);
