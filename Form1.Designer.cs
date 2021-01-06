@@ -1093,7 +1093,7 @@
             this.button9.Name = "button9";
             this.button9.Size = new System.Drawing.Size(128, 60);
             this.button9.TabIndex = 3;
-            this.button9.Text = "Open RGBD Directory";
+            this.button9.Text = "Open Depth Directory";
             this.button9.UseVisualStyleBackColor = true;
             this.button9.Click += new System.EventHandler(this.button9_Click);
             // 

@@ -18,7 +18,7 @@ namespace YOLIC
 {
     public partial class Form1 : Form
     {
-        Boolean KeepHistory = true;
+        Boolean KeepHistory = false;
         string ImageExtension = "png";
         private List<string> list_Img;
         private List<string> list_depthImg;
@@ -795,7 +795,7 @@ namespace YOLIC
             label7.Text = (CurrentIndex + 1).ToString() + " / " + list_Img.Count.ToString();
             if (KeepHistory == true)
             {
-                Display(CurrentIndex);
+                DisplayRGB(CurrentIndex);
                 RedrawR(pictureBox1.Image);
 
             }
