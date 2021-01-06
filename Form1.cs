@@ -319,12 +319,24 @@ namespace YOLIC
             {
                 for (int y = 0; y < bitimg.Height; y++)
                 {
-                    Color color = bitimg.GetPixel(x, y);
-
-                    data[0, 0, x, y] = color.R / (float)255.0;
+                    
+                    Color color = bitimg.GetPixel(y, x);
+                    
+                    data[0, 0, x, y] = color.B / (float)255.0;
+                    
                     data[0, 1, x, y] = color.G / (float)255.0;
-                    data[0, 2, x, y] = color.B / (float)255.0;
+                    
+                    data[0, 2, x, y] = color.R / (float)255.0;
+                    
                     data[0, 3, x, y] = color.A / (float)255.0;
+                    
+                    //if (x == 110 & y == 140)
+                    //{
+                    //    Console.WriteLine(color.B);
+                    //    Console.WriteLine(color.G);
+                    //    Console.WriteLine(color.R);
+                    //    Console.WriteLine(color.A);
+                    //}
                 }
             }
             return data;
@@ -349,8 +361,12 @@ namespace YOLIC
                 Mat[] cvrgb = Cv2.Split(color_image);
                 Mat merged = new Mat();
                 Cv2.Merge(new Mat[] { cvrgb[0], cvrgb[1], cvrgb[2], cvd[0] }, merged);
+                
                 Mat outimg = new Mat();
                 Cv2.Resize(merged, outimg, new OpenCvSharp.Size(224, 224));
+                Console.WriteLine(outimg.Channels());
+                Console.WriteLine(outimg.Get<Vec4b>(110, 140));
+
                 string ModelName = OpenOnnx.FileName;
                 Console.WriteLine(ModelName);
                 using (var session = new InferenceSession(ModelName))
@@ -359,7 +375,7 @@ namespace YOLIC
                     var inputMeta = session.InputMetadata;
                    
                     var container = new List<NamedOnnxValue>();
-                    PrintInputMetadata(inputMeta);
+                    //PrintInputMetadata(inputMeta);
 
                     foreach (var name in inputMeta.Keys)
                     {
@@ -373,9 +389,19 @@ namespace YOLIC
                         foreach (var r in results)
                         {
                             Console.WriteLine("Output Name: {0}", r.Name);
-                            //int prediction = MaxProbability(r.AsTensor<float>());
-                            //Console.WriteLine("Prediction: " + prediction.ToString());
-                            Console.WriteLine(r.AsTensor<float>().GetArrayString());
+                            int [] prediction = sigmoidup(r.AsTensor<float>());
+                            for (int i = 1; i <= prediction.Length; i++)
+                            {
+                                Console.Write(prediction[i-1]);
+                                Console.Write(" ");
+                                if (i % 12 == 0)
+                                {
+                                    Console.WriteLine(" ");
+                                }
+
+                            }
+                            //Console.WriteLine("Prediction: " + prediction);
+                            //Console.WriteLine(r.AsTensor<float>().GetArrayString());
                         }
                     }
                 }
@@ -405,6 +431,27 @@ namespace YOLIC
                 
             }
         }
+
+        private int[] sigmoidup(Tensor<float> tensors)
+        {
+
+            int[] output = new int[tensors.Length];
+            for (int i = 0; i < tensors.Length; ++i)
+            {
+                float prob = tensors.GetValue(i);
+                if (prob <= 0)
+                {
+                    output[i] = 0;
+                }
+                else
+                {
+                    output[i] = 1;
+                }
+
+            }
+            return output;
+        }
+
         private Image cutImage(Image SrcImage, Point pos, int cutWidth, int cutHeight)
         {
 
