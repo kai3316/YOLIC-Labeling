@@ -19,6 +19,7 @@ namespace YOLIC
     public partial class Form1 : Form
     {
         Boolean KeepHistory = false;
+        Boolean SemiAutomatic = false;
         string ImageExtension = "png";
         private List<string> list_Img;
         private List<string> list_depthImg;
@@ -938,12 +939,12 @@ namespace YOLIC
             if (KeepHistory == true)
             {
                 KeepHistory = false;
-                button18.Text = "History OFF";
+                button18.Text = "Label History OFF";
             }
             else
             {
                 KeepHistory = true;
-                button18.Text = "History ON";
+                button18.Text = "Label History ON";
             }
         }
 
@@ -952,12 +953,12 @@ namespace YOLIC
             if (KeepHistory == true)
             {
                 KeepHistory = false;
-                button18.Text = "History OFF";
+                button18.Text = "Label History OFF";
             }
             else
             {
                 KeepHistory = true;
-                button18.Text = "History ON";
+                button18.Text = "Label History ON";
             }
         }
 
@@ -1174,6 +1175,20 @@ namespace YOLIC
                 }
             }
 
+        }
+
+        private void button22_Click(object sender, EventArgs e)
+        {
+            if (SemiAutomatic == true)
+            {
+                SemiAutomatic = false;
+                button22.Text = "Semi-automatic Mode OFF";
+            }
+            else
+            {
+                SemiAutomatic = true;
+                button22.Text = "Semi-automatic Mode ON";
+            }
         }
     }
 }
