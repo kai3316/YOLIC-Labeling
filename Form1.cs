@@ -24,6 +24,7 @@ namespace YOLIC
         private List<string> list_Img;
         private List<string> list_depthImg;
         OpenFileDialog OpenJson = new OpenFileDialog();
+        OpenFileDialog OpenOnnx = new OpenFileDialog();
         List<PointF> dat = new List<PointF>();
         List<PointF> dat2 = new List<PointF>();
         FolderBrowserDialog openFile_Img = new FolderBrowserDialog();
@@ -1179,6 +1180,11 @@ namespace YOLIC
 
         private void button22_Click(object sender, EventArgs e)
         {
+            OpenJson.InitialDirectory = logPath;
+            OpenJson.Title = "Select a trained model";
+            OpenJson.Filter = "ONNX files (*.onnx)|*.onnx";
+            OpenJson.RestoreDirectory = true;
+            OpenJson.FilterIndex = 1;
             if (SemiAutomatic == true)
             {
                 SemiAutomatic = false;
@@ -1186,6 +1192,17 @@ namespace YOLIC
             }
             else
             {
+                try
+                {
+                    if (OpenOnnx.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    {
+                       
+                    }
+                }
+                catch (Exception)
+                {
+                    this.BeginInvoke((Action)(() => MessageBox.Show("Failed to read the ONNX model file!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
+                }
                 SemiAutomatic = true;
                 button22.Text = "Semi-automatic Mode ON";
             }
