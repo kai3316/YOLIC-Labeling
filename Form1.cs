@@ -2,17 +2,15 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using Point = System.Drawing.Point;
+using OpenCvSharp;
+using OpenCvSharp.Extensions;
 
 namespace YOLIC
 {
@@ -305,6 +303,17 @@ namespace YOLIC
             
             Image OriginalImage = Image.FromFile(list_Img[CurrentIndex]);
             Image OriginalDapthImage = Image.FromFile(list_depthImg[CurrentIndex]);
+
+            Console.WriteLine(list_Img[CurrentIndex]);
+            Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.AnyColor);
+            Mat depth_image = Cv2.ImRead(list_depthImg[CurrentIndex], ImreadModes.AnyColor);
+            Mat[] cvd = Cv2.Split(depth_image);
+            Mat[] cvrgb = Cv2.Split(color_image);
+            Mat merged = new Mat();
+            Cv2.Merge(new Mat[]{cvrgb[0], cvrgb[1], cvrgb[2], cvd[0]}, merged);
+            Mat outimg = new Mat();
+            Cv2.Resize(merged, outimg, new OpenCvSharp.Size(224, 224));
+
 
             Image DetectedImage = cutImage(OriginalImage, new Point(0, 0), OriginalImage.Width, OriginalImage.Height);
             Image DetectedDapthImage = cutImage(OriginalDapthImage, new Point(0, 0), OriginalDapthImage.Width, OriginalDapthImage.Height);
@@ -963,13 +972,6 @@ namespace YOLIC
             }
         }
 
-        private void pictureBox2_MouseDown(object sender, MouseEventArgs e)
-        {
-
-
-
-
-        }
 
         private void pictureBox2_Paint(object sender, PaintEventArgs e)
         {
@@ -1180,11 +1182,12 @@ namespace YOLIC
 
         private void button22_Click(object sender, EventArgs e)
         {
-            OpenJson.InitialDirectory = logPath;
-            OpenJson.Title = "Select a trained model";
-            OpenJson.Filter = "ONNX files (*.onnx)|*.onnx";
-            OpenJson.RestoreDirectory = true;
-            OpenJson.FilterIndex = 1;
+            OpenOnnx.InitialDirectory = logPath;
+            OpenOnnx.Title = "Select a trained model";
+            OpenOnnx.Filter = "ONNX files (*.onnx)|*.onnx";
+            OpenOnnx.RestoreDirectory = true;
+            OpenOnnx.FilterIndex = 1;
+
             if (SemiAutomatic == true)
             {
                 SemiAutomatic = false;
@@ -1196,15 +1199,15 @@ namespace YOLIC
                 {
                     if (OpenOnnx.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                     {
-                       
+                        SemiAutomatic = true;
+                        button22.Text = "Semi-automatic Mode ON";
                     }
                 }
                 catch (Exception)
                 {
                     this.BeginInvoke((Action)(() => MessageBox.Show("Failed to read the ONNX model file!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
                 }
-                SemiAutomatic = true;
-                button22.Text = "Semi-automatic Mode ON";
+                
             }
         }
     }
