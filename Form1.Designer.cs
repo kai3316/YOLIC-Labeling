@@ -496,7 +496,7 @@
             this.button19.Name = "button19";
             this.button19.Size = new System.Drawing.Size(122, 63);
             this.button19.TabIndex = 29;
-            this.button19.Text = "History ON";
+            this.button19.Text = "Label History ON";
             this.button19.UseVisualStyleBackColor = true;
             this.button19.Click += new System.EventHandler(this.button19_Click_1);
             // 
@@ -974,7 +974,7 @@
             this.button18.Name = "button18";
             this.button18.Size = new System.Drawing.Size(128, 60);
             this.button18.TabIndex = 35;
-            this.button18.Text = "History ON";
+            this.button18.Text = "Label History ON";
             this.button18.UseVisualStyleBackColor = true;
             this.button18.Click += new System.EventHandler(this.button18_Click);
             // 
@@ -1047,7 +1047,7 @@
             this.button13.Name = "button13";
             this.button13.Size = new System.Drawing.Size(128, 60);
             this.button13.TabIndex = 7;
-            this.button13.Text = "Import Configuration";
+            this.button13.Text = "Import Cell Configuration";
             this.button13.UseVisualStyleBackColor = true;
             this.button13.Click += new System.EventHandler(this.button13_Click);
             // 
