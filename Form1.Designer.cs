@@ -68,6 +68,7 @@
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.button22 = new System.Windows.Forms.Button();
             this.button21 = new System.Windows.Forms.Button();
             this.button20 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
@@ -496,7 +497,7 @@
             this.button19.Name = "button19";
             this.button19.Size = new System.Drawing.Size(122, 63);
             this.button19.TabIndex = 29;
-            this.button19.Text = "Label History ON";
+            this.button19.Text = "Label History";
             this.button19.UseVisualStyleBackColor = true;
             this.button19.Click += new System.EventHandler(this.button19_Click_1);
             // 
@@ -595,6 +596,7 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.button22);
             this.tabPage2.Controls.Add(this.button21);
             this.tabPage2.Controls.Add(this.button20);
             this.tabPage2.Controls.Add(this.button6);
@@ -625,6 +627,17 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "RGBD Labeling Mode";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // button22
+            // 
+            this.button22.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button22.Location = new System.Drawing.Point(6, 448);
+            this.button22.Name = "button22";
+            this.button22.Size = new System.Drawing.Size(128, 60);
+            this.button22.TabIndex = 44;
+            this.button22.Text = "Semi-automatic Mode";
+            this.button22.UseVisualStyleBackColor = true;
+            this.button22.Click += new System.EventHandler(this.button22_Click);
             // 
             // button21
             // 
@@ -970,11 +983,11 @@
             // button18
             // 
             this.button18.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button18.Location = new System.Drawing.Point(6, 441);
+            this.button18.Location = new System.Drawing.Point(6, 382);
             this.button18.Name = "button18";
             this.button18.Size = new System.Drawing.Size(128, 60);
             this.button18.TabIndex = 35;
-            this.button18.Text = "Label History ON";
+            this.button18.Text = "Label History";
             this.button18.UseVisualStyleBackColor = true;
             this.button18.Click += new System.EventHandler(this.button18_Click);
             // 
@@ -1043,9 +1056,9 @@
             // button13
             // 
             this.button13.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button13.Location = new System.Drawing.Point(6, 375);
+            this.button13.Location = new System.Drawing.Point(6, 155);
             this.button13.Name = "button13";
-            this.button13.Size = new System.Drawing.Size(128, 60);
+            this.button13.Size = new System.Drawing.Size(128, 44);
             this.button13.TabIndex = 7;
             this.button13.Text = "Import Cell Configuration";
             this.button13.UseVisualStyleBackColor = true;
@@ -1078,9 +1091,9 @@
             // button10
             // 
             this.button10.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button10.Location = new System.Drawing.Point(6, 138);
+            this.button10.Location = new System.Drawing.Point(6, 105);
             this.button10.Name = "button10";
-            this.button10.Size = new System.Drawing.Size(128, 60);
+            this.button10.Size = new System.Drawing.Size(128, 44);
             this.button10.TabIndex = 4;
             this.button10.Text = "Save Directory";
             this.button10.UseVisualStyleBackColor = true;
@@ -1089,9 +1102,9 @@
             // button9
             // 
             this.button9.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button9.Location = new System.Drawing.Point(6, 72);
+            this.button9.Location = new System.Drawing.Point(6, 55);
             this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(128, 60);
+            this.button9.Size = new System.Drawing.Size(128, 44);
             this.button9.TabIndex = 3;
             this.button9.Text = "Open Depth Directory";
             this.button9.UseVisualStyleBackColor = true;
@@ -1102,7 +1115,7 @@
             this.button8.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button8.Location = new System.Drawing.Point(6, 6);
             this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(128, 60);
+            this.button8.Size = new System.Drawing.Size(128, 44);
             this.button8.TabIndex = 2;
             this.button8.Text = "Open RGB Directory";
             this.button8.UseVisualStyleBackColor = true;
@@ -1232,6 +1245,7 @@
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.Button button21;
         private System.Windows.Forms.Button button20;
+        private System.Windows.Forms.Button button22;
     }
 }
 
