@@ -33,6 +33,7 @@ namespace YOLIC
         string[] currentLabel;
         JArray LabelList;
         int COInumber;
+        int Labelnumber;
         int CurrentIndex = 0;
         int LastArea = -1;
 
@@ -147,6 +148,7 @@ namespace YOLIC
                     }
 
                     LabelList = (JArray)coijsonObject["Labels"]["LabelList"];
+                    Labelnumber = LabelList.Count;
                     if (LabelList.Count > 20)
                     {
                         MessageBox.Show("Up to 20 labels!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -349,66 +351,8 @@ namespace YOLIC
             label8.Text = Imagename;
             label9.Text = DImagename;
             
-            
             Image OriginalImage = Image.FromFile(list_Img[CurrentIndex]);
             Image OriginalDapthImage = Image.FromFile(list_depthImg[CurrentIndex]);
-
-            if (SemiAutomatic == true)
-            {
-                Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.AnyColor);
-                Mat depth_image = Cv2.ImRead(list_depthImg[CurrentIndex], ImreadModes.AnyColor);
-                Mat[] cvd = Cv2.Split(depth_image);
-                Mat[] cvrgb = Cv2.Split(color_image);
-                Mat merged = new Mat();
-                Cv2.Merge(new Mat[] { cvrgb[0], cvrgb[1], cvrgb[2], cvd[0] }, merged);
-                
-                Mat outimg = new Mat();
-                Cv2.Resize(merged, outimg, new OpenCvSharp.Size(224, 224));
-                Console.WriteLine(outimg.Channels());
-                Console.WriteLine(outimg.Get<Vec4b>(110, 140));
-
-                string ModelName = OpenOnnx.FileName;
-                Console.WriteLine(ModelName);
-                using (var session = new InferenceSession(ModelName))
-                {
-                    Tensor<float> inputdata = ConvertImageToFloatTensor(outimg);
-                    var inputMeta = session.InputMetadata;
-                   
-                    var container = new List<NamedOnnxValue>();
-                    //PrintInputMetadata(inputMeta);
-
-                    foreach (var name in inputMeta.Keys)
-                    {
-                        //var tensor = new DenseTensor<float>(, inputMeta[name].Dimensions);
-                        container.Add(NamedOnnxValue.CreateFromTensor<float>(name, inputdata));
-                    }
-
-                    using (var results = session.Run(container))  // results is an IDisposableReadOnlyCollection<DisposableNamedOnnxValue> container
-                    {
-                        // Get the results
-                        foreach (var r in results)
-                        {
-                            Console.WriteLine("Output Name: {0}", r.Name);
-                            int [] prediction = sigmoidup(r.AsTensor<float>());
-                            for (int i = 1; i <= prediction.Length; i++)
-                            {
-                                Console.Write(prediction[i-1]);
-                                Console.Write(" ");
-                                if (i % 12 == 0)
-                                {
-                                    Console.WriteLine(" ");
-                                }
-
-                            }
-                            //Console.WriteLine("Prediction: " + prediction);
-                            //Console.WriteLine(r.AsTensor<float>().GetArrayString());
-                        }
-                    }
-                }
-
-                
-            }
-
 
             Image DetectedImage = cutImage(OriginalImage, new Point(0, 0), OriginalImage.Width, OriginalImage.Height);
             Image DetectedDapthImage = cutImage(OriginalDapthImage, new Point(0, 0), OriginalDapthImage.Width, OriginalDapthImage.Height);
@@ -417,7 +361,6 @@ namespace YOLIC
             pictureBox2.Image = DetectedImage;
             pictureBox3.Image = DetectedDapthImage;
 
-         
             System.Drawing.Graphics rgb = Graphics.FromImage(pictureBox2.Image);
             System.Drawing.Graphics depth = Graphics.FromImage(pictureBox3.Image);
             //Console.WriteLine(COIList.Length);
@@ -429,6 +372,70 @@ namespace YOLIC
                     depth.DrawRectangle(new Pen(Color.Red, 3), (float)COIList[i][1] * pictureBox3.Image.Width, (float)COIList[i][2] * pictureBox3.Image.Height, (float)COIList[i][3] * pictureBox3.Image.Width, (float)COIList[i][4] * pictureBox3.Image.Height);
                 }
                 
+            }
+
+            if (SemiAutomatic == true)
+            {
+                Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.AnyColor);
+                Mat depth_image = Cv2.ImRead(list_depthImg[CurrentIndex], ImreadModes.AnyColor);
+                Mat[] cvd = Cv2.Split(depth_image);
+                Mat[] cvrgb = Cv2.Split(color_image);
+                Mat merged = new Mat();
+                Cv2.Merge(new Mat[] { cvrgb[0], cvrgb[1], cvrgb[2], cvd[0] }, merged);
+                Mat outimg = new Mat();
+                Cv2.Resize(merged, outimg, new OpenCvSharp.Size(224, 224));
+                //Console.WriteLine(outimg.Channels());
+                //Console.WriteLine(outimg.Get<Vec4b>(110, 140));
+                string ModelName = OpenOnnx.FileName;
+                using (var session = new InferenceSession(ModelName))
+                {
+                    Tensor<float> inputdata = ConvertImageToFloatTensor(outimg);
+                    var inputMeta = session.InputMetadata;
+                    var container = new List<NamedOnnxValue>();
+                    //PrintInputMetadata(inputMeta);
+
+                    foreach (var name in inputMeta.Keys)
+                    {
+                        container.Add(NamedOnnxValue.CreateFromTensor<float>(name, inputdata));
+                    }
+
+                    using (var results = session.Run(container))  // results is an IDisposableReadOnlyCollection<DisposableNamedOnnxValue> container
+                    {
+                        // Get the results
+                        foreach (var r in results)
+                        {
+                            Console.WriteLine("Output Name: {0}", r.Name);
+                            int[] prediction = sigmoidup(r.AsTensor<float>());
+                            int numcell = prediction.Length / (Labelnumber + 1);
+                            Console.WriteLine(numcell);
+                            if (numcell!= COInumber)
+                            {
+                                this.BeginInvoke((Action)(() => MessageBox.Show("Failed to get output from the model!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
+                                return;
+                            }
+                            for (int i = 1; i <= prediction.Length; i = i + Labelnumber + 1)
+                            {
+                                int[] cell = new int[Labelnumber+1];
+                                Array.Copy(prediction, i-1, cell, 0, Labelnumber + 1);
+                                for(int j = 0; j < cell.Length; j++)
+                                {
+                                    Console.Write(cell[j]);
+                                }
+                                Console.WriteLine();
+                                //Console.Write(prediction[i - 1]);
+                                //Console.Write(" ");
+                                //if (i % 12 == 0)
+                                //{
+                                //    Console.WriteLine(" ");
+                                //}
+                            }
+                        }
+                    }
+
+
+                }
+
+
             }
         }
 
