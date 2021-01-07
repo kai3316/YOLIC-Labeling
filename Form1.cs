@@ -33,6 +33,7 @@ namespace YOLIC
         string[] currentLabel;
         JArray LabelList;
         int COInumber;
+        int Labelnumber;
         int CurrentIndex = 0;
         int LastArea = -1;
 
@@ -147,6 +148,7 @@ namespace YOLIC
                     }
 
                     LabelList = (JArray)coijsonObject["Labels"]["LabelList"];
+                    Labelnumber = LabelList.Count;
                     if (LabelList.Count > 20)
                     {
                         MessageBox.Show("Up to 20 labels!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -319,12 +321,24 @@ namespace YOLIC
             {
                 for (int y = 0; y < bitimg.Height; y++)
                 {
-                    Color color = bitimg.GetPixel(x, y);
-
-                    data[0, 0, x, y] = color.R / (float)255.0;
+                    
+                    Color color = bitimg.GetPixel(y, x);
+                    
+                    data[0, 0, x, y] = color.B / (float)255.0;
+                    
                     data[0, 1, x, y] = color.G / (float)255.0;
-                    data[0, 2, x, y] = color.B / (float)255.0;
+                    
+                    data[0, 2, x, y] = color.R / (float)255.0;
+                    
                     data[0, 3, x, y] = color.A / (float)255.0;
+                    
+                    //if (x == 110 & y == 140)
+                    //{
+                    //    Console.WriteLine(color.B);
+                    //    Console.WriteLine(color.G);
+                    //    Console.WriteLine(color.R);
+                    //    Console.WriteLine(color.A);
+                    //}
                 }
             }
             return data;
@@ -337,52 +351,8 @@ namespace YOLIC
             label8.Text = Imagename;
             label9.Text = DImagename;
             
-            
             Image OriginalImage = Image.FromFile(list_Img[CurrentIndex]);
             Image OriginalDapthImage = Image.FromFile(list_depthImg[CurrentIndex]);
-
-            if (SemiAutomatic == true)
-            {
-                Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.AnyColor);
-                Mat depth_image = Cv2.ImRead(list_depthImg[CurrentIndex], ImreadModes.AnyColor);
-                Mat[] cvd = Cv2.Split(depth_image);
-                Mat[] cvrgb = Cv2.Split(color_image);
-                Mat merged = new Mat();
-                Cv2.Merge(new Mat[] { cvrgb[0], cvrgb[1], cvrgb[2], cvd[0] }, merged);
-                Mat outimg = new Mat();
-                Cv2.Resize(merged, outimg, new OpenCvSharp.Size(224, 224));
-                string ModelName = OpenOnnx.FileName;
-                Console.WriteLine(ModelName);
-                using (var session = new InferenceSession(ModelName))
-                {
-                    Tensor<float> inputdata = ConvertImageToFloatTensor(outimg);
-                    var inputMeta = session.InputMetadata;
-                   
-                    var container = new List<NamedOnnxValue>();
-                    PrintInputMetadata(inputMeta);
-
-                    foreach (var name in inputMeta.Keys)
-                    {
-                        //var tensor = new DenseTensor<float>(, inputMeta[name].Dimensions);
-                        container.Add(NamedOnnxValue.CreateFromTensor<float>(name, inputdata));
-                    }
-
-                    using (var results = session.Run(container))  // results is an IDisposableReadOnlyCollection<DisposableNamedOnnxValue> container
-                    {
-                        // Get the results
-                        foreach (var r in results)
-                        {
-                            Console.WriteLine("Output Name: {0}", r.Name);
-                            //int prediction = MaxProbability(r.AsTensor<float>());
-                            //Console.WriteLine("Prediction: " + prediction.ToString());
-                            Console.WriteLine(r.AsTensor<float>().GetArrayString());
-                        }
-                    }
-                }
-
-                
-            }
-
 
             Image DetectedImage = cutImage(OriginalImage, new Point(0, 0), OriginalImage.Width, OriginalImage.Height);
             Image DetectedDapthImage = cutImage(OriginalDapthImage, new Point(0, 0), OriginalDapthImage.Width, OriginalDapthImage.Height);
@@ -391,7 +361,6 @@ namespace YOLIC
             pictureBox2.Image = DetectedImage;
             pictureBox3.Image = DetectedDapthImage;
 
-         
             System.Drawing.Graphics rgb = Graphics.FromImage(pictureBox2.Image);
             System.Drawing.Graphics depth = Graphics.FromImage(pictureBox3.Image);
             //Console.WriteLine(COIList.Length);
@@ -404,7 +373,100 @@ namespace YOLIC
                 }
                 
             }
+
+            if (SemiAutomatic == true)
+            {
+                Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.AnyColor);
+                Mat depth_image = Cv2.ImRead(list_depthImg[CurrentIndex], ImreadModes.AnyColor);
+                Mat[] cvd = Cv2.Split(depth_image);
+                Mat[] cvrgb = Cv2.Split(color_image);
+                Mat merged = new Mat();
+                Cv2.Merge(new Mat[] { cvrgb[0], cvrgb[1], cvrgb[2], cvd[0] }, merged);
+                Mat outimg = new Mat();
+                Cv2.Resize(merged, outimg, new OpenCvSharp.Size(224, 224));
+                //Console.WriteLine(outimg.Channels());
+                //Console.WriteLine(outimg.Get<Vec4b>(110, 140));
+                string ModelName = OpenOnnx.FileName;
+                using (var session = new InferenceSession(ModelName))
+                {
+                    Tensor<float> inputdata = ConvertImageToFloatTensor(outimg);
+                    var inputMeta = session.InputMetadata;
+                    var container = new List<NamedOnnxValue>();
+                    //PrintInputMetadata(inputMeta);
+
+                    foreach (var name in inputMeta.Keys)
+                    {
+                        container.Add(NamedOnnxValue.CreateFromTensor<float>(name, inputdata));
+                    }
+
+                    using (var results = session.Run(container))  // results is an IDisposableReadOnlyCollection<DisposableNamedOnnxValue> container
+                    {
+                        // Get the results
+                        foreach (var r in results)
+                        {
+                            //Console.WriteLine("Output Name: {0}", r.Name);
+                            int[] prediction = sigmoidup(r.AsTensor<float>());
+                            int numcell = prediction.Length / (Labelnumber + 1);
+                            //Console.WriteLine(numcell);
+                            if (numcell!= COInumber)
+                            {
+                                this.BeginInvoke((Action)(() => MessageBox.Show("Failed to get output from the model!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
+                                return;
+                            }
+                            for (int i = 0; i < currentLabel.Length; i++)
+                            {
+                                currentLabel[i] = prediction[i].ToString();
+                            }
+                            Redraw(pictureBox2.Image);
+                            //for (int i = 1, j = 0; i <= prediction.Length; i = i + Labelnumber + 1, j++)
+                            //{
+                            //    int[] cell = new int[Labelnumber+1];
+                            //    Array.Copy(prediction, i-1, cell, 0, Labelnumber + 1);
+                            //    if (cell[cell.Length-1] == 1) { continue; }
+                                
+                            //    //for(int j = 0; j < cell.Length; j++)
+                            //    //{
+                            //    //    Console.Write(cell[j]);
+                            //    //}
+                            //    //Console.WriteLine();
+
+                            //    //Console.Write(prediction[i - 1]);
+                            //    //Console.Write(" ");
+                            //    //if (i % 12 == 0)
+                            //    //{
+                            //    //    Console.WriteLine(" ");
+                            //    //}
+                            //}
+                        }
+                    }
+
+
+                }
+
+
+            }
         }
+
+        private int[] sigmoidup(Tensor<float> tensors)
+        {
+
+            int[] output = new int[tensors.Length];
+            for (int i = 0; i < tensors.Length; ++i)
+            {
+                float prob = tensors.GetValue(i);
+                if (prob <= 0)
+                {
+                    output[i] = 0;
+                }
+                else
+                {
+                    output[i] = 1;
+                }
+
+            }
+            return output;
+        }
+
         private Image cutImage(Image SrcImage, Point pos, int cutWidth, int cutHeight)
         {
 
@@ -704,6 +766,7 @@ namespace YOLIC
         {
             pictureBox2.Image = g;
             System.Drawing.Graphics rgb = Graphics.FromImage(pictureBox2.Image);
+            int opacity = 255; // 50% opaque (0 = invisible, 255 = fully opaque)
             for (int i = 0; i < COIList.Length; i++)
             {
                 string normal = "1";
@@ -718,8 +781,9 @@ namespace YOLIC
                 {
                     if (COIList[i][0].ToString().Equals("rectangle"))
                     {
-                        rgb.DrawRectangle(new Pen(Color.Blue, 1), (float)COIList[i][1] * pictureBox2.Image.Width, (float)COIList[i][2] * pictureBox2.Image.Height, (float)COIList[i][3] * pictureBox2.Image.Width, (float)COIList[i][4] * pictureBox2.Image.Height);
-                        
+                        rgb.DrawRectangle(new Pen(Color.Yellow, 2), (float)COIList[i][1] * pictureBox2.Image.Width, (float)COIList[i][2] * pictureBox2.Image.Height, (float)COIList[i][3] * pictureBox2.Image.Width, (float)COIList[i][4] * pictureBox2.Image.Height);
+                        Rectangle rect = new Rectangle((int)((float)COIList[i][1] * pictureBox2.Image.Width), (int)((float)COIList[i][2] * pictureBox2.Image.Height), (int)((float)COIList[i][3] * pictureBox2.Image.Width), (int)((float)COIList[i][4] * pictureBox2.Image.Height));
+                        rgb.DrawString("2121dsd", new Font("Arial", 8), new SolidBrush(Color.FromArgb(opacity,Color.White)), rect);
                     }
                 }
                 
@@ -743,7 +807,7 @@ namespace YOLIC
                 {
                     if (COIList[i][0].ToString().Equals("rectangle"))
                     {
-                        rgb.DrawRectangle(new Pen(Color.Blue, 1), (float)COIList[i][1] * pictureBox1.Image.Width, (float)COIList[i][2] * pictureBox1.Image.Height, (float)COIList[i][3] * pictureBox1.Image.Width, (float)COIList[i][4] * pictureBox1.Image.Height);
+                        rgb.DrawRectangle(new Pen(Color.Yellow, 2), (float)COIList[i][1] * pictureBox1.Image.Width, (float)COIList[i][2] * pictureBox1.Image.Height, (float)COIList[i][3] * pictureBox1.Image.Width, (float)COIList[i][4] * pictureBox1.Image.Height);
 
                     }
                 }
@@ -1231,6 +1295,10 @@ namespace YOLIC
                         if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
                         {
                             //Console.WriteLine(i);
+                            currentLabel[(LabelArea * (LabelList.Count + 1)) + i] = "0";
+                        }
+                        else
+                        {
                             currentLabel[(LabelArea * (LabelList.Count + 1)) + i] = "0";
                         }
                         
