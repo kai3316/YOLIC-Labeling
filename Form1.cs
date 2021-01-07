@@ -32,6 +32,7 @@ namespace YOLIC
         private readonly string logPath;
         string[] currentLabel;
         JArray LabelList;
+        JArray LabelAbbreviation;
         int COInumber;
         int Labelnumber;
         int CurrentIndex = 0;
@@ -127,6 +128,11 @@ namespace YOLIC
 
         private void button13_Click(object sender, EventArgs e)
         {
+            if (list_Img==null && list_depthImg == null)
+            {
+                MessageBox.Show("Import RGB images and Depth images first!", "Notice", MessageBoxButtons.OK);
+                return;
+            }
             OpenJson.InitialDirectory = logPath;
             OpenJson.Title = "Set COI Data";
             OpenJson.Filter = "Json files (*.json)|*.json";
@@ -148,6 +154,7 @@ namespace YOLIC
                     }
 
                     LabelList = (JArray)coijsonObject["Labels"]["LabelList"];
+                    LabelAbbreviation = (JArray)coijsonObject["Labels"]["LabelAbbreviation"];
                     Labelnumber = LabelList.Count;
                     if (LabelList.Count > 20)
                     {
@@ -161,6 +168,7 @@ namespace YOLIC
                     }
 
                     button16.Enabled = true;
+                    button22.Enabled = true;
                 }
             }
             catch (Exception)
@@ -291,7 +299,7 @@ namespace YOLIC
         {
             if (saveFile.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                button16.Enabled = true;
+                Console.WriteLine(saveFile.SelectedPath);
             }
         }
         static void PrintInputMetadata(IReadOnlyDictionary<string, NodeMetadata> inputMeta)
@@ -514,7 +522,7 @@ namespace YOLIC
             else
             {
                 SaveImage(CurrentIndex);
-
+                button15.Enabled = true;
             }
         }
 
@@ -555,6 +563,7 @@ namespace YOLIC
             {
                 button11.Enabled = true;
                 button12.Enabled = true;
+                
                 pictureBox2.Enabled = true;
                 currentLabel = new string[COIList.Length * (LabelList.Count + 1)];
                 for (int i = 0; i < currentLabel.Length; i++)
@@ -568,6 +577,7 @@ namespace YOLIC
             else
             {
                 SaveImage(CurrentIndex);
+                button17.Enabled = true;
                 //CurrentIndex++;
                 //label6.Text = "Total: " + (CurrentIndex + 1).ToString() + " / " + list_Img.Count.ToString();
                 //if (CurrentIndex == list_Img.Count)
@@ -766,15 +776,18 @@ namespace YOLIC
         {
             pictureBox2.Image = g;
             System.Drawing.Graphics rgb = Graphics.FromImage(pictureBox2.Image);
-            int opacity = 255; // 50% opaque (0 = invisible, 255 = fully opaque)
+            int opacity = 200; // 50% opaque (0 = invisible, 255 = fully opaque)
             for (int i = 0; i < COIList.Length; i++)
             {
                 string normal = "1";
+                string classlabel = "";
                 for (int j = 0; j < LabelList.Count; j++)
                 {
                     if (currentLabel[(i * (LabelList.Count + 1)) + j].Equals("1"))
                     {
                         normal = "0";
+                        classlabel += LabelAbbreviation[j].ToString()+" ";
+
                     }
                 }
                 if (normal.Equals("0"))
@@ -783,7 +796,7 @@ namespace YOLIC
                     {
                         rgb.DrawRectangle(new Pen(Color.Yellow, 2), (float)COIList[i][1] * pictureBox2.Image.Width, (float)COIList[i][2] * pictureBox2.Image.Height, (float)COIList[i][3] * pictureBox2.Image.Width, (float)COIList[i][4] * pictureBox2.Image.Height);
                         Rectangle rect = new Rectangle((int)((float)COIList[i][1] * pictureBox2.Image.Width), (int)((float)COIList[i][2] * pictureBox2.Image.Height), (int)((float)COIList[i][3] * pictureBox2.Image.Width), (int)((float)COIList[i][4] * pictureBox2.Image.Height));
-                        rgb.DrawString("2121dsd", new Font("Arial", 8), new SolidBrush(Color.FromArgb(opacity,Color.White)), rect);
+                        rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity,Color.White)), rect);
                     }
                 }
                 
@@ -795,6 +808,7 @@ namespace YOLIC
             System.Drawing.Graphics rgb = Graphics.FromImage(pictureBox1.Image);
             for (int i = 0; i < COIList.Length; i++)
             {
+
                 string normal = "1";
                 for (int j = 0; j < LabelList.Count; j++)
                 {
@@ -817,9 +831,15 @@ namespace YOLIC
 
         private void button17_Click(object sender, EventArgs e)
         {
-            string annotationpath = Path.Combine(saveFile.SelectedPath, Path.GetFileNameWithoutExtension(list_Img[CurrentIndex]) + ".txt");
-            FileInfo fi = new FileInfo(annotationpath);
-            fi.Delete();
+            try {
+                string annotationpath = Path.Combine(saveFile.SelectedPath, Path.GetFileNameWithoutExtension(list_Img[CurrentIndex]) + ".txt");
+                FileInfo fi = new FileInfo(annotationpath);
+                fi.Delete();
+                }
+            catch (Exception)
+            {
+                this.BeginInvoke((Action)(() => MessageBox.Show("Failed to delete the annotation file!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
+            }
         }
 
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
@@ -993,9 +1013,16 @@ namespace YOLIC
 
         private void button15_Click(object sender, EventArgs e)
         {
-            string annotationpath = Path.Combine(saveFile.SelectedPath, Path.GetFileNameWithoutExtension(list_Img[CurrentIndex]) + ".txt");
-            FileInfo fi = new FileInfo(annotationpath);
-            fi.Delete();
+            try
+            {
+                string annotationpath = Path.Combine(saveFile.SelectedPath, Path.GetFileNameWithoutExtension(list_Img[CurrentIndex]) + ".txt");
+                FileInfo fi = new FileInfo(annotationpath);
+                fi.Delete();
+            }
+            catch (Exception)
+            {
+                this.BeginInvoke((Action)(() => MessageBox.Show("Failed to delete the annotation file!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
+            }
         }
 
 

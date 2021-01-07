@@ -166,7 +166,7 @@
             // 
             this.button14.Enabled = false;
             this.button14.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button14.Location = new System.Drawing.Point(27, 509);
+            this.button14.Location = new System.Drawing.Point(27, 498);
             this.button14.Name = "button14";
             this.button14.Size = new System.Drawing.Size(75, 32);
             this.button14.TabIndex = 43;
@@ -176,7 +176,7 @@
             // 
             // textBox2
             // 
-            this.textBox2.Location = new System.Drawing.Point(27, 476);
+            this.textBox2.Location = new System.Drawing.Point(27, 467);
             this.textBox2.MaxLength = 10;
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(75, 25);
@@ -224,10 +224,10 @@
             this.groupBox1.Controls.Add(this.checkBox3);
             this.groupBox1.Controls.Add(this.checkBox2);
             this.groupBox1.Controls.Add(this.checkBox1);
-            this.groupBox1.Location = new System.Drawing.Point(140, 457);
+            this.groupBox1.Location = new System.Drawing.Point(122, 457);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.groupBox1.Size = new System.Drawing.Size(632, 163);
+            this.groupBox1.Size = new System.Drawing.Size(650, 163);
             this.groupBox1.TabIndex = 32;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Labels";
@@ -236,7 +236,7 @@
             // 
             this.checkBox20.AutoSize = true;
             this.checkBox20.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox20.Location = new System.Drawing.Point(519, 137);
+            this.checkBox20.Location = new System.Drawing.Point(531, 137);
             this.checkBox20.Name = "checkBox20";
             this.checkBox20.Size = new System.Drawing.Size(100, 18);
             this.checkBox20.TabIndex = 47;
@@ -248,7 +248,7 @@
             // 
             this.checkBox19.AutoSize = true;
             this.checkBox19.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox19.Location = new System.Drawing.Point(390, 137);
+            this.checkBox19.Location = new System.Drawing.Point(402, 137);
             this.checkBox19.Name = "checkBox19";
             this.checkBox19.Size = new System.Drawing.Size(100, 18);
             this.checkBox19.TabIndex = 46;
@@ -260,7 +260,7 @@
             // 
             this.checkBox18.AutoSize = true;
             this.checkBox18.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox18.Location = new System.Drawing.Point(266, 137);
+            this.checkBox18.Location = new System.Drawing.Point(278, 137);
             this.checkBox18.Name = "checkBox18";
             this.checkBox18.Size = new System.Drawing.Size(100, 18);
             this.checkBox18.TabIndex = 45;
@@ -272,7 +272,7 @@
             // 
             this.checkBox17.AutoSize = true;
             this.checkBox17.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox17.Location = new System.Drawing.Point(139, 137);
+            this.checkBox17.Location = new System.Drawing.Point(151, 137);
             this.checkBox17.Name = "checkBox17";
             this.checkBox17.Size = new System.Drawing.Size(100, 18);
             this.checkBox17.TabIndex = 44;
@@ -284,7 +284,7 @@
             // 
             this.checkBox16.AutoSize = true;
             this.checkBox16.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox16.Location = new System.Drawing.Point(9, 137);
+            this.checkBox16.Location = new System.Drawing.Point(21, 137);
             this.checkBox16.Name = "checkBox16";
             this.checkBox16.Size = new System.Drawing.Size(100, 18);
             this.checkBox16.TabIndex = 43;
@@ -296,7 +296,7 @@
             // 
             this.checkBox15.AutoSize = true;
             this.checkBox15.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox15.Location = new System.Drawing.Point(519, 102);
+            this.checkBox15.Location = new System.Drawing.Point(531, 102);
             this.checkBox15.Name = "checkBox15";
             this.checkBox15.Size = new System.Drawing.Size(100, 18);
             this.checkBox15.TabIndex = 42;
@@ -308,7 +308,7 @@
             // 
             this.checkBox14.AutoSize = true;
             this.checkBox14.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox14.Location = new System.Drawing.Point(390, 102);
+            this.checkBox14.Location = new System.Drawing.Point(402, 102);
             this.checkBox14.Name = "checkBox14";
             this.checkBox14.Size = new System.Drawing.Size(100, 18);
             this.checkBox14.TabIndex = 41;
@@ -320,7 +320,7 @@
             // 
             this.checkBox13.AutoSize = true;
             this.checkBox13.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox13.Location = new System.Drawing.Point(266, 102);
+            this.checkBox13.Location = new System.Drawing.Point(278, 102);
             this.checkBox13.Name = "checkBox13";
             this.checkBox13.Size = new System.Drawing.Size(100, 18);
             this.checkBox13.TabIndex = 40;
@@ -332,7 +332,7 @@
             // 
             this.checkBox12.AutoSize = true;
             this.checkBox12.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox12.Location = new System.Drawing.Point(139, 102);
+            this.checkBox12.Location = new System.Drawing.Point(151, 102);
             this.checkBox12.Name = "checkBox12";
             this.checkBox12.Size = new System.Drawing.Size(100, 18);
             this.checkBox12.TabIndex = 39;
@@ -344,7 +344,7 @@
             // 
             this.checkBox11.AutoSize = true;
             this.checkBox11.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox11.Location = new System.Drawing.Point(9, 102);
+            this.checkBox11.Location = new System.Drawing.Point(21, 102);
             this.checkBox11.Name = "checkBox11";
             this.checkBox11.Size = new System.Drawing.Size(100, 18);
             this.checkBox11.TabIndex = 38;
@@ -356,7 +356,7 @@
             // 
             this.checkBox10.AutoSize = true;
             this.checkBox10.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox10.Location = new System.Drawing.Point(519, 66);
+            this.checkBox10.Location = new System.Drawing.Point(531, 66);
             this.checkBox10.Name = "checkBox10";
             this.checkBox10.Size = new System.Drawing.Size(100, 18);
             this.checkBox10.TabIndex = 37;
@@ -368,7 +368,7 @@
             // 
             this.checkBox9.AutoSize = true;
             this.checkBox9.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox9.Location = new System.Drawing.Point(390, 66);
+            this.checkBox9.Location = new System.Drawing.Point(402, 66);
             this.checkBox9.Name = "checkBox9";
             this.checkBox9.Size = new System.Drawing.Size(92, 18);
             this.checkBox9.TabIndex = 36;
@@ -380,7 +380,7 @@
             // 
             this.checkBox8.AutoSize = true;
             this.checkBox8.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox8.Location = new System.Drawing.Point(266, 66);
+            this.checkBox8.Location = new System.Drawing.Point(278, 66);
             this.checkBox8.Name = "checkBox8";
             this.checkBox8.Size = new System.Drawing.Size(92, 18);
             this.checkBox8.TabIndex = 35;
@@ -392,7 +392,7 @@
             // 
             this.checkBox7.AutoSize = true;
             this.checkBox7.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox7.Location = new System.Drawing.Point(139, 66);
+            this.checkBox7.Location = new System.Drawing.Point(151, 66);
             this.checkBox7.Name = "checkBox7";
             this.checkBox7.Size = new System.Drawing.Size(92, 18);
             this.checkBox7.TabIndex = 34;
@@ -404,7 +404,7 @@
             // 
             this.checkBox6.AutoSize = true;
             this.checkBox6.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox6.Location = new System.Drawing.Point(9, 66);
+            this.checkBox6.Location = new System.Drawing.Point(21, 66);
             this.checkBox6.Name = "checkBox6";
             this.checkBox6.Size = new System.Drawing.Size(92, 18);
             this.checkBox6.TabIndex = 33;
@@ -416,7 +416,7 @@
             // 
             this.checkBox5.AutoSize = true;
             this.checkBox5.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox5.Location = new System.Drawing.Point(519, 29);
+            this.checkBox5.Location = new System.Drawing.Point(531, 29);
             this.checkBox5.Name = "checkBox5";
             this.checkBox5.Size = new System.Drawing.Size(92, 18);
             this.checkBox5.TabIndex = 32;
@@ -428,7 +428,7 @@
             // 
             this.checkBox4.AutoSize = true;
             this.checkBox4.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox4.Location = new System.Drawing.Point(390, 29);
+            this.checkBox4.Location = new System.Drawing.Point(402, 29);
             this.checkBox4.Name = "checkBox4";
             this.checkBox4.Size = new System.Drawing.Size(92, 18);
             this.checkBox4.TabIndex = 31;
@@ -440,7 +440,7 @@
             // 
             this.checkBox3.AutoSize = true;
             this.checkBox3.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox3.Location = new System.Drawing.Point(266, 29);
+            this.checkBox3.Location = new System.Drawing.Point(278, 29);
             this.checkBox3.Name = "checkBox3";
             this.checkBox3.Size = new System.Drawing.Size(92, 18);
             this.checkBox3.TabIndex = 30;
@@ -452,7 +452,7 @@
             // 
             this.checkBox2.AutoSize = true;
             this.checkBox2.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox2.Location = new System.Drawing.Point(139, 29);
+            this.checkBox2.Location = new System.Drawing.Point(151, 29);
             this.checkBox2.Name = "checkBox2";
             this.checkBox2.Size = new System.Drawing.Size(92, 18);
             this.checkBox2.TabIndex = 29;
@@ -464,7 +464,7 @@
             // 
             this.checkBox1.AutoSize = true;
             this.checkBox1.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox1.Location = new System.Drawing.Point(9, 29);
+            this.checkBox1.Location = new System.Drawing.Point(21, 29);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(92, 18);
             this.checkBox1.TabIndex = 28;
@@ -495,7 +495,7 @@
             this.button19.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button19.Location = new System.Drawing.Point(6, 388);
             this.button19.Name = "button19";
-            this.button19.Size = new System.Drawing.Size(122, 63);
+            this.button19.Size = new System.Drawing.Size(110, 63);
             this.button19.TabIndex = 29;
             this.button19.Text = "Label History";
             this.button19.UseVisualStyleBackColor = true;
@@ -503,6 +503,7 @@
             // 
             // button15
             // 
+            this.button15.Enabled = false;
             this.button15.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button15.Location = new System.Drawing.Point(892, 467);
             this.button15.Name = "button15";
@@ -528,9 +529,9 @@
             // 
             this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictureBox1.Enabled = false;
-            this.pictureBox1.Location = new System.Drawing.Point(134, 7);
+            this.pictureBox1.Location = new System.Drawing.Point(122, 7);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(860, 444);
+            this.pictureBox1.Size = new System.Drawing.Size(872, 444);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 6;
             this.pictureBox1.TabStop = false;
@@ -542,7 +543,7 @@
             this.button5.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button5.Location = new System.Drawing.Point(6, 319);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(122, 63);
+            this.button5.Size = new System.Drawing.Size(110, 63);
             this.button5.TabIndex = 4;
             this.button5.Text = "Import Configuration";
             this.button5.UseVisualStyleBackColor = true;
@@ -551,10 +552,10 @@
             // button4
             // 
             this.button4.Enabled = false;
-            this.button4.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button4.Font = new System.Drawing.Font("Verdana", 9F);
             this.button4.Location = new System.Drawing.Point(6, 223);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(122, 63);
+            this.button4.Size = new System.Drawing.Size(110, 63);
             this.button4.TabIndex = 3;
             this.button4.Text = "Previous Image";
             this.button4.UseVisualStyleBackColor = true;
@@ -566,7 +567,7 @@
             this.button3.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button3.Location = new System.Drawing.Point(6, 154);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(122, 63);
+            this.button3.Size = new System.Drawing.Size(110, 63);
             this.button3.TabIndex = 2;
             this.button3.Text = "Next Image";
             this.button3.UseVisualStyleBackColor = true;
@@ -577,7 +578,7 @@
             this.button2.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button2.Location = new System.Drawing.Point(6, 75);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(122, 63);
+            this.button2.Size = new System.Drawing.Size(110, 63);
             this.button2.TabIndex = 1;
             this.button2.Text = "Save Directory";
             this.button2.UseVisualStyleBackColor = true;
@@ -588,7 +589,7 @@
             this.button1.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button1.Location = new System.Drawing.Point(6, 6);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(122, 63);
+            this.button1.Size = new System.Drawing.Size(110, 63);
             this.button1.TabIndex = 0;
             this.button1.Text = "Open Directory";
             this.button1.UseVisualStyleBackColor = true;
@@ -630,10 +631,11 @@
             // 
             // button22
             // 
+            this.button22.Enabled = false;
             this.button22.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button22.Location = new System.Drawing.Point(6, 448);
             this.button22.Name = "button22";
-            this.button22.Size = new System.Drawing.Size(128, 60);
+            this.button22.Size = new System.Drawing.Size(116, 60);
             this.button22.TabIndex = 44;
             this.button22.Text = "Semi-automatic Mode";
             this.button22.UseVisualStyleBackColor = true;
@@ -665,7 +667,7 @@
             // 
             this.button6.Enabled = false;
             this.button6.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button6.Location = new System.Drawing.Point(33, 570);
+            this.button6.Location = new System.Drawing.Point(21, 572);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(75, 32);
             this.button6.TabIndex = 41;
@@ -675,7 +677,7 @@
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(33, 537);
+            this.textBox1.Location = new System.Drawing.Point(21, 537);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(75, 25);
             this.textBox1.TabIndex = 40;
@@ -985,7 +987,7 @@
             this.button18.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button18.Location = new System.Drawing.Point(6, 382);
             this.button18.Name = "button18";
-            this.button18.Size = new System.Drawing.Size(128, 60);
+            this.button18.Size = new System.Drawing.Size(116, 60);
             this.button18.TabIndex = 35;
             this.button18.Text = "Label History";
             this.button18.UseVisualStyleBackColor = true;
@@ -1022,6 +1024,7 @@
             // 
             // button17
             // 
+            this.button17.Enabled = false;
             this.button17.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button17.Location = new System.Drawing.Point(864, 428);
             this.button17.Name = "button17";
@@ -1046,9 +1049,9 @@
             // pictureBox3
             // 
             this.pictureBox3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pictureBox3.Location = new System.Drawing.Point(140, 317);
+            this.pictureBox3.Location = new System.Drawing.Point(128, 317);
             this.pictureBox3.Name = "pictureBox3";
-            this.pictureBox3.Size = new System.Drawing.Size(566, 305);
+            this.pictureBox3.Size = new System.Drawing.Size(578, 305);
             this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox3.TabIndex = 9;
             this.pictureBox3.TabStop = false;
@@ -1058,7 +1061,7 @@
             this.button13.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button13.Location = new System.Drawing.Point(6, 155);
             this.button13.Name = "button13";
-            this.button13.Size = new System.Drawing.Size(128, 44);
+            this.button13.Size = new System.Drawing.Size(116, 44);
             this.button13.TabIndex = 7;
             this.button13.Text = "Import Cell Configuration";
             this.button13.UseVisualStyleBackColor = true;
@@ -1070,7 +1073,7 @@
             this.button12.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button12.Location = new System.Drawing.Point(6, 288);
             this.button12.Name = "button12";
-            this.button12.Size = new System.Drawing.Size(128, 60);
+            this.button12.Size = new System.Drawing.Size(116, 60);
             this.button12.TabIndex = 6;
             this.button12.Text = "Previous Image";
             this.button12.UseVisualStyleBackColor = true;
@@ -1082,7 +1085,7 @@
             this.button11.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button11.Location = new System.Drawing.Point(6, 222);
             this.button11.Name = "button11";
-            this.button11.Size = new System.Drawing.Size(128, 60);
+            this.button11.Size = new System.Drawing.Size(116, 60);
             this.button11.TabIndex = 5;
             this.button11.Text = "Next Image";
             this.button11.UseVisualStyleBackColor = true;
@@ -1093,7 +1096,7 @@
             this.button10.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button10.Location = new System.Drawing.Point(6, 105);
             this.button10.Name = "button10";
-            this.button10.Size = new System.Drawing.Size(128, 44);
+            this.button10.Size = new System.Drawing.Size(116, 44);
             this.button10.TabIndex = 4;
             this.button10.Text = "Save Directory";
             this.button10.UseVisualStyleBackColor = true;
@@ -1104,7 +1107,7 @@
             this.button9.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button9.Location = new System.Drawing.Point(6, 55);
             this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(128, 44);
+            this.button9.Size = new System.Drawing.Size(116, 44);
             this.button9.TabIndex = 3;
             this.button9.Text = "Open Depth Directory";
             this.button9.UseVisualStyleBackColor = true;
@@ -1115,7 +1118,7 @@
             this.button8.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button8.Location = new System.Drawing.Point(6, 6);
             this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(128, 44);
+            this.button8.Size = new System.Drawing.Size(116, 44);
             this.button8.TabIndex = 2;
             this.button8.Text = "Open RGB Directory";
             this.button8.UseVisualStyleBackColor = true;
@@ -1125,16 +1128,15 @@
             // 
             this.pictureBox2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictureBox2.Enabled = false;
-            this.pictureBox2.Location = new System.Drawing.Point(140, 6);
+            this.pictureBox2.Location = new System.Drawing.Point(128, 6);
             this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(566, 305);
+            this.pictureBox2.Size = new System.Drawing.Size(578, 305);
             this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox2.TabIndex = 0;
             this.pictureBox2.TabStop = false;
             this.pictureBox2.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox2_Paint);
             this.pictureBox2.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox2_MouseClick);
             this.pictureBox2.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox2_MouseDoubleClick);
-            
             // 
             // Form1
             // 

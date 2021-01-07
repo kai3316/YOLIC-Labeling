@@ -1,6 +1,7 @@
 {
     "Labels": {
         "LabelList": [ "Bump", "Column", "Dent", "Fence", "Creature", "Vehicle", "Wall", "Weed", "Traffic Cone" ],
+        "LabelAbbreviation": [ "Bp", "Cn", "Dt", "Fe", "Ce", "Ve", "Wl", "Wd", "TC"],
         "LabelNumber": 9
     },
     "COIs": {
