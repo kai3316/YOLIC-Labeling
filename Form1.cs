@@ -37,6 +37,7 @@ namespace YOLIC
         int Labelnumber;
         int CurrentIndex = 0;
         int LastArea = -1;
+        int fullrgb = 0;
 
         JArray[] COIList;
 
@@ -376,8 +377,8 @@ namespace YOLIC
             {
                 if (COIList[i][0].ToString().Equals("rectangle"))
                 {
-                    rgb.DrawRectangle(new Pen(Color.Red, 3), (float)COIList[i][1] * pictureBox2.Image.Width, (float)COIList[i][2] * pictureBox2.Image.Height, (float)COIList[i][3] * pictureBox2.Image.Width, (float)COIList[i][4] * pictureBox2.Image.Height);
-                    depth.DrawRectangle(new Pen(Color.Red, 3), (float)COIList[i][1] * pictureBox3.Image.Width, (float)COIList[i][2] * pictureBox3.Image.Height, (float)COIList[i][3] * pictureBox3.Image.Width, (float)COIList[i][4] * pictureBox3.Image.Height);
+                    rgb.DrawRectangle(new Pen(Color.Black, 3), (float)COIList[i][1] * pictureBox2.Image.Width, (float)COIList[i][2] * pictureBox2.Image.Height, (float)COIList[i][3] * pictureBox2.Image.Width, (float)COIList[i][4] * pictureBox2.Image.Height);
+                    depth.DrawRectangle(new Pen(Color.Black, 3), (float)COIList[i][1] * pictureBox3.Image.Width, (float)COIList[i][2] * pictureBox3.Image.Height, (float)COIList[i][3] * pictureBox3.Image.Width, (float)COIList[i][4] * pictureBox3.Image.Height);
                 }
                 
             }
@@ -550,7 +551,7 @@ namespace YOLIC
             {
                 if (COIList[i][0].ToString().Equals("rectangle"))
                 {
-                    rgb.DrawRectangle(new Pen(Color.Red, 3), (float)COIList[i][1] * pictureBox1.Image.Width, (float)COIList[i][2] * pictureBox1.Image.Height, (float)COIList[i][3] * pictureBox1.Image.Width, (float)COIList[i][4] * pictureBox1.Image.Height);
+                    rgb.DrawRectangle(new Pen(Color.Black, 3), (float)COIList[i][1] * pictureBox1.Image.Width, (float)COIList[i][2] * pictureBox1.Image.Height, (float)COIList[i][3] * pictureBox1.Image.Width, (float)COIList[i][4] * pictureBox1.Image.Height);
                     
                 }
 
@@ -1334,9 +1335,9 @@ namespace YOLIC
 
                     if (LastArea != -1 && LastArea != LabelArea)
                     {
-                        Drawbox(pictureBox2.Image, LastArea, Color.Red);
+                        Drawbox(pictureBox2.Image, LastArea, Color.Black);
                     }
-                    Drawbox(pictureBox2.Image, LabelArea, Color.Red);
+                    Drawbox(pictureBox2.Image, LabelArea, Color.Black);
                     LastArea = -1;
 
                 }
@@ -1373,6 +1374,23 @@ namespace YOLIC
                 }
                 
             }
+        }
+
+        private void pictureBox3_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (fullrgb == 0)
+            {
+                pictureBox2.Size = new System.Drawing.Size(pictureBox2.Size.Width, pictureBox2.Size.Height +  pictureBox3.Size.Height/2);
+                fullrgb = 1;
+            }
+            else
+            {
+                pictureBox2.Size = new System.Drawing.Size(pictureBox2.Size.Width, pictureBox3.Size.Height);
+                fullrgb = 0;
+            }
+            
+
+       
         }
     }
 }
