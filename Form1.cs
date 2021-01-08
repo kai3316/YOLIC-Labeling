@@ -230,6 +230,7 @@ namespace YOLIC
                 {
                     list_Img = new List<string>(Directory.GetFiles(openFile_Img.SelectedPath, "*." + ImageExtension));
                     label6.Text =  list_Img.Count.ToString();
+                    button16.Text = "Start";
                     if (list_Img.Count == 0)
                     {
                         MessageBox.Show("No images under folder!", "Notice", MessageBoxButtons.OK);
@@ -777,7 +778,7 @@ namespace YOLIC
         {
             pictureBox2.Image = g;
             System.Drawing.Graphics rgb = Graphics.FromImage(pictureBox2.Image);
-            int opacity = 200; // 50% opaque (0 = invisible, 255 = fully opaque)
+            int opacity = 230; // 50% opaque (0 = invisible, 255 = fully opaque)
             for (int i = 0; i < COIList.Length; i++)
             {
                 string normal = "1";
@@ -797,7 +798,7 @@ namespace YOLIC
                     {
                         rgb.DrawRectangle(new Pen(Color.Yellow, 2), (float)COIList[i][1] * pictureBox2.Image.Width, (float)COIList[i][2] * pictureBox2.Image.Height, (float)COIList[i][3] * pictureBox2.Image.Width, (float)COIList[i][4] * pictureBox2.Image.Height);
                         Rectangle rect = new Rectangle((int)((float)COIList[i][1] * pictureBox2.Image.Width), (int)((float)COIList[i][2] * pictureBox2.Image.Height), (int)((float)COIList[i][3] * pictureBox2.Image.Width), (int)((float)COIList[i][4] * pictureBox2.Image.Height));
-                        rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity,Color.White)), rect);
+                        rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity,Color.Red)), rect);
                     }
                 }
                 
