@@ -37,6 +37,7 @@ namespace YOLIC
         int Labelnumber;
         int CurrentIndex = 0;
         int LastArea = -1;
+        int fullrgb = 0;
 
         JArray[] COIList;
 
@@ -1373,6 +1374,23 @@ namespace YOLIC
                 }
                 
             }
+        }
+
+        private void pictureBox3_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (fullrgb == 0)
+            {
+                pictureBox2.Size = new System.Drawing.Size(pictureBox2.Size.Width, pictureBox2.Size.Height +  pictureBox3.Size.Height/2);
+                fullrgb = 1;
+            }
+            else
+            {
+                pictureBox2.Size = new System.Drawing.Size(pictureBox2.Size.Width, pictureBox3.Size.Height);
+                fullrgb = 0;
+            }
+            
+
+       
         }
     }
 }
