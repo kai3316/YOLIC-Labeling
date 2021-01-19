@@ -707,7 +707,7 @@ namespace YOLIC
 
         private void button12_Click(object sender, EventArgs e)
         {
-
+            LastArea = -1;
             CurrentIndex--;
             if (CurrentIndex < 0)
             {
@@ -733,6 +733,7 @@ namespace YOLIC
 
         private void button11_Click(object sender, EventArgs e)
         {
+            CurrentIndex++;
             CurrentIndex++;
             LastArea = -1;
 
@@ -950,6 +951,7 @@ namespace YOLIC
         private void button3_Click(object sender, EventArgs e)
         {
             CurrentIndex++;
+
             LastArea = -1;
 
             if (CurrentIndex == list_Img.Count)
@@ -976,7 +978,7 @@ namespace YOLIC
                 {
                     currentLabel[i] = "0";
                 }
-                Display(CurrentIndex);
+                DisplayRGB(CurrentIndex);
             }
             //for (int i = 0, j = 1; i < LabelList.Count; i++, j++)
             //{
@@ -1287,6 +1289,7 @@ namespace YOLIC
                     }
                     Drawbox(pictureBox2.Image, LabelArea, Color.White);
                     LastArea = LabelArea;
+
                 }
             }
         }
