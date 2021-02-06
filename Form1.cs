@@ -170,6 +170,7 @@ namespace YOLIC
                     }
 
                     button16.Enabled = true;
+                    button17.Enabled = true;
                     button22.Enabled = true;
                 }
             }
@@ -601,7 +602,6 @@ namespace YOLIC
             else
             {
                 SaveImage(CurrentIndex);
-                button17.Enabled = true;
                 //CurrentIndex++;
                 //label6.Text = "Total: " + (CurrentIndex + 1).ToString() + " / " + list_Img.Count.ToString();
                 //if (CurrentIndex == list_Img.Count)
@@ -861,15 +861,22 @@ namespace YOLIC
 
         private void button17_Click(object sender, EventArgs e)
         {
-            try {
+
+            for (int i = 0; i < currentLabel.Length; i++)
+            {
+                currentLabel[i] = "0";
+            }
+            Display(CurrentIndex);
+
+            if (File.Exists(Path.Combine(saveFile.SelectedPath, Path.GetFileNameWithoutExtension(list_Img[CurrentIndex]) + ".txt")) == true)
+            {
                 string annotationpath = Path.Combine(saveFile.SelectedPath, Path.GetFileNameWithoutExtension(list_Img[CurrentIndex]) + ".txt");
                 FileInfo fi = new FileInfo(annotationpath);
                 fi.Delete();
-                }
-            catch (Exception)
-            {
-                this.BeginInvoke((Action)(() => MessageBox.Show("Failed to delete the annotation file!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
             }
+                
+                
+            
         }
 
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
