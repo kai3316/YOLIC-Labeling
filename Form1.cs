@@ -19,6 +19,7 @@ namespace YOLIC
     {
         Boolean KeepHistory = false;
         Boolean SemiAutomatic = false;
+        Boolean CheckMode = false;
         string ImageExtension = "png";
         private List<string> list_Img;
         private List<string> list_depthImg;
@@ -455,6 +456,27 @@ namespace YOLIC
 
 
             }
+            if(CheckMode == true)
+            {
+                string NameWithoutExtension = Path.GetFileNameWithoutExtension(list_Img[currentIndex]);
+                //Console.WriteLine(Path.Combine(saveFile.SelectedPath,NameWithoutExtension + ".txt"));
+                if (File.Exists(Path.Combine(saveFile.SelectedPath,NameWithoutExtension + ".txt")) == true)
+                {
+                   
+                    StreamReader rd = File.OpenText(Path.Combine(saveFile.SelectedPath, NameWithoutExtension + ".txt"));
+                    string s = rd.ReadLine();
+                    string [] currentLabelFormTxt  = s.Split(' ');
+                    for (int i = 0; i < currentLabel.Length; i++)
+                    {
+                        currentLabel[i] = currentLabelFormTxt[i];
+                    }
+                    //Console.WriteLine(currentLabel.Length);
+                    Redraw(pictureBox2.Image);
+
+                    rd.Close();
+                }
+                
+            }
         }
 
         private int[] sigmoidup(Tensor<float> tensors)
@@ -733,6 +755,11 @@ namespace YOLIC
 
         private void button11_Click(object sender, EventArgs e)
         {
+            if (checkBox41.Checked == true)
+            {
+                SaveImage(CurrentIndex);
+            }
+
             CurrentIndex++;
             LastArea = -1;
 
@@ -771,7 +798,8 @@ namespace YOLIC
             //{
             //    currentLabel[i] = "0";
             //}
-            
+
+                
         }
 
         private void Redraw(Image g)
@@ -1394,6 +1422,20 @@ namespace YOLIC
             
 
        
+        }
+
+        private void button23_Click(object sender, EventArgs e)
+        {
+            if (CheckMode == true)
+            {
+                CheckMode = false;
+                button23.Text = "Check Mode OFF";
+            }
+            else
+            {
+                CheckMode = true;
+                button23.Text = "Check Mode ON";
+            }
         }
     }
 }
