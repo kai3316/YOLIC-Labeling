@@ -369,7 +369,11 @@ namespace YOLIC
             string DImagename = Path.GetFileName(list_depthImg[currentIndex]);
             label8.Text = Imagename;
             label9.Text = DImagename;
-            
+            if (!Imagename.Equals(DImagename))
+            {
+                MessageBox.Show("Unable find the corresponding rgb or depth images!", "Notice", MessageBoxButtons.OK);
+                return;
+            }
             Image OriginalImage = Image.FromFile(list_Img[CurrentIndex]);
             Image OriginalDapthImage = Image.FromFile(list_depthImg[CurrentIndex]);
 
