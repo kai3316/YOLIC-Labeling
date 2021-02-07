@@ -39,6 +39,13 @@ namespace YOLIC
         int CurrentIndex = 0;
         int LastArea = -1;
         int fullrgb = 0;
+        Color[] colorslist = new Color[]{Color.FromArgb(0,255,0), Color.FromArgb(138,151,123), Color.FromArgb(244,208,0),
+                              Color.FromArgb(87,96,105), Color.FromArgb(220,87,18), Color.FromArgb(230,180,80),
+                              Color.FromArgb(255,0,255), Color.FromArgb(40,110,105), Color.FromArgb(243,244,246),
+                               Color.FromArgb(50,60,246), Color.FromArgb(243,50,100), Color.FromArgb(153, 163, 112),
+                               Color.FromArgb(91, 97, 67), Color.FromArgb(210, 224, 155), Color.FromArgb(222, 237, 164),
+                               Color.FromArgb(243,50,100), Color.FromArgb(112, 163, 153),Color.FromArgb(67, 97, 91), 
+                               Color.FromArgb(155, 224, 210), Color.FromArgb(164, 237, 222)};
 
         JArray[] COIList;
 
@@ -279,7 +286,7 @@ namespace YOLIC
                     label7.Text = list_Img.Count.ToString();
                     if (list_Img.Count == 0)
                     {
-                        MessageBox.Show("No images under folder!", "Notice", MessageBoxButtons.OK);
+                        MessageBox.Show("No images under this folder!", "Notice", MessageBoxButtons.OK);
                         return;
                     }
 
@@ -809,6 +816,7 @@ namespace YOLIC
             int opacity = 255; // 50% opaque (0 = invisible, 255 = fully opaque)
             for (int i = 0; i < COIList.Length; i++)
             {
+                int colorindex = 0;
                 string normal = "1";
                 string classlabel = "";
                 for (int j = 0; j < LabelList.Count; j++)
@@ -816,6 +824,7 @@ namespace YOLIC
                     if (currentLabel[(i * (LabelList.Count + 1)) + j].Equals("1"))
                     {
                         normal = "0";
+                        colorindex = j;
                         classlabel += LabelAbbreviation[j].ToString()+" ";
 
                     }
@@ -824,7 +833,7 @@ namespace YOLIC
                 {
                     if (COIList[i][0].ToString().Equals("rectangle"))
                     {
-                        rgb.DrawRectangle(new Pen(Color.Green, 2), (float)COIList[i][1] * pictureBox2.Image.Width, (float)COIList[i][2] * pictureBox2.Image.Height, (float)COIList[i][3] * pictureBox2.Image.Width, (float)COIList[i][4] * pictureBox2.Image.Height);
+                        rgb.DrawRectangle(new Pen(colorslist[colorindex], 2), (float)COIList[i][1] * pictureBox2.Image.Width, (float)COIList[i][2] * pictureBox2.Image.Height, (float)COIList[i][3] * pictureBox2.Image.Width, (float)COIList[i][4] * pictureBox2.Image.Height);
                         Rectangle rect = new Rectangle((int)((float)COIList[i][1] * pictureBox2.Image.Width), (int)((float)COIList[i][2] * pictureBox2.Image.Height), (int)((float)COIList[i][3] * pictureBox2.Image.Width), (int)((float)COIList[i][4] * pictureBox2.Image.Height));
                         rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity,Color.Yellow)), rect);
                     }
