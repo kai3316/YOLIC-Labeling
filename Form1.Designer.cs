@@ -68,6 +68,7 @@
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.button23 = new System.Windows.Forms.Button();
             this.checkBox41 = new System.Windows.Forms.CheckBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.button22 = new System.Windows.Forms.Button();
@@ -112,7 +113,7 @@
             this.button10 = new System.Windows.Forms.Button();
             this.button9 = new System.Windows.Forms.Button();
             this.button8 = new System.Windows.Forms.Button();
-            this.button23 = new System.Windows.Forms.Button();
+            this.label11 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -633,6 +634,17 @@
             this.tabPage2.Text = "RGBD Labeling Mode";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // button23
+            // 
+            this.button23.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button23.Location = new System.Drawing.Point(6, 363);
+            this.button23.Name = "button23";
+            this.button23.Size = new System.Drawing.Size(116, 43);
+            this.button23.TabIndex = 46;
+            this.button23.Text = "Check Mode";
+            this.button23.UseVisualStyleBackColor = true;
+            this.button23.Click += new System.EventHandler(this.button23_Click);
+            // 
             // checkBox41
             // 
             this.checkBox41.AutoSize = true;
@@ -744,6 +756,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.label11);
             this.groupBox2.Controls.Add(this.checkBox40);
             this.groupBox2.Controls.Add(this.checkBox39);
             this.groupBox2.Controls.Add(this.checkBox38);
@@ -1154,16 +1167,15 @@
             this.button8.UseVisualStyleBackColor = true;
             this.button8.Click += new System.EventHandler(this.button8_Click);
             // 
-            // button23
+            // label11
             // 
-            this.button23.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button23.Location = new System.Drawing.Point(6, 363);
-            this.button23.Name = "button23";
-            this.button23.Size = new System.Drawing.Size(116, 43);
-            this.button23.TabIndex = 46;
-            this.button23.Text = "Check Mode";
-            this.button23.UseVisualStyleBackColor = true;
-            this.button23.Click += new System.EventHandler(this.button23_Click);
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(6, 0);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(113, 17);
+            this.label11.TabIndex = 51;
+            this.label11.Text = "                     ";
+            this.label11.DoubleClick += new System.EventHandler(this.label11_DoubleClick);
             // 
             // Form1
             // 
@@ -1277,6 +1289,7 @@
         private System.Windows.Forms.Button button22;
         private System.Windows.Forms.CheckBox checkBox41;
         private System.Windows.Forms.Button button23;
+        private System.Windows.Forms.Label label11;
     }
 }
 

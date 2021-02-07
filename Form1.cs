@@ -39,10 +39,10 @@ namespace YOLIC
         int CurrentIndex = 0;
         int LastArea = -1;
         int fullrgb = 0;
-        Color[] colorslist = new Color[]{Color.FromArgb(0,255,0), Color.FromArgb(138,151,123), Color.FromArgb(244,208,0),
+        Color[] colorslist = new Color[]{Color.FromArgb(0,255,0), Color.FromArgb(138,244,123), Color.FromArgb(244,0,10),
                               Color.FromArgb(87,96,105), Color.FromArgb(220,87,18), Color.FromArgb(230,180,80),
                               Color.FromArgb(255,0,255), Color.FromArgb(40,110,105), Color.FromArgb(243,244,246),
-                               Color.FromArgb(50,60,246), Color.FromArgb(243,50,100), Color.FromArgb(153, 163, 112),
+                               Color.FromArgb(50,60,246), Color.FromArgb(243,10,100), Color.FromArgb(153, 163, 112),
                                Color.FromArgb(91, 97, 67), Color.FromArgb(210, 224, 155), Color.FromArgb(222, 237, 164),
                                Color.FromArgb(243,50,100), Color.FromArgb(112, 163, 153),Color.FromArgb(67, 97, 91), 
                                Color.FromArgb(155, 224, 210), Color.FromArgb(164, 237, 222)};
@@ -785,11 +785,11 @@ namespace YOLIC
             }
             else
             {
-                for (int i = 0, j = 21; i < LabelList.Count; i++, j++)
-                {
-                    ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked = false;
+                //for (int i = 0, j = 21; i < LabelList.Count; i++, j++)
+                //{
+                //    ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked = false;
 
-                }
+                //}
                 for (int i = 0; i < currentLabel.Length; i++)
                 {
                     currentLabel[i] = "0";
@@ -1204,7 +1204,7 @@ namespace YOLIC
             {
                 System.Drawing.Graphics g = Graphics.FromImage(pictureBox2.Image);
                 //var g = e.Graphics;
-                g.DrawPolygon(Pens.White, dat2.ToArray());
+                
 
                 for (int i = 0; i < COIList.Length; i++)
                 {
@@ -1217,6 +1217,8 @@ namespace YOLIC
                             {
                                 if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
                                 {
+                                    Pen p = new Pen(colorslist[ii],3);
+                                    g.DrawPolygon(p, dat2.ToArray());
                                     //Console.WriteLine(i);
                                     currentLabel[(i * (LabelList.Count + 1)) + ii] = "1";
                                 }
@@ -1452,6 +1454,19 @@ namespace YOLIC
                 CheckMode = true;
                 button23.Text = "Check Mode ON";
             }
+        }
+
+        private void label11_DoubleClick(object sender, EventArgs e)
+        {
+            if(LabelList!= null)
+            {
+                for (int i = 0, j = 21; i < LabelList.Count; i++, j++)
+                {
+                    ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked = false;
+
+                }
+            }
+
         }
     }
 }
