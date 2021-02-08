@@ -41,7 +41,7 @@ namespace YOLIC
         int fullrgb = 0;
         Color[] colorslist = new Color[]{Color.FromArgb(0,255,0), Color.FromArgb(138,244,123), Color.FromArgb(244,0,10),
                               Color.FromArgb(87,96,105), Color.FromArgb(220,87,18), Color.FromArgb(230,180,80),
-                              Color.FromArgb(255,0,255), Color.FromArgb(40,110,105), Color.FromArgb(243,244,246),
+                              Color.FromArgb(255,0,255), Color.FromArgb(40,110,105), Color.FromArgb(0,0,0),
                                Color.FromArgb(50,60,246), Color.FromArgb(243,10,100), Color.FromArgb(153, 163, 112),
                                Color.FromArgb(91, 97, 67), Color.FromArgb(210, 224, 155), Color.FromArgb(222, 237, 164),
                                Color.FromArgb(243,50,100), Color.FromArgb(112, 163, 153),Color.FromArgb(67, 97, 91), 
@@ -174,6 +174,7 @@ namespace YOLIC
                     {
                         ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Visible = true;
                         ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Text = LabelList[i].ToString();
+                        ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).ForeColor = colorslist[i];
                     }
 
                     button16.Enabled = true;
@@ -343,11 +344,11 @@ namespace YOLIC
                     
                     Color color = bitimg.GetPixel(y, x);
                     
-                    data[0, 0, x, y] = color.B / (float)255.0;
+                    data[0, 0, x, y] = color.R / (float)255.0;
                     
                     data[0, 1, x, y] = color.G / (float)255.0;
                     
-                    data[0, 2, x, y] = color.R / (float)255.0;
+                    data[0, 2, x, y] = color.B / (float)255.0;
                     
                     data[0, 3, x, y] = color.A / (float)255.0;
                     
@@ -478,14 +479,25 @@ namespace YOLIC
                     StreamReader rd = File.OpenText(Path.Combine(saveFile.SelectedPath, NameWithoutExtension + ".txt"));
                     string s = rd.ReadLine();
                     string [] currentLabelFormTxt  = s.Split(' ');
-                    for (int i = 0; i < currentLabel.Length; i++)
+                    Console.WriteLine(currentLabelFormTxt.Length);
+                    Console.WriteLine(currentLabel.Length);
+                    if (currentLabelFormTxt.Length-1 != currentLabel.Length)
                     {
-                        currentLabel[i] = currentLabelFormTxt[i];
+                        Console.WriteLine(currentLabelFormTxt.Length);
+                        Console.WriteLine(currentLabel.Length);
                     }
-                    //Console.WriteLine(currentLabel.Length);
-                    Redraw(pictureBox2.Image);
+                    else
+                    {
+                        for (int i = 0; i < currentLabel.Length; i++)
+                        {
+                            currentLabel[i] = currentLabelFormTxt[i];
+                        }
+                        //Console.WriteLine(currentLabel.Length);
+                        Redraw(pictureBox2.Image);
 
-                    rd.Close();
+                        rd.Close();
+                    }
+                    
                 }
                 
             }
@@ -874,21 +886,19 @@ namespace YOLIC
 
         private void button17_Click(object sender, EventArgs e)
         {
-
-            for (int i = 0; i < currentLabel.Length; i++)
-            {
-                currentLabel[i] = "0";
-            }
-            Display(CurrentIndex);
-
             if (File.Exists(Path.Combine(saveFile.SelectedPath, Path.GetFileNameWithoutExtension(list_Img[CurrentIndex]) + ".txt")) == true)
             {
                 string annotationpath = Path.Combine(saveFile.SelectedPath, Path.GetFileNameWithoutExtension(list_Img[CurrentIndex]) + ".txt");
                 FileInfo fi = new FileInfo(annotationpath);
                 fi.Delete();
             }
-                
-                
+
+            for (int i = 0; i < currentLabel.Length; i++)
+            {
+                currentLabel[i] = "0";
+            }
+            Display(CurrentIndex);
+  
             
         }
 
@@ -1329,15 +1339,17 @@ namespace YOLIC
                         {
                             //Console.WriteLine(i);
                             currentLabel[(LabelArea * (LabelList.Count + 1)) + i] = "1";
+
+                            if (LastArea != -1 && LastArea != LabelArea)
+                            {
+                                Drawbox(pictureBox2.Image, LastArea, Color.Blue);
+                            }
+                            Drawbox(pictureBox2.Image, LabelArea, Color.White);
+                            LastArea = LabelArea;
                         }
 
                     }
-                    if (LastArea != -1 && LastArea != LabelArea)
-                    {
-                        Drawbox(pictureBox2.Image, LastArea, Color.Blue);
-                    }
-                    Drawbox(pictureBox2.Image, LabelArea, Color.White);
-                    LastArea = LabelArea;
+
 
                 }
             }
