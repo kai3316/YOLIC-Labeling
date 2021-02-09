@@ -436,8 +436,8 @@ namespace YOLIC
 
             if (SemiAutomatic == true)
             {
-                Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.AnyColor);
-                Mat depth_image = Cv2.ImRead(list_depthImg[CurrentIndex], ImreadModes.AnyColor);
+                Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.Color);
+                Mat depth_image = Cv2.ImRead(list_depthImg[CurrentIndex], ImreadModes.Color);
                 Mat[] cvd = Cv2.Split(depth_image);
                 Mat[] cvrgb = Cv2.Split(color_image);
                 Mat merged = new Mat();
@@ -648,7 +648,7 @@ namespace YOLIC
             }
             if (SemiAutomatic == true)
             {
-                Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.AnyColor);
+                Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.Color);
 
 
 
@@ -666,7 +666,7 @@ namespace YOLIC
                     Mat outimg = new Mat();
 
                     //PrintInputMetadata(inputMeta);
-                    Tensor<float> inputdata = ConvertImageToFloatTensor(outimg, 1);
+                    
                     foreach (var name in inputMeta.Keys)
                     {
                         Console.WriteLine(": " + inputMeta[name].Dimensions.Length);
@@ -676,6 +676,7 @@ namespace YOLIC
                             return;
                         }
                         Cv2.Resize(merged, outimg, new OpenCvSharp.Size(inputMeta[name].Dimensions[2], inputMeta[name].Dimensions[3]));
+                        Tensor<float> inputdata = ConvertImageToFloatTensor(outimg, 1);
                         container.Add(NamedOnnxValue.CreateFromTensor<float>(name, inputdata));
                     }
 
