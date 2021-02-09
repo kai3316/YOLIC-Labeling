@@ -41,7 +41,7 @@ namespace YOLIC
         int fullrgb = 0;
         Color[] colorslist = new Color[]{Color.FromArgb(0,255,0), Color.FromArgb(138,244,123), Color.FromArgb(244,0,10),
                               Color.FromArgb(87,96,105), Color.FromArgb(220,87,18), Color.FromArgb(230,180,80),
-                              Color.FromArgb(255,0,255), Color.FromArgb(40,110,105), Color.FromArgb(0,0,0),
+                              Color.FromArgb(255,0,255), Color.FromArgb(40,110,105), Color.FromArgb(10,0,0),
                                Color.FromArgb(50,60,246), Color.FromArgb(243,10,100), Color.FromArgb(153, 163, 112),
                                Color.FromArgb(91, 97, 67), Color.FromArgb(210, 224, 155), Color.FromArgb(222, 237, 164),
                                Color.FromArgb(243,50,100), Color.FromArgb(112, 163, 153),Color.FromArgb(67, 97, 91), 
@@ -211,6 +211,7 @@ namespace YOLIC
                     }
 
                     LabelList = (JArray)coijsonObject["Labels"]["LabelList"];
+                    LabelAbbreviation = (JArray)coijsonObject["Labels"]["LabelAbbreviation"];
                     if (LabelList.Count > 20)
                     {
                         MessageBox.Show("Up to 20 labels!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -223,6 +224,7 @@ namespace YOLIC
                     }
 
                     button7.Enabled = true;
+                    button25.Enabled = true;
                 }
             }
             catch (Exception)
@@ -332,36 +334,70 @@ namespace YOLIC
 
         }
 
-        public Tensor<float> ConvertImageToFloatTensor(Mat image)
+        public Tensor<float> ConvertImageToFloatTensor(Mat image,int mode)
         {
-            Tensor<float> data = new DenseTensor<float>(new[] { 1, 4, image.Width, image.Height  });
-            Bitmap bitimg = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(image);
-
-            for (int x = 0; x < bitimg.Width; x++)
+            if (mode == 0)
             {
-                for (int y = 0; y < bitimg.Height; y++)
+                Tensor<float> data = new DenseTensor<float>(new[] { 1, 4, image.Width, image.Height });
+                Bitmap bitimg = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(image);
+
+                for (int x = 0; x < bitimg.Width; x++)
                 {
-                    
-                    Color color = bitimg.GetPixel(y, x);
-                    
-                    data[0, 0, x, y] = color.R / (float)255.0;
-                    
-                    data[0, 1, x, y] = color.G / (float)255.0;
-                    
-                    data[0, 2, x, y] = color.B / (float)255.0;
-                    
-                    data[0, 3, x, y] = color.A / (float)255.0;
-                    
-                    //if (x == 110 & y == 140)
-                    //{
-                    //    Console.WriteLine(color.B);
-                    //    Console.WriteLine(color.G);
-                    //    Console.WriteLine(color.R);
-                    //    Console.WriteLine(color.A);
-                    //}
+                    for (int y = 0; y < bitimg.Height; y++)
+                    {
+
+                        Color color = bitimg.GetPixel(y, x);
+
+                        data[0, 0, x, y] = color.R / (float)255.0;
+
+                        data[0, 1, x, y] = color.G / (float)255.0;
+
+                        data[0, 2, x, y] = color.B / (float)255.0;
+
+                        data[0, 3, x, y] = color.A / (float)255.0;
+
+                        //if (x == 110 & y == 140)
+                        //{
+                        //    Console.WriteLine(color.B);
+                        //    Console.WriteLine(color.G);
+                        //    Console.WriteLine(color.R);
+                        //    Console.WriteLine(color.A);
+                        //}
+                    }
                 }
+                return data;
             }
-            return data;
+            else
+            {
+                Tensor<float> data = new DenseTensor<float>(new[] { 1, 3, image.Width, image.Height });
+                Bitmap bitimg = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(image);
+
+                for (int x = 0; x < bitimg.Width; x++)
+                {
+                    for (int y = 0; y < bitimg.Height; y++)
+                    {
+
+                        Color color = bitimg.GetPixel(y, x);
+
+                        data[0, 0, x, y] = color.R / (float)255.0;
+
+                        data[0, 1, x, y] = color.G / (float)255.0;
+
+                        data[0, 2, x, y] = color.B / (float)255.0;
+
+
+                        //if (x == 110 & y == 140)
+                        //{
+                        //    Console.WriteLine(color.B);
+                        //    Console.WriteLine(color.G);
+                        //    Console.WriteLine(color.R);
+                        //    Console.WriteLine(color.A);
+                        //}
+                    }
+                }
+                return data;
+            }
+            
         }
         private void Display(int currentIndex)
         {
@@ -405,21 +441,29 @@ namespace YOLIC
                 Mat[] cvd = Cv2.Split(depth_image);
                 Mat[] cvrgb = Cv2.Split(color_image);
                 Mat merged = new Mat();
-                Cv2.Merge(new Mat[] { cvrgb[0], cvrgb[1], cvrgb[2], cvd[0] }, merged);
+                Cv2.Merge(new Mat[] { cvrgb[2], cvrgb[1], cvrgb[0], cvd[0] }, merged);
                 Mat outimg = new Mat();
-                Cv2.Resize(merged, outimg, new OpenCvSharp.Size(224, 224));
+                
                 //Console.WriteLine(outimg.Channels());
                 //Console.WriteLine(outimg.Get<Vec4b>(110, 140));
                 string ModelName = OpenOnnx.FileName;
                 using (var session = new InferenceSession(ModelName))
                 {
-                    Tensor<float> inputdata = ConvertImageToFloatTensor(outimg);
+                    
                     var inputMeta = session.InputMetadata;
                     var container = new List<NamedOnnxValue>();
                     //PrintInputMetadata(inputMeta);
 
                     foreach (var name in inputMeta.Keys)
                     {
+                        Console.WriteLine("Dimension Length: " + inputMeta[name].Dimensions.Length);
+                        if (inputMeta[name].Dimensions.Length != 4)
+                        {
+                            MessageBox.Show("Unable match the RGBD Dimensions!", "Notice", MessageBoxButtons.OK);
+                            return;
+                        }
+                        Cv2.Resize(merged, outimg, new OpenCvSharp.Size(inputMeta[name].Dimensions[2], inputMeta[name].Dimensions[3]));
+                        Tensor<float> inputdata = ConvertImageToFloatTensor(outimg, 0);
                         container.Add(NamedOnnxValue.CreateFromTensor<float>(name, inputdata));
                     }
 
@@ -479,8 +523,7 @@ namespace YOLIC
                     StreamReader rd = File.OpenText(Path.Combine(saveFile.SelectedPath, NameWithoutExtension + ".txt"));
                     string s = rd.ReadLine();
                     string [] currentLabelFormTxt  = s.Split(' ');
-                    Console.WriteLine(currentLabelFormTxt.Length);
-                    Console.WriteLine(currentLabel.Length);
+
                     if (currentLabelFormTxt.Length-1 != currentLabel.Length)
                     {
                         Console.WriteLine(currentLabelFormTxt.Length);
@@ -603,6 +646,117 @@ namespace YOLIC
                 }
 
             }
+            if (SemiAutomatic == true)
+            {
+                Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.AnyColor);
+
+
+
+                //Console.WriteLine(outimg.Channels());
+                //Console.WriteLine(outimg.Get<Vec4b>(110, 140));
+                string ModelName = OpenOnnx.FileName;
+                using (var session = new InferenceSession(ModelName))
+                {
+                    
+                    var inputMeta = session.InputMetadata;
+                    var container = new List<NamedOnnxValue>();
+                    Mat[] cvrgb = Cv2.Split(color_image);
+                    Mat merged = new Mat();
+                    Cv2.Merge(new Mat[] { cvrgb[2], cvrgb[1], cvrgb[0] }, merged);
+                    Mat outimg = new Mat();
+
+                    //PrintInputMetadata(inputMeta);
+                    Tensor<float> inputdata = ConvertImageToFloatTensor(outimg, 1);
+                    foreach (var name in inputMeta.Keys)
+                    {
+                        Console.WriteLine(": " + inputMeta[name].Dimensions.Length);
+                        if (inputMeta[name].Dimensions.Length != 3)
+                        {
+                            MessageBox.Show("Model unable match the RGB image dimensions!", "Notice", MessageBoxButtons.OK);
+                            return;
+                        }
+                        Cv2.Resize(merged, outimg, new OpenCvSharp.Size(inputMeta[name].Dimensions[2], inputMeta[name].Dimensions[3]));
+                        container.Add(NamedOnnxValue.CreateFromTensor<float>(name, inputdata));
+                    }
+
+                    using (var results = session.Run(container))  // results is an IDisposableReadOnlyCollection<DisposableNamedOnnxValue> container
+                    {
+                        // Get the results
+                        foreach (var r in results)
+                        {
+                            //Console.WriteLine("Output Name: {0}", r.Name);
+                            int[] prediction = sigmoidup(r.AsTensor<float>());
+                            int numcell = prediction.Length / (Labelnumber + 1);
+                            //Console.WriteLine(numcell);
+                            if (numcell != COInumber)
+                            {
+                                this.BeginInvoke((Action)(() => MessageBox.Show("Failed to get output from the model!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
+                                return;
+                            }
+                            for (int i = 0; i < currentLabel.Length; i++)
+                            {
+                                currentLabel[i] = prediction[i].ToString();
+                            }
+                            RedrawR(pictureBox1.Image);
+                            //for (int i = 1, j = 0; i <= prediction.Length; i = i + Labelnumber + 1, j++)
+                            //{
+                            //    int[] cell = new int[Labelnumber+1];
+                            //    Array.Copy(prediction, i-1, cell, 0, Labelnumber + 1);
+                            //    if (cell[cell.Length-1] == 1) { continue; }
+
+                            //    //for(int j = 0; j < cell.Length; j++)
+                            //    //{
+                            //    //    Console.Write(cell[j]);
+                            //    //}
+                            //    //Console.WriteLine();
+
+                            //    //Console.Write(prediction[i - 1]);
+                            //    //Console.Write(" ");
+                            //    //if (i % 12 == 0)
+                            //    //{
+                            //    //    Console.WriteLine(" ");
+                            //    //}
+                            //}
+                        }
+                    }
+
+
+                }
+
+
+            }
+            if (CheckMode == true)
+            {
+                string NameWithoutExtension = Path.GetFileNameWithoutExtension(list_Img[currentIndex]);
+                //Console.WriteLine(Path.Combine(saveFile.SelectedPath,NameWithoutExtension + ".txt"));
+                if (File.Exists(Path.Combine(saveFile.SelectedPath, NameWithoutExtension + ".txt")) == true)
+                {
+
+                    StreamReader rd = File.OpenText(Path.Combine(saveFile.SelectedPath, NameWithoutExtension + ".txt"));
+                    string s = rd.ReadLine();
+                    string[] currentLabelFormTxt = s.Split(' ');
+
+                    if (currentLabelFormTxt.Length - 1 != currentLabel.Length)
+                    {
+                        Console.WriteLine(currentLabelFormTxt.Length);
+                        Console.WriteLine(currentLabel.Length);
+                    }
+                    else
+                    {
+                        for (int i = 0; i < currentLabel.Length; i++)
+                        {
+                            currentLabel[i] = currentLabelFormTxt[i];
+                        }
+                        //Console.WriteLine(currentLabel.Length);
+                        RedrawR(pictureBox1.Image);
+
+                        rd.Close();
+                    }
+
+                }
+
+            }
+
         }
 
         private void button16_Click(object sender, EventArgs e)
@@ -861,23 +1015,28 @@ namespace YOLIC
         {
             pictureBox1.Image = g;
             System.Drawing.Graphics rgb = Graphics.FromImage(pictureBox1.Image);
+            int opacity = 255; // 50% opaque (0 = invisible, 255 = fully opaque)
             for (int i = 0; i < COIList.Length; i++)
             {
-
+                int colorindex = 0;
                 string normal = "1";
+                string classlabel = "";
                 for (int j = 0; j < LabelList.Count; j++)
                 {
                     if (currentLabel[(i * (LabelList.Count + 1)) + j].Equals("1"))
                     {
                         normal = "0";
+                        colorindex = j;
+                        classlabel += LabelAbbreviation[j].ToString() + " ";
                     }
                 }
                 if (normal.Equals("0"))
                 {
                     if (COIList[i][0].ToString().Equals("rectangle"))
                     {
-                        rgb.DrawRectangle(new Pen(Color.Yellow, 2), (float)COIList[i][1] * pictureBox1.Image.Width, (float)COIList[i][2] * pictureBox1.Image.Height, (float)COIList[i][3] * pictureBox1.Image.Width, (float)COIList[i][4] * pictureBox1.Image.Height);
-
+                        rgb.DrawRectangle(new Pen(colorslist[colorindex], 2), (float)COIList[i][1] * pictureBox1.Image.Width, (float)COIList[i][2] * pictureBox1.Image.Height, (float)COIList[i][3] * pictureBox1.Image.Width, (float)COIList[i][4] * pictureBox1.Image.Height);
+                        Rectangle rect = new Rectangle((int)((float)COIList[i][1] * pictureBox1.Image.Width), (int)((float)COIList[i][2] * pictureBox1.Image.Height), (int)((float)COIList[i][3] * pictureBox1.Image.Width), (int)((float)COIList[i][4] * pictureBox1.Image.Height));
+                        rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), rect);
                     }
                 }
 
@@ -997,9 +1156,9 @@ namespace YOLIC
 
                 if (LastArea != -1 && LastArea != LabelArea)
                 {
-                    DrawboxRGB(pictureBox1.Image, LastArea, Color.Red);
+                    DrawboxRGB(pictureBox1.Image, LastArea, Color.Black);
                 }
-                DrawboxRGB(pictureBox1.Image, LabelArea, Color.Red);
+                DrawboxRGB(pictureBox1.Image, LabelArea, Color.Black);
                 LastArea = -1;
 
             }
@@ -1007,6 +1166,10 @@ namespace YOLIC
 
         private void button3_Click(object sender, EventArgs e)
         {
+            if (checkBox42.Checked == true)
+            {
+                SaveImage(CurrentIndex);
+            }
             CurrentIndex++;
 
             LastArea = -1;
@@ -1026,11 +1189,7 @@ namespace YOLIC
             }
             else
             {
-                for (int i = 0, j = 21; i < LabelList.Count; i++, j++)
-                {
-                    ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked = false;
-
-                }
+                
                 for (int i = 0; i < currentLabel.Length; i++)
                 {
                     currentLabel[i] = "0";
@@ -1059,11 +1218,11 @@ namespace YOLIC
                 return;
             }
             label7.Text = (CurrentIndex + 1).ToString() + " / " + list_Img.Count.ToString();
-            for (int i = 0, j = 1; i < LabelList.Count; i++, j++)
-            {
-                ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked = false;
+            //for (int i = 0, j = 1; i < LabelList.Count; i++, j++)
+            //{
+            //    ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked = false;
 
-            }
+            //}
             for (int i = 0; i < currentLabel.Length; i++)
             {
                 currentLabel[i] = "0";
@@ -1074,16 +1233,18 @@ namespace YOLIC
 
         private void button15_Click(object sender, EventArgs e)
         {
-            try
+            if (File.Exists(Path.Combine(saveFile.SelectedPath, Path.GetFileNameWithoutExtension(list_Img[CurrentIndex]) + ".txt")) == true)
             {
                 string annotationpath = Path.Combine(saveFile.SelectedPath, Path.GetFileNameWithoutExtension(list_Img[CurrentIndex]) + ".txt");
                 FileInfo fi = new FileInfo(annotationpath);
                 fi.Delete();
             }
-            catch (Exception)
+
+            for (int i = 0; i < currentLabel.Length; i++)
             {
-                this.BeginInvoke((Action)(() => MessageBox.Show("Failed to delete the annotation file!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
+                currentLabel[i] = "0";
             }
+            DisplayRGB(CurrentIndex);
         }
 
 
@@ -1132,8 +1293,8 @@ namespace YOLIC
                 CurrentIndex = temp;
                 return;
             }
-            label6.Text = (CurrentIndex + 1).ToString() + " / " + list_Img.Count.ToString();
-            for (int i = 0, j = 21; i < LabelList.Count; i++, j++)
+            label7.Text = (CurrentIndex + 1).ToString() + " / " + list_Img.Count.ToString();
+            for (int i = 0, j = 1; i < LabelList.Count; i++, j++)
             {
                 ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked = false;
 
@@ -1142,7 +1303,7 @@ namespace YOLIC
             {
                 currentLabel[i] = "0";
             }
-            Display(CurrentIndex);
+            DisplayRGB(CurrentIndex);
         }
 
         private void textBox2_KeyPress(object sender, KeyPressEventArgs e)
@@ -1483,6 +1644,63 @@ namespace YOLIC
                 }
             }
 
+        }
+
+        private void button25_Click(object sender, EventArgs e)
+        {
+            OpenOnnx.InitialDirectory = logPath;
+            OpenOnnx.Title = "Select a trained model";
+            OpenOnnx.Filter = "ONNX files (*.onnx)|*.onnx";
+            OpenOnnx.RestoreDirectory = true;
+            OpenOnnx.FilterIndex = 1;
+
+            if (SemiAutomatic == true)
+            {
+                SemiAutomatic = false;
+                button25.Text = "Semi-automatic Mode OFF";
+            }
+            else
+            {
+                try
+                {
+                    if (OpenOnnx.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    {
+                        SemiAutomatic = true;
+                        button25.Text = "Semi-automatic Mode ON";
+                    }
+                }
+                catch (Exception)
+                {
+                    this.BeginInvoke((Action)(() => MessageBox.Show("Failed to read the ONNX model file!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
+                }
+
+            }
+        }
+
+        private void button24_Click(object sender, EventArgs e)
+        {
+            if (CheckMode == true)
+            {
+                CheckMode = false;
+                button24.Text = "Check Mode OFF";
+            }
+            else
+            {
+                CheckMode = true;
+                button24.Text = "Check Mode ON";
+            }
+        }
+
+        private void label12_DoubleClick(object sender, EventArgs e)
+        {
+            if (LabelList != null)
+            {
+                for (int i = 0, j = 1; i < LabelList.Count; i++, j++)
+                {
+                    ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked = false;
+
+                }
+            }
         }
     }
 }
