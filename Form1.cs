@@ -39,9 +39,9 @@ namespace YOLIC
         int CurrentIndex = 0;
         int LastArea = -1;
         int fullrgb = 0;
-        Color[] colorslist = new Color[]{Color.FromArgb(0,255,0), Color.FromArgb(138,244,123), Color.FromArgb(244,0,10),
+        Color[] colorslist = new Color[]{Color.FromArgb(0,255,0), Color.FromArgb(138,244,123), Color.FromArgb(220,0,30),
                               Color.FromArgb(87,96,105), Color.FromArgb(220,87,18), Color.FromArgb(230,180,80),
-                              Color.FromArgb(255,0,255), Color.FromArgb(40,110,105), Color.FromArgb(10,0,0),
+                              Color.FromArgb(255,0,255), Color.FromArgb(40,110,105), Color.FromArgb(255,0,0),
                                Color.FromArgb(50,60,246), Color.FromArgb(243,10,100), Color.FromArgb(153, 163, 112),
                                Color.FromArgb(91, 97, 67), Color.FromArgb(210, 224, 155), Color.FromArgb(222, 237, 164),
                                Color.FromArgb(243,50,100), Color.FromArgb(112, 163, 153),Color.FromArgb(67, 97, 91), 
@@ -204,6 +204,7 @@ namespace YOLIC
                     JsonTextReader labeljsonreader = new JsonTextReader(COIjson);
                     JObject coijsonObject = (JObject)JToken.ReadFrom(labeljsonreader);
                     COInumber = (int)coijsonObject["COIs"]["COINumber"];
+
                     COIList = new JArray[COInumber];
                     for (int i = 1; i <= COInumber; i++)
                     {
@@ -212,6 +213,7 @@ namespace YOLIC
 
                     LabelList = (JArray)coijsonObject["Labels"]["LabelList"];
                     LabelAbbreviation = (JArray)coijsonObject["Labels"]["LabelAbbreviation"];
+                    Labelnumber = LabelList.Count;
                     if (LabelList.Count > 20)
                     {
                         MessageBox.Show("Up to 20 labels!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -338,12 +340,12 @@ namespace YOLIC
         {
             if (mode == 0)
             {
-                Tensor<float> data = new DenseTensor<float>(new[] { 1, 4, image.Width, image.Height });
+                Tensor<float> data = new DenseTensor<float>(new[] { 1, 4, image.Height, image.Width });
                 Bitmap bitimg = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(image);
 
-                for (int x = 0; x < bitimg.Width; x++)
+                for (int x = 0; x < bitimg.Height; x++)
                 {
-                    for (int y = 0; y < bitimg.Height; y++)
+                    for (int y = 0; y < bitimg.Width; y++)
                     {
 
                         Color color = bitimg.GetPixel(y, x);
@@ -369,12 +371,12 @@ namespace YOLIC
             }
             else
             {
-                Tensor<float> data = new DenseTensor<float>(new[] { 1, 3, image.Width, image.Height });
+                Tensor<float> data = new DenseTensor<float>(new[] { 1, 3, image.Height, image.Width });
                 Bitmap bitimg = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(image);
 
-                for (int x = 0; x < bitimg.Width; x++)
+                for (int x = 0; x < bitimg.Height; x++)
                 {
-                    for (int y = 0; y < bitimg.Height; y++)
+                    for (int y = 0; y < bitimg.Width; y++)
                     {
 
                         Color color = bitimg.GetPixel(y, x);
@@ -399,7 +401,7 @@ namespace YOLIC
             }
             
         }
-        private void Display(int currentIndex)
+        private void Display(int currentIndex,int auto =1)
         {
 
             string Imagename = Path.GetFileName(list_Img[currentIndex]);
@@ -434,14 +436,14 @@ namespace YOLIC
                 
             }
 
-            if (SemiAutomatic == true)
+            if (SemiAutomatic == true && auto ==1)
             {
                 Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.Color);
                 Mat depth_image = Cv2.ImRead(list_depthImg[CurrentIndex], ImreadModes.Color);
                 Mat[] cvd = Cv2.Split(depth_image);
                 Mat[] cvrgb = Cv2.Split(color_image);
                 Mat merged = new Mat();
-                Cv2.Merge(new Mat[] { cvrgb[2], cvrgb[1], cvrgb[0], cvd[0] }, merged);
+                Cv2.Merge(new Mat[] { cvrgb[0], cvrgb[1], cvrgb[2], cvd[0] }, merged);
                 Mat outimg = new Mat();
                 
                 //Console.WriteLine(outimg.Channels());
@@ -456,13 +458,13 @@ namespace YOLIC
 
                     foreach (var name in inputMeta.Keys)
                     {
-                        Console.WriteLine("Dimension Length: " + inputMeta[name].Dimensions.Length);
-                        if (inputMeta[name].Dimensions.Length != 4)
+                        Console.WriteLine("Dimension Length: " + inputMeta[name].Dimensions[1]);
+                        if (inputMeta[name].Dimensions[1] != 4)
                         {
-                            MessageBox.Show("Unable match the RGBD Dimensions!", "Notice", MessageBoxButtons.OK);
+                            MessageBox.Show("Unable match the RGBD 4 channel!", "Notice", MessageBoxButtons.OK);
                             return;
                         }
-                        Cv2.Resize(merged, outimg, new OpenCvSharp.Size(inputMeta[name].Dimensions[2], inputMeta[name].Dimensions[3]));
+                        Cv2.Resize(merged, outimg, new OpenCvSharp.Size(inputMeta[name].Dimensions[3], inputMeta[name].Dimensions[2]));
                         Tensor<float> inputdata = ConvertImageToFloatTensor(outimg, 0);
                         container.Add(NamedOnnxValue.CreateFromTensor<float>(name, inputdata));
                     }
@@ -523,13 +525,10 @@ namespace YOLIC
                     StreamReader rd = File.OpenText(Path.Combine(saveFile.SelectedPath, NameWithoutExtension + ".txt"));
                     string s = rd.ReadLine();
                     string [] currentLabelFormTxt  = s.Split(' ');
-
-                    if (currentLabelFormTxt.Length-1 != currentLabel.Length)
-                    {
-                        Console.WriteLine(currentLabelFormTxt.Length);
-                        Console.WriteLine(currentLabel.Length);
-                    }
-                    else
+                    Console.WriteLine(currentLabelFormTxt.Length);
+                    Console.WriteLine(currentLabel.Length);
+                    rd.Close();
+                    try
                     {
                         for (int i = 0; i < currentLabel.Length; i++)
                         {
@@ -538,9 +537,18 @@ namespace YOLIC
                         //Console.WriteLine(currentLabel.Length);
                         Redraw(pictureBox2.Image);
 
-                        rd.Close();
+                        
                     }
-                    
+                    catch (Exception)
+                    {
+                        Console.WriteLine("init label");
+                        for (int i = 0; i < currentLabel.Length; i++)
+                        {
+                            currentLabel[i] = "0";
+                            
+                        }
+                    }
+
                 }
                 
             }
@@ -617,7 +625,7 @@ namespace YOLIC
             }
         }
 
-        private void DisplayRGB(int currentIndex)
+        private void DisplayRGB(int currentIndex,int auto = 1)
         {
             string Imagename = Path.GetFileName(list_Img[currentIndex]);
             
@@ -646,7 +654,7 @@ namespace YOLIC
                 }
 
             }
-            if (SemiAutomatic == true)
+            if (SemiAutomatic == true && auto == 1)
             {
                 Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.Color);
 
@@ -662,20 +670,20 @@ namespace YOLIC
                     var container = new List<NamedOnnxValue>();
                     Mat[] cvrgb = Cv2.Split(color_image);
                     Mat merged = new Mat();
-                    Cv2.Merge(new Mat[] { cvrgb[2], cvrgb[1], cvrgb[0] }, merged);
+                    Cv2.Merge(new Mat[] { cvrgb[0], cvrgb[1], cvrgb[2] }, merged);
                     Mat outimg = new Mat();
 
-                    //PrintInputMetadata(inputMeta);
-                    
+                    PrintInputMetadata(inputMeta);
+
                     foreach (var name in inputMeta.Keys)
                     {
-                        Console.WriteLine(": " + inputMeta[name].Dimensions.Length);
-                        if (inputMeta[name].Dimensions.Length != 3)
+                        //Console.WriteLine(": " + inputMeta[name].Dimensions.Length);
+                        if (inputMeta[name].Dimensions[1] != 3)
                         {
-                            MessageBox.Show("Model unable match the RGB image dimensions!", "Notice", MessageBoxButtons.OK);
+                            MessageBox.Show("Unable match the RGB 3 channel!", "Notice", MessageBoxButtons.OK);
                             return;
                         }
-                        Cv2.Resize(merged, outimg, new OpenCvSharp.Size(inputMeta[name].Dimensions[2], inputMeta[name].Dimensions[3]));
+                        Cv2.Resize(merged, outimg, new OpenCvSharp.Size(inputMeta[name].Dimensions[3], inputMeta[name].Dimensions[2])); // resize(w,h)
                         Tensor<float> inputdata = ConvertImageToFloatTensor(outimg, 1);
                         container.Add(NamedOnnxValue.CreateFromTensor<float>(name, inputdata));
                     }
@@ -689,6 +697,7 @@ namespace YOLIC
                             int[] prediction = sigmoidup(r.AsTensor<float>());
                             int numcell = prediction.Length / (Labelnumber + 1);
                             //Console.WriteLine(numcell);
+                            //Console.WriteLine(COInumber);
                             if (numcell != COInumber)
                             {
                                 this.BeginInvoke((Action)(() => MessageBox.Show("Failed to get output from the model!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
@@ -736,13 +745,10 @@ namespace YOLIC
                     StreamReader rd = File.OpenText(Path.Combine(saveFile.SelectedPath, NameWithoutExtension + ".txt"));
                     string s = rd.ReadLine();
                     string[] currentLabelFormTxt = s.Split(' ');
-
-                    if (currentLabelFormTxt.Length - 1 != currentLabel.Length)
-                    {
-                        Console.WriteLine(currentLabelFormTxt.Length);
-                        Console.WriteLine(currentLabel.Length);
-                    }
-                    else
+                    Console.WriteLine(currentLabelFormTxt.Length);
+                    Console.WriteLine(currentLabel.Length);
+                    rd.Close();
+                    try
                     {
                         for (int i = 0; i < currentLabel.Length; i++)
                         {
@@ -751,8 +757,18 @@ namespace YOLIC
                         //Console.WriteLine(currentLabel.Length);
                         RedrawR(pictureBox1.Image);
 
-                        rd.Close();
+                        
                     }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("init label");
+                        for (int i = 0; i < currentLabel.Length; i++)
+                        {
+                            currentLabel[i] = "0";
+                            
+                        }
+                    }
+                    
 
                 }
 
@@ -1057,7 +1073,7 @@ namespace YOLIC
             {
                 currentLabel[i] = "0";
             }
-            Display(CurrentIndex);
+            Display(CurrentIndex,0);
   
             
         }
@@ -1245,7 +1261,7 @@ namespace YOLIC
             {
                 currentLabel[i] = "0";
             }
-            DisplayRGB(CurrentIndex);
+            DisplayRGB(CurrentIndex,0);
         }
 
 
