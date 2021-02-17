@@ -31,11 +31,15 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.checkBox42 = new System.Windows.Forms.CheckBox();
+            this.button24 = new System.Windows.Forms.Button();
+            this.button25 = new System.Windows.Forms.Button();
             this.button14 = new System.Windows.Forms.Button();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label12 = new System.Windows.Forms.Label();
             this.checkBox20 = new System.Windows.Forms.CheckBox();
             this.checkBox19 = new System.Windows.Forms.CheckBox();
             this.checkBox18 = new System.Windows.Forms.CheckBox();
@@ -114,10 +118,8 @@
             this.button10 = new System.Windows.Forms.Button();
             this.button9 = new System.Windows.Forms.Button();
             this.button8 = new System.Windows.Forms.Button();
-            this.button24 = new System.Windows.Forms.Button();
-            this.button25 = new System.Windows.Forms.Button();
-            this.checkBox42 = new System.Windows.Forms.CheckBox();
-            this.label12 = new System.Windows.Forms.Label();
+            this.button26 = new System.Windows.Forms.Button();
+            this.button27 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -144,6 +146,9 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.pictureBox1);
+            this.tabPage1.Controls.Add(this.button26);
+            this.tabPage1.Controls.Add(this.button27);
             this.tabPage1.Controls.Add(this.checkBox42);
             this.tabPage1.Controls.Add(this.button24);
             this.tabPage1.Controls.Add(this.button25);
@@ -157,7 +162,6 @@
             this.tabPage1.Controls.Add(this.button19);
             this.tabPage1.Controls.Add(this.button15);
             this.tabPage1.Controls.Add(this.button7);
-            this.tabPage1.Controls.Add(this.pictureBox1);
             this.tabPage1.Controls.Add(this.button5);
             this.tabPage1.Controls.Add(this.button4);
             this.tabPage1.Controls.Add(this.button3);
@@ -171,6 +175,40 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "RGB Leabling Mode";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // checkBox42
+            // 
+            this.checkBox42.AutoSize = true;
+            this.checkBox42.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.checkBox42.Location = new System.Drawing.Point(11, 523);
+            this.checkBox42.Name = "checkBox42";
+            this.checkBox42.Size = new System.Drawing.Size(90, 18);
+            this.checkBox42.TabIndex = 49;
+            this.checkBox42.Text = "Auto Save";
+            this.checkBox42.UseVisualStyleBackColor = true;
+            // 
+            // button24
+            // 
+            this.button24.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button24.Location = new System.Drawing.Point(8, 319);
+            this.button24.Name = "button24";
+            this.button24.Size = new System.Drawing.Size(108, 43);
+            this.button24.TabIndex = 48;
+            this.button24.Text = "Check Mode";
+            this.button24.UseVisualStyleBackColor = true;
+            this.button24.Click += new System.EventHandler(this.button24_Click);
+            // 
+            // button25
+            // 
+            this.button25.Enabled = false;
+            this.button25.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button25.Location = new System.Drawing.Point(8, 368);
+            this.button25.Name = "button25";
+            this.button25.Size = new System.Drawing.Size(108, 43);
+            this.button25.TabIndex = 47;
+            this.button25.Text = "Semiautomatic Mode";
+            this.button25.UseVisualStyleBackColor = true;
+            this.button25.Click += new System.EventHandler(this.button25_Click);
             // 
             // button14
             // 
@@ -197,7 +235,7 @@
             // 
             this.label10.AutoSize = true;
             this.label10.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(787, 558);
+            this.label10.Location = new System.Drawing.Point(778, 581);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(31, 14);
             this.label10.TabIndex = 34;
@@ -206,7 +244,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(831, 583);
+            this.label7.Location = new System.Drawing.Point(831, 601);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(38, 17);
             this.label7.TabIndex = 33;
@@ -235,13 +273,23 @@
             this.groupBox1.Controls.Add(this.checkBox3);
             this.groupBox1.Controls.Add(this.checkBox2);
             this.groupBox1.Controls.Add(this.checkBox1);
-            this.groupBox1.Location = new System.Drawing.Point(122, 457);
+            this.groupBox1.Location = new System.Drawing.Point(122, 453);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.groupBox1.Size = new System.Drawing.Size(650, 163);
             this.groupBox1.TabIndex = 32;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Labels";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(6, 4);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(63, 17);
+            this.label12.TabIndex = 48;
+            this.label12.Text = "           ";
+            this.label12.DoubleClick += new System.EventHandler(this.label12_DoubleClick);
             // 
             // checkBox20
             // 
@@ -486,7 +534,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(778, 583);
+            this.label5.Location = new System.Drawing.Point(778, 601);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(47, 17);
             this.label5.TabIndex = 31;
@@ -495,9 +543,10 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(778, 533);
+            this.label4.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Location = new System.Drawing.Point(778, 561);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(116, 17);
+            this.label4.Size = new System.Drawing.Size(104, 14);
             this.label4.TabIndex = 30;
             this.label4.Text = "Current Image:";
             // 
@@ -515,11 +564,11 @@
             // button15
             // 
             this.button15.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button15.Location = new System.Drawing.Point(892, 467);
+            this.button15.Location = new System.Drawing.Point(892, 461);
             this.button15.Name = "button15";
             this.button15.Size = new System.Drawing.Size(103, 43);
             this.button15.TabIndex = 28;
-            this.button15.Text = "Delete";
+            this.button15.Text = "Delete Annotation";
             this.button15.UseVisualStyleBackColor = true;
             this.button15.Click += new System.EventHandler(this.button15_Click);
             // 
@@ -527,7 +576,7 @@
             // 
             this.button7.Enabled = false;
             this.button7.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button7.Location = new System.Drawing.Point(778, 467);
+            this.button7.Location = new System.Drawing.Point(778, 461);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(108, 43);
             this.button7.TabIndex = 7;
@@ -541,10 +590,11 @@
             this.pictureBox1.Enabled = false;
             this.pictureBox1.Location = new System.Drawing.Point(122, 7);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(872, 444);
+            this.pictureBox1.Size = new System.Drawing.Size(872, 447);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 6;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
             this.pictureBox1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseClick);
             this.pictureBox1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDoubleClick);
             // 
@@ -692,9 +742,9 @@
             // button21
             // 
             this.button21.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button21.Location = new System.Drawing.Point(864, 487);
+            this.button21.Location = new System.Drawing.Point(855, 480);
             this.button21.Name = "button21";
-            this.button21.Size = new System.Drawing.Size(112, 42);
+            this.button21.Size = new System.Drawing.Size(127, 52);
             this.button21.TabIndex = 43;
             this.button21.Text = "Remove Polygon";
             this.button21.UseVisualStyleBackColor = true;
@@ -703,9 +753,9 @@
             // button20
             // 
             this.button20.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button20.Location = new System.Drawing.Point(722, 487);
+            this.button20.Location = new System.Drawing.Point(723, 480);
             this.button20.Name = "button20";
-            this.button20.Size = new System.Drawing.Size(112, 42);
+            this.button20.Size = new System.Drawing.Size(126, 52);
             this.button20.TabIndex = 42;
             this.button20.Text = "Add/Save Polygon";
             this.button20.UseVisualStyleBackColor = true;
@@ -1085,9 +1135,9 @@
             // 
             this.button17.Enabled = false;
             this.button17.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button17.Location = new System.Drawing.Point(864, 428);
+            this.button17.Location = new System.Drawing.Point(856, 421);
             this.button17.Name = "button17";
-            this.button17.Size = new System.Drawing.Size(112, 42);
+            this.button17.Size = new System.Drawing.Size(126, 53);
             this.button17.TabIndex = 31;
             this.button17.Text = "Delete Annotation";
             this.button17.UseVisualStyleBackColor = true;
@@ -1097,9 +1147,9 @@
             // 
             this.button16.Enabled = false;
             this.button16.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button16.Location = new System.Drawing.Point(722, 428);
+            this.button16.Location = new System.Drawing.Point(723, 421);
             this.button16.Name = "button16";
-            this.button16.Size = new System.Drawing.Size(112, 42);
+            this.button16.Size = new System.Drawing.Size(126, 53);
             this.button16.TabIndex = 10;
             this.button16.Text = "Start";
             this.button16.UseVisualStyleBackColor = true;
@@ -1184,49 +1234,27 @@
             this.button8.UseVisualStyleBackColor = true;
             this.button8.Click += new System.EventHandler(this.button8_Click);
             // 
-            // button24
+            // button26
             // 
-            this.button24.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button24.Location = new System.Drawing.Point(8, 319);
-            this.button24.Name = "button24";
-            this.button24.Size = new System.Drawing.Size(108, 43);
-            this.button24.TabIndex = 48;
-            this.button24.Text = "Check Mode";
-            this.button24.UseVisualStyleBackColor = true;
-            this.button24.Click += new System.EventHandler(this.button24_Click);
+            this.button26.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button26.Location = new System.Drawing.Point(892, 510);
+            this.button26.Name = "button26";
+            this.button26.Size = new System.Drawing.Size(102, 42);
+            this.button26.TabIndex = 51;
+            this.button26.Text = "Remove Polygon";
+            this.button26.UseVisualStyleBackColor = true;
+            this.button26.Click += new System.EventHandler(this.button26_Click);
             // 
-            // button25
+            // button27
             // 
-            this.button25.Enabled = false;
-            this.button25.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button25.Location = new System.Drawing.Point(8, 368);
-            this.button25.Name = "button25";
-            this.button25.Size = new System.Drawing.Size(108, 43);
-            this.button25.TabIndex = 47;
-            this.button25.Text = "Semiautomatic Mode";
-            this.button25.UseVisualStyleBackColor = true;
-            this.button25.Click += new System.EventHandler(this.button25_Click);
-            // 
-            // checkBox42
-            // 
-            this.checkBox42.AutoSize = true;
-            this.checkBox42.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox42.Location = new System.Drawing.Point(11, 523);
-            this.checkBox42.Name = "checkBox42";
-            this.checkBox42.Size = new System.Drawing.Size(90, 18);
-            this.checkBox42.TabIndex = 49;
-            this.checkBox42.Text = "Auto Save";
-            this.checkBox42.UseVisualStyleBackColor = true;
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(6, 0);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(63, 17);
-            this.label12.TabIndex = 48;
-            this.label12.Text = "           ";
-            this.label12.DoubleClick += new System.EventHandler(this.label12_DoubleClick);
+            this.button27.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button27.Location = new System.Drawing.Point(778, 510);
+            this.button27.Name = "button27";
+            this.button27.Size = new System.Drawing.Size(108, 42);
+            this.button27.TabIndex = 50;
+            this.button27.Text = "Add/Save Polygon";
+            this.button27.UseVisualStyleBackColor = true;
+            this.button27.Click += new System.EventHandler(this.button27_Click);
             // 
             // Form1
             // 
@@ -1345,6 +1373,8 @@
         private System.Windows.Forms.Button button25;
         private System.Windows.Forms.CheckBox checkBox42;
         private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Button button26;
+        private System.Windows.Forms.Button button27;
     }
 }
 

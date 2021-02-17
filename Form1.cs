@@ -41,7 +41,7 @@ namespace YOLIC
         int fullrgb = 0;
         Color[] colorslist = new Color[]{Color.FromArgb(0,255,0), Color.FromArgb(138,244,123), Color.FromArgb(220,0,30),
                               Color.FromArgb(87,96,105), Color.FromArgb(220,87,18), Color.FromArgb(230,180,80),
-                              Color.FromArgb(255,0,255), Color.FromArgb(40,110,105), Color.FromArgb(255,0,0),
+                              Color.FromArgb(255,0,255), Color.FromArgb(10,255,105), Color.FromArgb(255,0,0),
                                Color.FromArgb(50,60,246), Color.FromArgb(243,10,100), Color.FromArgb(153, 163, 112),
                                Color.FromArgb(91, 97, 67), Color.FromArgb(210, 224, 155), Color.FromArgb(222, 237, 164),
                                Color.FromArgb(243,50,100), Color.FromArgb(112, 163, 153),Color.FromArgb(67, 97, 91), 
@@ -223,10 +223,12 @@ namespace YOLIC
                     {
                         ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Visible = true;
                         ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Text = LabelList[i].ToString();
+                        ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).ForeColor = colorslist[i];
                     }
 
                     button7.Enabled = true;
                     button25.Enabled = true;
+                    button15.Enabled = true;
                 }
             }
             catch (Exception)
@@ -1080,104 +1082,132 @@ namespace YOLIC
 
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
-
-
-            int originalHeight = this.pictureBox1.Image.Height;
-
-            PropertyInfo rectangleProperty = this.pictureBox1.GetType().GetProperty("ImageRectangle", BindingFlags.Instance | BindingFlags.NonPublic);
-            Rectangle rectangle = (Rectangle)rectangleProperty.GetValue(this.pictureBox1, null);
-
-            int currentWidth = rectangle.Width;
-
-            int currentHeight = rectangle.Height;
-
-            double rate = (double)currentHeight / (double)originalHeight;
-
-            int black_left_width = (currentWidth == this.pictureBox1.Width) ? 0 : (this.pictureBox1.Width - currentWidth) / 2;
-            int black_top_height = (currentHeight == this.pictureBox1.Height) ? 0 : (this.pictureBox1.Height - currentHeight) / 2;
-
-            int zoom_x = e.X - black_left_width;
-            int zoom_y = e.Y - black_top_height;
-
-            double original_x = (double)zoom_x / rate;
-            double original_y = (double)zoom_y / rate;
-            //Console.WriteLine(original_x.ToString());
-            //Console.WriteLine(original_y.ToString());
-            int LabelArea = JudgeAreaRGB(new Point((int)original_x, (int)original_y));
-            //Console.WriteLine(LabelArea.ToString());
-            if (LabelArea != -1)
+            if (e.Button == MouseButtons.Left)
             {
+                int originalHeight = this.pictureBox1.Image.Height;
 
-                for (int i = 0, j = 1; i < LabelList.Count; i++, j++)
-                {
-                    if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
-                    {
-                        //Console.WriteLine(i);
-                        currentLabel[(LabelArea * (LabelList.Count + 1)) + i] = "1";
-                    }
-                    else
-                    {
-                        currentLabel[(LabelArea * (LabelList.Count + 1)) + i] = "0";
-                    }
+                PropertyInfo rectangleProperty = this.pictureBox1.GetType().GetProperty("ImageRectangle", BindingFlags.Instance | BindingFlags.NonPublic);
+                Rectangle rectangle = (Rectangle)rectangleProperty.GetValue(this.pictureBox1, null);
 
-                }
-                if (LastArea != -1 && LastArea != LabelArea)
+                int currentWidth = rectangle.Width;
+
+                int currentHeight = rectangle.Height;
+
+                double rate = (double)currentHeight / (double)originalHeight;
+
+                int black_left_width = (currentWidth == this.pictureBox1.Width) ? 0 : (this.pictureBox1.Width - currentWidth) / 2;
+                int black_top_height = (currentHeight == this.pictureBox1.Height) ? 0 : (this.pictureBox1.Height - currentHeight) / 2;
+
+                int zoom_x = e.X - black_left_width;
+                int zoom_y = e.Y - black_top_height;
+
+                double original_x = (double)zoom_x / rate;
+                double original_y = (double)zoom_y / rate;
+                dat2.Add(new Point(Convert.ToInt32(original_x), Convert.ToInt32(original_y)));
+                dat.Add(new Point(e.X, e.Y));
+                pictureBox1.Invalidate();
+            }
+            if (e.Button == MouseButtons.Right)
+            {
+                int originalHeight = this.pictureBox1.Image.Height;
+                PropertyInfo rectangleProperty = this.pictureBox1.GetType().GetProperty("ImageRectangle", BindingFlags.Instance | BindingFlags.NonPublic);
+                Rectangle rectangle = (Rectangle)rectangleProperty.GetValue(this.pictureBox1, null);
+
+                int currentWidth = rectangle.Width;
+
+                int currentHeight = rectangle.Height;
+
+                double rate = (double)currentHeight / (double)originalHeight;
+
+                int black_left_width = (currentWidth == this.pictureBox1.Width) ? 0 : (this.pictureBox1.Width - currentWidth) / 2;
+                int black_top_height = (currentHeight == this.pictureBox1.Height) ? 0 : (this.pictureBox1.Height - currentHeight) / 2;
+
+                int zoom_x = e.X - black_left_width;
+                int zoom_y = e.Y - black_top_height;
+
+                double original_x = (double)zoom_x / rate;
+                double original_y = (double)zoom_y / rate;
+                //Console.WriteLine(original_x.ToString());
+                //Console.WriteLine(original_y.ToString());
+                int LabelArea = JudgeAreaRGB(new Point((int)original_x, (int)original_y));
+                //Console.WriteLine(LabelArea.ToString());
+                if (LabelArea != -1)
                 {
-                    DrawboxRGB(pictureBox1.Image, LastArea, Color.Blue);
+
+                    for (int i = 0, j = 1; i < LabelList.Count; i++, j++)
+                    {
+                        if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
+                        {
+                            //Console.WriteLine(i);
+                            currentLabel[(LabelArea * (LabelList.Count + 1)) + i] = "1";
+                        }
+                        else
+                        {
+                            currentLabel[(LabelArea * (LabelList.Count + 1)) + i] = "0";
+                        }
+
+                    }
+                    if (LastArea != -1 && LastArea != LabelArea)
+                    {
+                        DrawboxRGB(pictureBox1.Image, LastArea, Color.Blue);
+                    }
+                    DrawboxRGB(pictureBox1.Image, LabelArea, Color.White);
+                    LastArea = LabelArea;
                 }
-                DrawboxRGB(pictureBox1.Image, LabelArea, Color.White);
-                LastArea = LabelArea;
             }
 
         }
 
         private void pictureBox1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            int originalHeight = this.pictureBox1.Image.Height;
-
-            PropertyInfo rectangleProperty = this.pictureBox1.GetType().GetProperty("ImageRectangle", BindingFlags.Instance | BindingFlags.NonPublic);
-            Rectangle rectangle = (Rectangle)rectangleProperty.GetValue(this.pictureBox1, null);
-
-            int currentWidth = rectangle.Width;
-            int currentHeight = rectangle.Height;
-
-            double rate = (double)currentHeight / (double)originalHeight;
-
-            int black_left_width = (currentWidth == this.pictureBox1.Width) ? 0 : (this.pictureBox1.Width - currentWidth) / 2;
-            int black_top_height = (currentHeight == this.pictureBox1.Height) ? 0 : (this.pictureBox1.Height - currentHeight) / 2;
-
-            int zoom_x = e.X - black_left_width;
-            int zoom_y = e.Y - black_top_height;
-
-            double original_x = (double)zoom_x / rate;
-            double original_y = (double)zoom_y / rate;
-
-            int LabelArea = JudgeAreaRGB(new Point((int)original_x, (int)original_y));
-
-            if (LabelArea != -1)
+            if (e.Button == MouseButtons.Right)
             {
+                int originalHeight = this.pictureBox1.Image.Height;
 
-                for (int i = 0, j = 1; i < LabelList.Count; i++, j++)
+                PropertyInfo rectangleProperty = this.pictureBox1.GetType().GetProperty("ImageRectangle", BindingFlags.Instance | BindingFlags.NonPublic);
+                Rectangle rectangle = (Rectangle)rectangleProperty.GetValue(this.pictureBox1, null);
+
+                int currentWidth = rectangle.Width;
+                int currentHeight = rectangle.Height;
+
+                double rate = (double)currentHeight / (double)originalHeight;
+
+                int black_left_width = (currentWidth == this.pictureBox1.Width) ? 0 : (this.pictureBox1.Width - currentWidth) / 2;
+                int black_top_height = (currentHeight == this.pictureBox1.Height) ? 0 : (this.pictureBox1.Height - currentHeight) / 2;
+
+                int zoom_x = e.X - black_left_width;
+                int zoom_y = e.Y - black_top_height;
+
+                double original_x = (double)zoom_x / rate;
+                double original_y = (double)zoom_y / rate;
+
+                int LabelArea = JudgeAreaRGB(new Point((int)original_x, (int)original_y));
+
+                if (LabelArea != -1)
                 {
-                    if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
+
+                    for (int i = 0, j = 1; i < LabelList.Count; i++, j++)
                     {
-                        //Console.WriteLine(i);
-                        currentLabel[(LabelArea * (LabelList.Count + 1)) + i] = "0";
+                        if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
+                        {
+                            //Console.WriteLine(i);
+                            currentLabel[(LabelArea * (LabelList.Count + 1)) + i] = "0";
+                        }
+                        else
+                        {
+                            currentLabel[(LabelArea * (LabelList.Count + 1)) + i] = "0";
+                        }
+
                     }
-                    else
+
+                    if (LastArea != -1 && LastArea != LabelArea)
                     {
-                        currentLabel[(LabelArea * (LabelList.Count + 1)) + i] = "0";
+                        DrawboxRGB(pictureBox1.Image, LastArea, Color.Black);
                     }
+                    DrawboxRGB(pictureBox1.Image, LabelArea, Color.Black);
+                    LastArea = -1;
 
                 }
-
-                if (LastArea != -1 && LastArea != LabelArea)
-                {
-                    DrawboxRGB(pictureBox1.Image, LastArea, Color.Black);
-                }
-                DrawboxRGB(pictureBox1.Image, LabelArea, Color.Black);
-                LastArea = -1;
-
             }
         }
 
@@ -1716,6 +1746,76 @@ namespace YOLIC
                 {
                     ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked = false;
 
+                }
+            }
+        }
+
+        private void button27_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                System.Drawing.Graphics g = Graphics.FromImage(pictureBox1.Image);
+                //var g = e.Graphics;
+
+
+                for (int i = 0; i < COIList.Length; i++)
+                {
+                    if (COIList[i][0].ToString().Equals("rectangle"))
+                    {
+                        if (IfPolygonInside((float)COIList[i][1] * pictureBox1.Image.Width, (float)COIList[i][2] * pictureBox1.Image.Height, (float)COIList[i][3] * pictureBox1.Image.Width, (float)COIList[i][4] * pictureBox1.Image.Height, dat2.ToArray()))
+                        {
+                            //System.Console.WriteLine(i);
+                            for (int ii = 0, j = 1; ii < LabelList.Count; ii++, j++)
+                            {
+                                if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
+                                {
+                                    Pen p = new Pen(colorslist[ii], 3);
+                                    g.DrawPolygon(p, dat2.ToArray());
+                                    //Console.WriteLine(i);
+                                    currentLabel[(i * (LabelList.Count + 1)) + ii] = "1";
+                                }
+                                //else
+                                //{
+                                //    currentLabel[(i * (LabelList.Count + 1)) + ii] = "0";
+                                //}
+
+                            }
+                        }
+
+                    }
+
+                }
+                dat.Clear();
+                dat2.Clear();
+                pictureBox1.Invalidate();
+            }
+            catch (Exception)
+            {
+                this.BeginInvoke((Action)(() => MessageBox.Show("Failed to save the polygon!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
+            }
+        }
+
+        private void button26_Click(object sender, EventArgs e)
+        {
+            dat.Clear();
+            dat2.Clear();
+            pictureBox1.Invalidate();
+        }
+
+        private void pictureBox1_Paint(object sender, PaintEventArgs e)
+        {
+            var g = e.Graphics;
+
+            if (dat.Count > 2)
+            {
+                g.DrawPolygon(Pens.Black, dat.ToArray());
+
+            }
+            else
+            {
+                foreach (var p in dat)
+                {
+                    g.DrawArc(Pens.Black, new RectangleF(p.X - 2, p.Y - 2, 5, 5), 0, 360);
                 }
             }
         }
