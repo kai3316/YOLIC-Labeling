@@ -1076,8 +1076,9 @@ namespace YOLIC
                 currentLabel[i] = "0";
             }
             Display(CurrentIndex,0);
-  
-            
+            LastArea = -1;
+
+
         }
 
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
@@ -1292,6 +1293,7 @@ namespace YOLIC
                 currentLabel[i] = "0";
             }
             DisplayRGB(CurrentIndex,0);
+            LastArea = -1;
         }
 
 
