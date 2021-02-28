@@ -527,8 +527,8 @@ namespace YOLIC
                     StreamReader rd = File.OpenText(Path.Combine(saveFile.SelectedPath, NameWithoutExtension + ".txt"));
                     string s = rd.ReadLine();
                     string [] currentLabelFormTxt  = s.Split(' ');
-                    Console.WriteLine(currentLabelFormTxt.Length);
-                    Console.WriteLine(currentLabel.Length);
+                    //Console.WriteLine(currentLabelFormTxt.Length);
+                    //Console.WriteLine(currentLabel.Length);
                     rd.Close();
                     try
                     {
@@ -747,8 +747,8 @@ namespace YOLIC
                     StreamReader rd = File.OpenText(Path.Combine(saveFile.SelectedPath, NameWithoutExtension + ".txt"));
                     string s = rd.ReadLine();
                     string[] currentLabelFormTxt = s.Split(' ');
-                    Console.WriteLine(currentLabelFormTxt.Length);
-                    Console.WriteLine(currentLabel.Length);
+                    //Console.WriteLine(currentLabelFormTxt.Length);
+                    //Console.WriteLine(currentLabel.Length);
                     rd.Close();
                     try
                     {
