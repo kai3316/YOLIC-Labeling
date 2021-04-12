@@ -659,9 +659,6 @@ namespace YOLIC
             if (SemiAutomatic == true && auto == 1)
             {
                 Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.Color);
-
-
-
                 //Console.WriteLine(outimg.Channels());
                 //Console.WriteLine(outimg.Get<Vec4b>(110, 140));
                 string ModelName = OpenOnnx.FileName;
