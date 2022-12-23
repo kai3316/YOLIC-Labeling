@@ -12,6 +12,7 @@ using Point = System.Drawing.Point;
 using OpenCvSharp;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
+using OpenCvSharp.Flann;
 
 namespace YOLIC
 {
@@ -435,7 +436,22 @@ namespace YOLIC
                     rgb.DrawRectangle(new Pen(Color.Black, 3), (float)COIList[i][1] * pictureBox2.Image.Width, (float)COIList[i][2] * pictureBox2.Image.Height, (float)COIList[i][3] * pictureBox2.Image.Width, (float)COIList[i][4] * pictureBox2.Image.Height);
                     depth.DrawRectangle(new Pen(Color.Black, 3), (float)COIList[i][1] * pictureBox3.Image.Width, (float)COIList[i][2] * pictureBox3.Image.Height, (float)COIList[i][3] * pictureBox3.Image.Width, (float)COIList[i][4] * pictureBox3.Image.Height);
                 }
-                
+                if (COIList[i][0].ToString().Equals("polygon"))
+                {
+                    int COI_count = COIList[i].Count;
+                    List<PointF> polygonListRgb = new List<PointF>();
+                    List<PointF> polygonListDepth = new List<PointF>();
+                    for (int index = 1; index < COI_count; index = index + 2)
+                    {
+                        polygonListRgb.Add(new PointF((float)COIList[i][index] * pictureBox2.Image.Width, (float)COIList[i][index + 1] * pictureBox2.Image.Height));
+                        polygonListDepth.Add(new PointF((float)COIList[i][index] * pictureBox3.Image.Width, (float)COIList[i][index + 1] * pictureBox3.Image.Height));
+                    }
+                    PointF[] points_rgb = polygonListRgb.ToArray();
+                    PointF[] points_depth = polygonListDepth.ToArray();
+                    rgb.DrawPolygon(new Pen(Color.Yellow, 3), points_rgb);
+                    depth.DrawPolygon(new Pen(Color.Yellow, 3), points_depth);
+                }
+
             }
 
             if (SemiAutomatic == true && auto ==1)
@@ -654,6 +670,17 @@ namespace YOLIC
                     rgb.DrawRectangle(new Pen(Color.Black, 3), (float)COIList[i][1] * pictureBox1.Image.Width, (float)COIList[i][2] * pictureBox1.Image.Height, (float)COIList[i][3] * pictureBox1.Image.Width, (float)COIList[i][4] * pictureBox1.Image.Height);
                     
                 }
+                if (COIList[i][0].ToString().Equals("polygon"))
+                {
+                    int COI_count = COIList[i].Count;
+                    List<PointF> polygonList = new List<PointF>();
+                    for (int index=1; index<COI_count; index=index+2)
+                    {
+                        polygonList.Add(new PointF((float)COIList[i][index] * pictureBox1.Image.Width, (float)COIList[i][index+1] * pictureBox1.Image.Height));
+                    }
+                    PointF[] points = polygonList.ToArray();
+                    rgb.DrawPolygon(new Pen(Color.Yellow, 3), points);
+                }
 
             }
             if (SemiAutomatic == true && auto == 1)
@@ -857,6 +884,17 @@ namespace YOLIC
                 rgb.DrawRectangle(new Pen(c, 2), (float)COIList[labelArea][1] * pictureBox2.Image.Width, (float)COIList[labelArea][2] * pictureBox2.Image.Height, (float)COIList[labelArea][3] * pictureBox2.Image.Width, (float)COIList[labelArea][4] * pictureBox2.Image.Height);
                 
             }
+            if (COIList[labelArea][0].ToString().Equals("polygon"))
+            {
+                int COI_count = COIList[labelArea].Count;
+                List<PointF> polygonList = new List<PointF>();
+                for (int index = 1; index < COI_count; index = index + 2)
+                {
+                    polygonList.Add(new PointF((float)COIList[labelArea][index] * pictureBox2.Image.Width, (float)COIList[labelArea][index + 1] * pictureBox2.Image.Height));
+                }
+                PointF[] points = polygonList.ToArray();
+                rgb.DrawPolygon(new Pen(c, 2), points);
+            }
         }
         private void DrawboxRGB(Image g, int labelArea, Color c)
         {
@@ -867,6 +905,17 @@ namespace YOLIC
             {
                 rgb.DrawRectangle(new Pen(c, 2), (float)COIList[labelArea][1] * pictureBox1.Image.Width, (float)COIList[labelArea][2] * pictureBox1.Image.Height, (float)COIList[labelArea][3] * pictureBox1.Image.Width, (float)COIList[labelArea][4] * pictureBox1.Image.Height);
 
+            }
+            if (COIList[labelArea][0].ToString().Equals("polygon"))
+            {
+                int COI_count = COIList[labelArea].Count;
+                List<PointF> polygonList = new List<PointF>();
+                for (int index = 1; index < COI_count; index = index + 2)
+                {
+                    polygonList.Add(new PointF((float)COIList[labelArea][index] * pictureBox1.Image.Width, (float)COIList[labelArea][index + 1] * pictureBox1.Image.Height));
+                }
+                PointF[] points = polygonList.ToArray();
+                rgb.DrawPolygon(new Pen(c, 2), points);
             }
         }
         private int JudgeArea(Point point)
@@ -1023,6 +1072,18 @@ namespace YOLIC
                         Rectangle rect = new Rectangle((int)((float)COIList[i][1] * pictureBox2.Image.Width), (int)((float)COIList[i][2] * pictureBox2.Image.Height), (int)((float)COIList[i][3] * pictureBox2.Image.Width), (int)((float)COIList[i][4] * pictureBox2.Image.Height));
                         rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity,Color.Yellow)), rect);
                     }
+                    if (COIList[i][0].ToString().Equals("polygon"))
+                    {
+                        int COI_count = COIList[i].Count;
+                        List<PointF> polygonList = new List<PointF>();
+                        for (int index = 1; index < COI_count; index = index + 2)
+                        {
+                            polygonList.Add(new PointF((float)COIList[i][index] * pictureBox2.Image.Width, (float)COIList[i][index + 1] * pictureBox2.Image.Height));
+                        }
+                        PointF[] points = polygonList.ToArray();
+                        rgb.DrawPolygon(new Pen(colorslist[colorindex], 2), points);
+                        rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), new PointF((float)COIList[i][1] * pictureBox2.Image.Width, (float)COIList[i][2] * pictureBox2.Image.Height));
+                    }
                 }
                 
             }
@@ -1053,6 +1114,18 @@ namespace YOLIC
                         rgb.DrawRectangle(new Pen(colorslist[colorindex], 2), (float)COIList[i][1] * pictureBox1.Image.Width, (float)COIList[i][2] * pictureBox1.Image.Height, (float)COIList[i][3] * pictureBox1.Image.Width, (float)COIList[i][4] * pictureBox1.Image.Height);
                         Rectangle rect = new Rectangle((int)((float)COIList[i][1] * pictureBox1.Image.Width), (int)((float)COIList[i][2] * pictureBox1.Image.Height), (int)((float)COIList[i][3] * pictureBox1.Image.Width), (int)((float)COIList[i][4] * pictureBox1.Image.Height));
                         rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), rect);
+                    }
+                    if (COIList[i][0].ToString().Equals("polygon"))
+                    {
+                        int COI_count = COIList[i].Count;
+                        List<PointF> polygonList = new List<PointF>();
+                        for (int index = 1; index < COI_count; index = index + 2)
+                        {
+                            polygonList.Add(new PointF((float)COIList[i][index] * pictureBox1.Image.Width, (float)COIList[i][index + 1] * pictureBox1.Image.Height));
+                        }
+                        PointF[] points = polygonList.ToArray();
+                        rgb.DrawPolygon(new Pen(colorslist[colorindex], 2), points);
+                        rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), new PointF((float)COIList[i][1] * pictureBox1.Image.Width, (float)COIList[i][2] * pictureBox1.Image.Height));
                     }
                 }
 
@@ -1452,6 +1525,10 @@ namespace YOLIC
                         }
 
                     }
+                    if (COIList[i][0].ToString().Equals("polygon"))
+                    { 
+                     
+                    }
 
                 }
                 dat.Clear();
@@ -1781,6 +1858,10 @@ namespace YOLIC
                             }
                         }
 
+                    }
+                    if (COIList[i][0].ToString().Equals("polygon"))
+                    {
+                        Console.WriteLine("polygon here");
                     }
 
                 }
