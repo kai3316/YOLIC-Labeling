@@ -1526,8 +1526,33 @@ namespace YOLIC
 
                     }
                     if (COIList[i][0].ToString().Equals("polygon"))
-                    { 
-                     
+                    {
+                        int COI_count = COIList[i].Count;
+                        List<PointF> polygonList = new List<PointF>();
+                        for (int index = 1; index < COI_count; index = index + 2)
+                        {
+                            polygonList.Add(new PointF((float)COIList[i][index] * pictureBox2.Image.Width, (float)COIList[i][index + 1] * pictureBox2.Image.Height));
+                        }
+                        PointF[] points = polygonList.ToArray();
+                        if (IfPolygonInside(points, dat2.ToArray(),g))
+                        {
+                            //System.Console.WriteLine(i);
+                            for (int ii = 0, j = 21; ii < LabelList.Count; ii++, j++)
+                            {
+                                if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
+                                {
+                                    Pen p = new Pen(colorslist[ii], 3);
+                                    g.DrawPolygon(p, dat2.ToArray());
+                                    //Console.WriteLine(i);
+                                    currentLabel[(i * (LabelList.Count + 1)) + ii] = "1";
+                                }
+                                //else
+                                //{
+                                //    currentLabel[(i * (LabelList.Count + 1)) + ii] = "0";
+                                //}
+
+                            }
+                        }
                     }
 
                 }
@@ -1553,6 +1578,35 @@ namespace YOLIC
             bool a = myRegion.IsVisible( x, y, width, height);
             myRegion.Dispose();
             return a;
+        }
+
+        private bool IfPolygonInside(PointF[] points1, PointF[] points2, Graphics g)
+        {
+            // 创建两个 Region 对象
+            byte[] types1 = new byte[points1.Length];
+            for (int i = 0; i < types1.Length; i++)
+            {
+                types1[i] = (byte)PathPointType.Line;
+            }
+            Region region1 = new Region(new GraphicsPath(points1, types1));
+
+            byte[] types2 = new byte[points2.Length];
+            for (int i = 0; i < types2.Length; i++)
+            {
+                types2[i] = (byte)PathPointType.Line;
+            }
+            Region region2 = new Region(new GraphicsPath(points2, types2));
+            region1.Intersect(region2);
+            if (!region1.IsEmpty(g))
+            {
+                //Console.WriteLine("The two polygons intersect.");
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+            
         }
 
         private void button21_Click(object sender, EventArgs e)
@@ -1861,7 +1915,33 @@ namespace YOLIC
                     }
                     if (COIList[i][0].ToString().Equals("polygon"))
                     {
-                        Console.WriteLine("polygon here");
+                        int COI_count = COIList[i].Count;
+                        List<PointF> polygonList = new List<PointF>();
+                        for (int index = 1; index < COI_count; index = index + 2)
+                        {
+                            polygonList.Add(new PointF((float)COIList[i][index] * pictureBox1.Image.Width, (float)COIList[i][index + 1] * pictureBox1.Image.Height));
+                        }
+                        PointF[] points = polygonList.ToArray();
+                        
+                        if (IfPolygonInside(points, dat2.ToArray(),g))
+                        {
+                            //System.Console.WriteLine(i);
+                            for (int ii = 0, j = 1; ii < LabelList.Count; ii++, j++)
+                            {
+                                if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
+                                {
+                                    Pen p = new Pen(colorslist[ii], 3);
+                                    g.DrawPolygon(p, dat2.ToArray());
+                                    //Console.WriteLine(i);
+                                    currentLabel[(i * (LabelList.Count + 1)) + ii] = "1";
+                                }
+                                //else
+                                //{
+                                //    currentLabel[(i * (LabelList.Count + 1)) + ii] = "0";
+                                //}
+
+                            }
+                        }
                     }
 
                 }
@@ -1871,7 +1951,7 @@ namespace YOLIC
             }
             catch (Exception)
             {
-                this.BeginInvoke((Action)(() => MessageBox.Show("Failed to save the polygon!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
+                this.BeginInvoke((Action)(() => MessageBox.Show("Failed to save the polygon! Please use the right click to mark the cell", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
             }
         }
 
