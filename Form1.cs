@@ -1,18 +1,21 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.ML.OnnxRuntime;
+using Microsoft.ML.OnnxRuntime.Tensors;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using OpenCvSharp;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.Remoting.Contexts;
 using System.Windows.Forms;
+using Path = System.IO.Path;
 using Point = System.Drawing.Point;
-using OpenCvSharp;
-using Microsoft.ML.OnnxRuntime;
-using Microsoft.ML.OnnxRuntime.Tensors;
-using OpenCvSharp.Flann;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace YOLIC
 {
@@ -45,11 +48,17 @@ namespace YOLIC
                               Color.FromArgb(255,0,255), Color.FromArgb(10,255,105), Color.FromArgb(255,0,0),
                                Color.FromArgb(50,60,246), Color.FromArgb(243,10,100), Color.FromArgb(153, 163, 112),
                                Color.FromArgb(91, 97, 67), Color.FromArgb(210, 224, 155), Color.FromArgb(222, 237, 164),
-                               Color.FromArgb(243,50,100), Color.FromArgb(112, 163, 153),Color.FromArgb(67, 97, 91), 
+                               Color.FromArgb(243,50,100), Color.FromArgb(112, 163, 153),Color.FromArgb(67, 97, 91),
                                Color.FromArgb(155, 224, 210), Color.FromArgb(164, 237, 222)};
 
         JArray[] COIList;
-
+        private int clickCount = 0;
+        private Point startPoint;
+        bool isRectangleMarked = true;
+        System.Drawing.Rectangle rectangle;
+        JArray marks = new JArray();
+        JArray marksForsave = new JArray();
+        private PointF[] PolygonPoints = new PointF[0];
 
         public Form1()
         {
@@ -138,7 +147,7 @@ namespace YOLIC
 
         private void button13_Click(object sender, EventArgs e)
         {
-            if (list_Img==null && list_depthImg == null)
+            if (list_Img == null && list_depthImg == null)
             {
                 MessageBox.Show("Import RGB images and Depth images first!", "Notice", MessageBoxButtons.OK);
                 return;
@@ -242,18 +251,18 @@ namespace YOLIC
         {
             try
             {
-                
+
                 if (openFile_Img.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     list_Img = new List<string>(Directory.GetFiles(openFile_Img.SelectedPath, "*." + ImageExtension));
-                    label6.Text =  list_Img.Count.ToString();
+                    label6.Text = list_Img.Count.ToString();
                     button16.Text = "Start";
                     if (list_Img.Count == 0)
                     {
                         MessageBox.Show("No images under folder!", "Notice", MessageBoxButtons.OK);
                         return;
                     }
-                    
+
                 }
             }
             catch (Exception)
@@ -339,7 +348,7 @@ namespace YOLIC
 
         }
 
-        public Tensor<float> ConvertImageToFloatTensor(Mat image,int mode)
+        public Tensor<float> ConvertImageToFloatTensor(Mat image, int mode)
         {
             if (mode == 0)
             {
@@ -402,9 +411,9 @@ namespace YOLIC
                 }
                 return data;
             }
-            
+
         }
-        private void Display(int currentIndex,int auto =1)
+        private void Display(int currentIndex, int auto = 1)
         {
 
             string Imagename = Path.GetFileName(list_Img[currentIndex]);
@@ -429,7 +438,7 @@ namespace YOLIC
             System.Drawing.Graphics rgb = Graphics.FromImage(pictureBox2.Image);
             System.Drawing.Graphics depth = Graphics.FromImage(pictureBox3.Image);
             //Console.WriteLine(COIList.Length);
-            for (int i =0; i< COIList.Length; i++)
+            for (int i = 0; i < COIList.Length; i++)
             {
                 if (COIList[i][0].ToString().Equals("rectangle"))
                 {
@@ -448,13 +457,13 @@ namespace YOLIC
                     }
                     PointF[] points_rgb = polygonListRgb.ToArray();
                     PointF[] points_depth = polygonListDepth.ToArray();
-                    rgb.DrawPolygon(new Pen(Color.Yellow, 3), points_rgb);
-                    depth.DrawPolygon(new Pen(Color.Yellow, 3), points_depth);
+                    rgb.DrawPolygon(new Pen(Color.Black, 3), points_rgb);
+                    depth.DrawPolygon(new Pen(Color.Black, 3), points_depth);
                 }
 
             }
 
-            if (SemiAutomatic == true && auto ==1)
+            if (SemiAutomatic == true && auto == 1)
             {
                 Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.Color);
                 Mat depth_image = Cv2.ImRead(list_depthImg[CurrentIndex], ImreadModes.Color);
@@ -463,13 +472,13 @@ namespace YOLIC
                 Mat merged = new Mat();
                 Cv2.Merge(new Mat[] { cvrgb[0], cvrgb[1], cvrgb[2], cvd[0] }, merged);
                 Mat outimg = new Mat();
-                
+
                 //Console.WriteLine(outimg.Channels());
                 //Console.WriteLine(outimg.Get<Vec4b>(110, 140));
                 string ModelName = OpenOnnx.FileName;
                 using (var session = new InferenceSession(ModelName))
                 {
-                    
+
                     var inputMeta = session.InputMetadata;
                     var container = new List<NamedOnnxValue>();
                     //PrintInputMetadata(inputMeta);
@@ -496,7 +505,7 @@ namespace YOLIC
                             int[] prediction = sigmoidup(r.AsTensor<float>());
                             int numcell = prediction.Length / (Labelnumber + 1);
                             //Console.WriteLine(numcell);
-                            if (numcell!= COInumber)
+                            if (numcell != COInumber)
                             {
                                 this.BeginInvoke((Action)(() => MessageBox.Show("Failed to get output from the model!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
                                 return;
@@ -511,7 +520,7 @@ namespace YOLIC
                             //    int[] cell = new int[Labelnumber+1];
                             //    Array.Copy(prediction, i-1, cell, 0, Labelnumber + 1);
                             //    if (cell[cell.Length-1] == 1) { continue; }
-                                
+
                             //    //for(int j = 0; j < cell.Length; j++)
                             //    //{
                             //    //    Console.Write(cell[j]);
@@ -533,16 +542,16 @@ namespace YOLIC
 
 
             }
-            if(CheckMode == true)
+            if (CheckMode == true)
             {
                 string NameWithoutExtension = Path.GetFileNameWithoutExtension(list_Img[currentIndex]);
                 //Console.WriteLine(Path.Combine(saveFile.SelectedPath,NameWithoutExtension + ".txt"));
-                if (File.Exists(Path.Combine(saveFile.SelectedPath,NameWithoutExtension + ".txt")) == true)
+                if (File.Exists(Path.Combine(saveFile.SelectedPath, NameWithoutExtension + ".txt")) == true)
                 {
-                   
+
                     StreamReader rd = File.OpenText(Path.Combine(saveFile.SelectedPath, NameWithoutExtension + ".txt"));
                     string s = rd.ReadLine();
-                    string [] currentLabelFormTxt  = s.Split(' ');
+                    string[] currentLabelFormTxt = s.Split(' ');
                     //Console.WriteLine(currentLabelFormTxt.Length);
                     //Console.WriteLine(currentLabel.Length);
                     rd.Close();
@@ -555,7 +564,7 @@ namespace YOLIC
                         //Console.WriteLine(currentLabel.Length);
                         Redraw(pictureBox2.Image);
 
-                        
+
                     }
                     catch (Exception)
                     {
@@ -563,12 +572,12 @@ namespace YOLIC
                         for (int i = 0; i < currentLabel.Length; i++)
                         {
                             currentLabel[i] = "0";
-                            
+
                         }
                     }
 
                 }
-                
+
             }
         }
 
@@ -643,43 +652,43 @@ namespace YOLIC
             }
         }
 
-        private void DisplayRGB(int currentIndex,int auto = 1)
+        private void DisplayRGB(int currentIndex, int auto = 1)
         {
             string Imagename = Path.GetFileName(list_Img[currentIndex]);
-            
+
             label10.Text = Imagename;
-            
+
 
 
             Image OriginalImage = Image.FromFile(list_Img[CurrentIndex]);
-            
+
 
             Image DetectedImage = cutImage(OriginalImage, new Point(0, 0), OriginalImage.Width, OriginalImage.Height);
-            
+
             OriginalImage.Dispose();
-            
+
             pictureBox1.Image = DetectedImage;
 
             System.Drawing.Graphics rgb = Graphics.FromImage(pictureBox1.Image);
-            
+
             //Console.WriteLine(COIList.Length);
             for (int i = 0; i < COIList.Length; i++)
             {
                 if (COIList[i][0].ToString().Equals("rectangle"))
                 {
                     rgb.DrawRectangle(new Pen(Color.Black, 3), (float)COIList[i][1] * pictureBox1.Image.Width, (float)COIList[i][2] * pictureBox1.Image.Height, (float)COIList[i][3] * pictureBox1.Image.Width, (float)COIList[i][4] * pictureBox1.Image.Height);
-                    
+
                 }
                 if (COIList[i][0].ToString().Equals("polygon"))
                 {
                     int COI_count = COIList[i].Count;
                     List<PointF> polygonList = new List<PointF>();
-                    for (int index=1; index<COI_count; index=index+2)
+                    for (int index = 1; index < COI_count; index = index + 2)
                     {
-                        polygonList.Add(new PointF((float)COIList[i][index] * pictureBox1.Image.Width, (float)COIList[i][index+1] * pictureBox1.Image.Height));
+                        polygonList.Add(new PointF((float)COIList[i][index] * pictureBox1.Image.Width, (float)COIList[i][index + 1] * pictureBox1.Image.Height));
                     }
                     PointF[] points = polygonList.ToArray();
-                    rgb.DrawPolygon(new Pen(Color.Yellow, 3), points);
+                    rgb.DrawPolygon(new Pen(Color.Black, 3), points);
                 }
 
             }
@@ -691,7 +700,7 @@ namespace YOLIC
                 string ModelName = OpenOnnx.FileName;
                 using (var session = new InferenceSession(ModelName))
                 {
-                    
+
                     var inputMeta = session.InputMetadata;
                     var container = new List<NamedOnnxValue>();
                     Mat[] cvrgb = Cv2.Split(color_image);
@@ -783,7 +792,7 @@ namespace YOLIC
                         //Console.WriteLine(currentLabel.Length);
                         RedrawR(pictureBox1.Image);
 
-                        
+
                     }
                     catch (Exception)
                     {
@@ -791,10 +800,10 @@ namespace YOLIC
                         for (int i = 0; i < currentLabel.Length; i++)
                         {
                             currentLabel[i] = "0";
-                            
+
                         }
                     }
-                    
+
 
                 }
 
@@ -808,7 +817,7 @@ namespace YOLIC
             {
                 button11.Enabled = true;
                 button12.Enabled = true;
-                
+
                 pictureBox2.Enabled = true;
                 currentLabel = new string[COIList.Length * (LabelList.Count + 1)];
                 for (int i = 0; i < currentLabel.Length; i++)
@@ -833,7 +842,7 @@ namespace YOLIC
                 //Display(CurrentIndex);
             }
 
-            
+
         }
 
         private void SaveImage(int currentIndex)
@@ -842,9 +851,9 @@ namespace YOLIC
             for (int i = 0; i < COIList.Length; i++)
             {
                 string normal = "1";
-                for(int j = 0; j < LabelList.Count; j++)
+                for (int j = 0; j < LabelList.Count; j++)
                 {
-                    if(currentLabel[(i * (LabelList.Count + 1)) + j].Equals("1"))
+                    if (currentLabel[(i * (LabelList.Count + 1)) + j].Equals("1"))
                     {
                         normal = "0";
                     }
@@ -878,11 +887,11 @@ namespace YOLIC
         {
             pictureBox2.Image = g;
             System.Drawing.Graphics rgb = Graphics.FromImage(pictureBox2.Image);
-            
+
             if (COIList[labelArea][0].ToString().Equals("rectangle"))
             {
                 rgb.DrawRectangle(new Pen(c, 2), (float)COIList[labelArea][1] * pictureBox2.Image.Width, (float)COIList[labelArea][2] * pictureBox2.Image.Height, (float)COIList[labelArea][3] * pictureBox2.Image.Width, (float)COIList[labelArea][4] * pictureBox2.Image.Height);
-                
+
             }
             if (COIList[labelArea][0].ToString().Equals("polygon"))
             {
@@ -925,13 +934,32 @@ namespace YOLIC
             {
                 //Console.WriteLine(pictureBox2.Image.Width);
                 //Console.WriteLine(new Point((int)((double)COIList[0][1] * pictureBox2.Image.Width), (int)((double)COIList[0][2] * pictureBox2.Image.Height)));
-                if (IfInside(point, new Point[]{ new Point((int)((double)COIList[i][1] * pictureBox2.Image.Width), (int)((double)COIList[i][2] * pictureBox2.Image.Height)),
+                if (COIList[i][0].ToString().Equals("rectangle"))
+                {
+                    if (IfInside(point, new Point[]{ new Point((int)((double)COIList[i][1] * pictureBox2.Image.Width), (int)((double)COIList[i][2] * pictureBox2.Image.Height)),
                     new Point((int)(((double)COIList[i][1] + (double)COIList[i][3]) * pictureBox2.Image.Width), (int)((double)COIList[i][2] * pictureBox2.Image.Height)),
                     new Point((int)(((double)COIList[i][1] + (double)COIList[i][3]) * pictureBox2.Image.Width), (int)(((double)COIList[i][2] + (double)COIList[i][4]) * pictureBox2.Image.Height)),
-                    new Point((int)((double)COIList[i][1] * pictureBox2.Image.Width), (int)(((double)COIList[i][2] + (double)COIList[i][4]) * pictureBox2.Image.Height)) })){
+                    new Point((int)((double)COIList[i][1] * pictureBox2.Image.Width), (int)(((double)COIList[i][2] + (double)COIList[i][4]) * pictureBox2.Image.Height)) }))
+                    {
 
-                    area = i ;
+                        area = i;
+                    }
                 }
+                if (COIList[i][0].ToString().Equals("polygon"))
+                {
+                    int COI_count = COIList[i].Count;
+                    List<PointF> polygonList = new List<PointF>();
+                    for (int index = 1; index < COI_count; index = index + 2)
+                    {
+                        polygonList.Add(new PointF((float)COIList[i][index] * pictureBox2.Image.Width, (float)COIList[i][index + 1] * pictureBox2.Image.Height));
+                    }
+                    PointF[] points = polygonList.ToArray();
+                    if (IfInside(point, points))
+                    {
+                        area = i;
+                    }
+                }
+
 
             }
             return area;
@@ -943,14 +971,32 @@ namespace YOLIC
             {
                 //Console.WriteLine(pictureBox2.Image.Width);
                 //Console.WriteLine(new Point((int)((double)COIList[0][1] * pictureBox2.Image.Width), (int)((double)COIList[0][2] * pictureBox2.Image.Height)));
-                if (IfInside(point, new Point[]{ new Point((int)((double)COIList[i][1] * pictureBox1.Image.Width), (int)((double)COIList[i][2] * pictureBox1.Image.Height)),
+                if (COIList[i][0].ToString().Equals("rectangle")){
+                    if (IfInside(point, new Point[]{ new Point((int)((double)COIList[i][1] * pictureBox1.Image.Width), (int)((double)COIList[i][2] * pictureBox1.Image.Height)),
                     new Point((int)(((double)COIList[i][1] + (double)COIList[i][3]) * pictureBox1.Image.Width), (int)((double)COIList[i][2] * pictureBox1.Image.Height)),
                     new Point((int)(((double)COIList[i][1] + (double)COIList[i][3]) * pictureBox1.Image.Width), (int)(((double)COIList[i][2] + (double)COIList[i][4]) * pictureBox1.Image.Height)),
                     new Point((int)((double)COIList[i][1] * pictureBox1.Image.Width), (int)(((double)COIList[i][2] + (double)COIList[i][4]) * pictureBox1.Image.Height)) }))
-                {
+                    {
 
-                    area = i;
+                        area = i;
+                    }
                 }
+                if (COIList[i][0].ToString().Equals("polygon"))
+                {
+                    int COI_count = COIList[i].Count;
+                    List<PointF> polygonList = new List<PointF>();
+                    for (int index = 1; index < COI_count; index = index + 2)
+                    {
+                        polygonList.Add(new PointF((float)COIList[i][index] * pictureBox1.Image.Width, (float)COIList[i][index + 1] * pictureBox1.Image.Height));
+                    }
+                    PointF[] points = polygonList.ToArray();
+                    if (IfInside(point, points))
+                    {
+                        area = i;
+                    }
+                }
+
+
 
             }
             return area;
@@ -963,12 +1009,24 @@ namespace YOLIC
             myGraphicsPath.AddPolygon(point);
             myRegion.MakeEmpty();
             myRegion.Union(myGraphicsPath);
-           
+
             bool a = myRegion.IsVisible(checkPoint);
             myRegion.Dispose();
             return a;//返回判断点是否在多边形里
         }
+        private bool IfInside(Point checkPoint, PointF[] point)
+        {
+            GraphicsPath myGraphicsPath = new GraphicsPath();
+            Region myRegion = new Region();
+            myGraphicsPath.Reset();
+            myGraphicsPath.AddPolygon(point);
+            myRegion.MakeEmpty();
+            myRegion.Union(myGraphicsPath);
 
+            bool a = myRegion.IsVisible(checkPoint);
+            myRegion.Dispose();
+            return a;//返回判断点是否在多边形里
+        }
         private void button12_Click(object sender, EventArgs e)
         {
             LastArea = -1;
@@ -991,8 +1049,8 @@ namespace YOLIC
             }
 
             Display(CurrentIndex);
-           
-            
+
+
         }
 
         private void button11_Click(object sender, EventArgs e)
@@ -1041,7 +1099,7 @@ namespace YOLIC
             //    currentLabel[i] = "0";
             //}
 
-                
+
         }
 
         private void Redraw(Image g)
@@ -1060,7 +1118,7 @@ namespace YOLIC
                     {
                         normal = "0";
                         colorindex = j;
-                        classlabel += LabelAbbreviation[j].ToString()+" ";
+                        classlabel += LabelAbbreviation[j].ToString() + " ";
 
                     }
                 }
@@ -1070,7 +1128,7 @@ namespace YOLIC
                     {
                         rgb.DrawRectangle(new Pen(colorslist[colorindex], 2), (float)COIList[i][1] * pictureBox2.Image.Width, (float)COIList[i][2] * pictureBox2.Image.Height, (float)COIList[i][3] * pictureBox2.Image.Width, (float)COIList[i][4] * pictureBox2.Image.Height);
                         Rectangle rect = new Rectangle((int)((float)COIList[i][1] * pictureBox2.Image.Width), (int)((float)COIList[i][2] * pictureBox2.Image.Height), (int)((float)COIList[i][3] * pictureBox2.Image.Width), (int)((float)COIList[i][4] * pictureBox2.Image.Height));
-                        rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity,Color.Yellow)), rect);
+                        rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), rect);
                     }
                     if (COIList[i][0].ToString().Equals("polygon"))
                     {
@@ -1085,7 +1143,7 @@ namespace YOLIC
                         rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), new PointF((float)COIList[i][1] * pictureBox2.Image.Width, (float)COIList[i][2] * pictureBox2.Image.Height));
                     }
                 }
-                
+
             }
         }
         private void RedrawR(Image g)
@@ -1145,7 +1203,7 @@ namespace YOLIC
             {
                 currentLabel[i] = "0";
             }
-            Display(CurrentIndex,0);
+            Display(CurrentIndex, 0);
             LastArea = -1;
 
 
@@ -1211,6 +1269,12 @@ namespace YOLIC
                         {
                             //Console.WriteLine(i);
                             currentLabel[(LabelArea * (LabelList.Count + 1)) + i] = "1";
+                            if (LastArea != -1 && LastArea != LabelArea)
+                            {
+                                DrawboxRGB(pictureBox1.Image, LastArea, Color.Blue);
+                            }
+                            DrawboxRGB(pictureBox1.Image, LabelArea, Color.White);
+                            LastArea = LabelArea;
                         }
                         else
                         {
@@ -1218,12 +1282,12 @@ namespace YOLIC
                         }
 
                     }
-                    if (LastArea != -1 && LastArea != LabelArea)
-                    {
-                        DrawboxRGB(pictureBox1.Image, LastArea, Color.Blue);
-                    }
-                    DrawboxRGB(pictureBox1.Image, LabelArea, Color.White);
-                    LastArea = LabelArea;
+                    //if (LastArea != -1 && LastArea != LabelArea)
+                    //{
+                    //    DrawboxRGB(pictureBox1.Image, LastArea, Color.Blue);
+                    //}
+                    //DrawboxRGB(pictureBox1.Image, LabelArea, Color.White);
+                    //LastArea = LabelArea;
                 }
             }
 
@@ -1307,7 +1371,7 @@ namespace YOLIC
             }
             else
             {
-                
+
                 for (int i = 0; i < currentLabel.Length; i++)
                 {
                     currentLabel[i] = "0";
@@ -1362,7 +1426,7 @@ namespace YOLIC
             {
                 currentLabel[i] = "0";
             }
-            DisplayRGB(CurrentIndex,0);
+            DisplayRGB(CurrentIndex, 0);
             LastArea = -1;
         }
 
@@ -1403,7 +1467,7 @@ namespace YOLIC
         private void button14_Click(object sender, EventArgs e)
         {
             int temp = CurrentIndex;
-            CurrentIndex = int.Parse("0"+textBox2.Text);
+            CurrentIndex = int.Parse("0" + textBox2.Text);
             LastArea = -1;
 
             if (CurrentIndex >= list_Img.Count)
@@ -1427,10 +1491,10 @@ namespace YOLIC
 
         private void textBox2_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (!(char.IsNumber(e.KeyChar))&& e.KeyChar != (char)8)
+            if (!(char.IsNumber(e.KeyChar)) && e.KeyChar != (char)8)
             {
                 e.Handled = true;
-                
+
             }
             button14.Enabled = true;
         }
@@ -1440,7 +1504,7 @@ namespace YOLIC
             if (!(char.IsNumber(e.KeyChar)) && e.KeyChar != (char)8)
             {
                 e.Handled = true;
-                
+
             }
             button6.Enabled = true;
         }
@@ -1464,12 +1528,12 @@ namespace YOLIC
             if (KeepHistory == true)
             {
                 KeepHistory = false;
-                button18.Text = "Label History OFF";
+                button19.Text = "Label History OFF";
             }
             else
             {
                 KeepHistory = true;
-                button18.Text = "Label History ON";
+                button19.Text = "Label History ON";
             }
         }
 
@@ -1481,7 +1545,7 @@ namespace YOLIC
             if (dat.Count > 2)
             {
                 g.DrawPolygon(Pens.Black, dat.ToArray());
-                
+
             }
             else
             {
@@ -1498,7 +1562,7 @@ namespace YOLIC
             {
                 System.Drawing.Graphics g = Graphics.FromImage(pictureBox2.Image);
                 //var g = e.Graphics;
-                
+
 
                 for (int i = 0; i < COIList.Length; i++)
                 {
@@ -1511,7 +1575,7 @@ namespace YOLIC
                             {
                                 if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
                                 {
-                                    Pen p = new Pen(colorslist[ii],3);
+                                    Pen p = new Pen(colorslist[ii], 3);
                                     g.DrawPolygon(p, dat2.ToArray());
                                     //Console.WriteLine(i);
                                     currentLabel[(i * (LabelList.Count + 1)) + ii] = "1";
@@ -1534,7 +1598,7 @@ namespace YOLIC
                             polygonList.Add(new PointF((float)COIList[i][index] * pictureBox2.Image.Width, (float)COIList[i][index + 1] * pictureBox2.Image.Height));
                         }
                         PointF[] points = polygonList.ToArray();
-                        if (IfPolygonInside(points, dat2.ToArray(),g))
+                        if (IfPolygonInside(points, dat2.ToArray(), g))
                         {
                             //System.Console.WriteLine(i);
                             for (int ii = 0, j = 21; ii < LabelList.Count; ii++, j++)
@@ -1564,7 +1628,7 @@ namespace YOLIC
             {
                 this.BeginInvoke((Action)(() => MessageBox.Show("Failed to save the polygon!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
             }
-            
+
         }
 
         private bool IfPolygonInside(float x, float y, float width, float height, PointF[] point)
@@ -1575,7 +1639,7 @@ namespace YOLIC
             myGraphicsPath.AddPolygon(point);
             myRegion.MakeEmpty();
             myRegion.Union(myGraphicsPath);
-            bool a = myRegion.IsVisible( x, y, width, height);
+            bool a = myRegion.IsVisible(x, y, width, height);
             myRegion.Dispose();
             return a;
         }
@@ -1606,7 +1670,7 @@ namespace YOLIC
             {
                 return false;
             }
-            
+
         }
 
         private void button21_Click(object sender, EventArgs e)
@@ -1732,7 +1796,7 @@ namespace YOLIC
                         {
                             currentLabel[(LabelArea * (LabelList.Count + 1)) + i] = "0";
                         }
-                        
+
 
                     }
 
@@ -1775,7 +1839,7 @@ namespace YOLIC
                 {
                     this.BeginInvoke((Action)(() => MessageBox.Show("Failed to read the ONNX model file!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
                 }
-                
+
             }
         }
 
@@ -1783,7 +1847,7 @@ namespace YOLIC
         {
             if (fullrgb == 0)
             {
-                pictureBox2.Size = new System.Drawing.Size(pictureBox2.Size.Width, pictureBox2.Size.Height +  pictureBox3.Size.Height/2);
+                pictureBox2.Size = new System.Drawing.Size(pictureBox2.Size.Width, pictureBox2.Size.Height + pictureBox3.Size.Height / 2);
                 fullrgb = 1;
             }
             else
@@ -1791,9 +1855,9 @@ namespace YOLIC
                 pictureBox2.Size = new System.Drawing.Size(pictureBox2.Size.Width, pictureBox3.Size.Height);
                 fullrgb = 0;
             }
-            
 
-       
+
+
         }
 
         private void button23_Click(object sender, EventArgs e)
@@ -1812,7 +1876,7 @@ namespace YOLIC
 
         private void label11_DoubleClick(object sender, EventArgs e)
         {
-            if(LabelList!= null)
+            if (LabelList != null)
             {
                 for (int i = 0, j = 21; i < LabelList.Count; i++, j++)
                 {
@@ -1922,8 +1986,8 @@ namespace YOLIC
                             polygonList.Add(new PointF((float)COIList[i][index] * pictureBox1.Image.Width, (float)COIList[i][index + 1] * pictureBox1.Image.Height));
                         }
                         PointF[] points = polygonList.ToArray();
-                        
-                        if (IfPolygonInside(points, dat2.ToArray(),g))
+
+                        if (IfPolygonInside(points, dat2.ToArray(), g))
                         {
                             //System.Console.WriteLine(i);
                             for (int ii = 0, j = 1; ii < LabelList.Count; ii++, j++)
@@ -1978,6 +2042,268 @@ namespace YOLIC
                     g.DrawArc(Pens.Black, new RectangleF(p.X - 2, p.Y - 2, 5, 5), 0, 360);
                 }
             }
+        }
+
+        private void button28_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png";
+                openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string fileName = openFileDialog.FileName;
+                    pictureBox4.Load(fileName);
+                    pictureBox4.Enabled = true;
+                }
+            }
+        }
+
+        private void pictureBox4_Paint(object sender, PaintEventArgs e)
+        {
+            // 获取 PictureBox 的画布
+            Graphics g = e.Graphics;
+
+            // 遍历 marks 数组
+            foreach (JArray mark in marks)
+            {
+                // 获取标记形状
+                string shape = mark[0].ToString();
+                // 如果是矩形
+                if (shape == "rectangle")
+                {
+                    // 获取矩形的位置和大小
+                    int x = mark[1].ToObject<int>();
+                    int y = mark[2].ToObject<int>();
+                    int width = mark[3].ToObject<int>();
+                    int height = mark[4].ToObject<int>();
+                    // 画出矩形
+                    g.DrawRectangle(Pens.Red, new Rectangle(x, y, width, height));
+                }
+                // 如果是多边形
+                else if (shape == "polygon")
+                {
+                    // 获取多边形的顶点坐标
+                    float[] listp = new float[mark.Count() - 1];
+
+                    for (int i = 1; i < mark.Count(); i++)
+                    {
+                        listp[i - 1] = float.Parse(mark[i].ToString());
+                    }
+                    
+                    PointF[] points = new PointF[listp.Length / 2];
+                    for (int i = 0; i < listp.Length; i += 2)
+                    {
+                        points[i / 2] = new PointF((float)listp[i], (float)listp[i + 1]);
+                    }
+                    // 画出多边形
+                    g.DrawPolygon(Pens.Red, points);
+                }
+            }
+
+
+            g.DrawRectangle(Pens.Red, rectangle);
+            if (PolygonPoints != null)
+            {
+                if (PolygonPoints.Length < 3)
+                {
+                    // 遍历 points 数组
+                    foreach (PointF point in PolygonPoints)
+                    {
+                        // 在 PictureBox 中显示点的位置
+                        g.FillEllipse(Brushes.Red, point.X - 2, point.Y - 2, 4, 4);
+                    }
+                }
+                // 如果 points 数组中的点的数量大于等于 3
+                else
+                {
+                    // 画出多边形
+                    g.DrawPolygon(Pens.Red, PolygonPoints);
+                }
+            }
+
+        }
+
+
+        private void button29_Click(object sender, EventArgs e)
+        {
+            if (isRectangleMarked)
+            {
+                // 将 isRectangleMarked 标志设置为 true
+                isRectangleMarked = false;
+
+                // 更新按钮文本
+                button29.Text = "Polygon Mark";
+            }
+            else
+            {
+                // 将 isRectangleMarked 标志设置为 true
+                isRectangleMarked = true;
+                // 更新按钮文本
+                button29.Text = "Rectangle Mark";
+            }
+
+
+
+        }
+
+        private void pictureBox4_MouseClick(object sender, MouseEventArgs e)
+        {
+
+            if (isRectangleMarked)
+            {
+                //Console.WriteLine(clickCount);
+                // 增加计数器
+                clickCount++;
+                // 如果是第一次单击
+                if (clickCount == 1)
+                {
+                    // 记录起点
+                    startPoint = e.Location;
+                }
+                // 如果是第二次单击
+                else if (clickCount == 2)
+                {
+                    // 计算矩形的位置和大小
+                    int x = Math.Min(startPoint.X, e.X);
+                    int y = Math.Min(startPoint.Y, e.Y);
+                    int width = Math.Abs(startPoint.X - e.X);
+                    int height = Math.Abs(startPoint.Y - e.Y);
+                    // 更新 rectangle 变量
+                    rectangle = new System.Drawing.Rectangle(x, y, width, height);
+                    // 触发 PictureBox 的重绘事件
+                    pictureBox4.Invalidate();
+                    // 重置计数器
+                    clickCount = 0;
+                }
+            }
+            else
+            {
+
+                Point point = new Point(e.X, e.Y);
+
+                // 将鼠标单击的位置添加到 PolygonPoints 数组中
+                Array.Resize(ref PolygonPoints, PolygonPoints.Length + 1);
+                PolygonPoints[PolygonPoints.Length - 1] = point;
+                // 如果 PolygonPoints 数组中的点的数量大于等于 3 个，表示多边形已经被完整标记
+                pictureBox4.Invalidate();
+
+            }
+        }
+
+        private void pictureBox4_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (clickCount == 1)
+            {
+                // 计算矩形的位置和大小
+                int x = Math.Min(startPoint.X, e.X);
+                int y = Math.Min(startPoint.Y, e.Y);
+                int width = Math.Abs(startPoint.X - e.X);
+                int height = Math.Abs(startPoint.Y - e.Y);
+                // 更新 rectangle 变量
+                rectangle = new Rectangle(x, y, width, height);
+                // 触发 PictureBox 的重绘事件
+                pictureBox4.Invalidate();
+            }
+        }
+
+        private void button31_Click(object sender, EventArgs e)
+        {
+            int originalHeight = this.pictureBox4.Image.Height;
+
+            PropertyInfo rectangleProperty = this.pictureBox4.GetType().GetProperty("ImageRectangle", BindingFlags.Instance | BindingFlags.NonPublic);
+            Rectangle picturerectangle = (Rectangle)rectangleProperty.GetValue(this.pictureBox4, null);
+
+            int currentWidth = picturerectangle.Width;
+            int currentHeight = picturerectangle.Height;
+
+            float rate = (float)currentHeight / (float)originalHeight;
+
+            int black_left_width = (currentWidth == this.pictureBox4.Width) ? 0 : (this.pictureBox4.Width - currentWidth) / 2;
+            int black_top_height = (currentHeight == this.pictureBox4.Height) ? 0 : (this.pictureBox4.Height - currentHeight) / 2;
+
+            
+            if (isRectangleMarked)
+            {
+                int zoom_x = rectangle.X - black_left_width;
+                int zoom_y = rectangle.Y - black_top_height;
+
+                float original_x = (float)zoom_x / rate;
+                float original_y = (float)zoom_y / rate;
+                float original_width = rectangle.Width / rate;
+                float original_height = rectangle.Height / rate;
+                // 将矩形标记信息添加到 JArray 中
+                marksForsave.Add(new JArray("rectangle", original_x, original_y, original_width, original_height));
+                marks.Add(new JArray("Rectangle", rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height));
+                pictureBox4.Invalidate();
+                clickCount = 0;
+            }
+            // 如果当前是多边形标记状态
+            else
+            {
+                if (PolygonPoints==null || PolygonPoints.Length < 3)
+                {
+                    return;
+                }
+                JArray pointArray = new JArray("polygon");
+                JArray pointArraySave = new JArray("polygon");
+                foreach (PointF point in PolygonPoints)
+                {
+                    pointArray.Add(point.X);
+                    pointArray.Add(point.Y);
+                    float zoom_x = point.X - black_left_width;
+                    float zoom_y = point.Y - black_top_height;
+
+                    float original_x = (float)zoom_x / rate;
+                    float original_y = (float)zoom_y / rate;
+                    pointArraySave.Add(original_x);
+                    pointArraySave.Add(original_y);
+                }
+                // 将多边形标记信息添加到 JArray 中
+                marks.Add(pointArray);
+                marksForsave.Add(pointArraySave);
+                pictureBox4.Invalidate();
+                PolygonPoints = new PointF[0];
+            }
+        }
+
+        private void button30_Click(object sender, EventArgs e)
+        {
+            clickCount = 0;
+            rectangle = new Rectangle();
+            PolygonPoints = new PointF[0];
+            pictureBox4.Invalidate();
+        }
+
+        private void button32_Click(object sender, EventArgs e)
+        {
+            JObject output = new JObject { { "COIs", new JObject { { "COINumber", marksForsave.Count.ToString() } } } };
+
+            // 遍历JArray数组，将每个数组元素添加到JSON对象中
+            for (int i = 0; i < marksForsave.Count; i++)
+            {
+                output["COIs"][(i + 1).ToString()] = marksForsave[i];
+            }
+
+            // 将JSON对象转换为字符串
+            string outputStr = output.ToString();
+            SaveFileDialog saveDialog = new SaveFileDialog();
+
+            // 设置文件保存位置（这里设置为桌面）
+            saveDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            saveDialog.FileName = "new configuration.json";
+            saveDialog.Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*";
+
+            // 设置默认文件保存类型为JSON文件
+            saveDialog.DefaultExt = "json";
+            if (saveDialog.ShowDialog() == DialogResult.OK)
+            {
+                // 使用File类的WriteAllText方法将JSON字符串保存到文件中
+                File.WriteAllText(saveDialog.FileName, outputStr);
+            }
+
+            Console.WriteLine(outputStr);
         }
     }
 }
