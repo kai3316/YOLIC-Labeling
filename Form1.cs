@@ -12,7 +12,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Remoting.Contexts;
+using System.Windows;
 using System.Windows.Forms;
+using MessageBox = System.Windows.Forms.MessageBox;
 using Path = System.IO.Path;
 using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
@@ -2194,6 +2196,39 @@ namespace YOLIC
 
         private void pictureBox4_MouseMove(object sender, MouseEventArgs e)
         {
+            int originalHeight = this.pictureBox4.Image.Height;
+
+            PropertyInfo rectangleProperty = this.pictureBox4.GetType().GetProperty("ImageRectangle", BindingFlags.Instance | BindingFlags.NonPublic);
+            Rectangle picrectangle = (Rectangle)rectangleProperty.GetValue(this.pictureBox4, null);
+
+            int currentWidth = picrectangle.Width;
+            int currentHeight = picrectangle.Height;
+
+            double rate = (double)currentHeight / (double)originalHeight;
+
+            int black_left_width = (currentWidth == this.pictureBox4.Width) ? 0 : (this.pictureBox4.Width - currentWidth) / 2;
+            int black_top_height = (currentHeight == this.pictureBox4.Height) ? 0 : (this.pictureBox4.Height - currentHeight) / 2;
+            int zoom_x = e.X - black_left_width;
+            int zoom_y = e.Y - black_top_height;
+
+            int original_x = (int)(zoom_x / rate);
+            int original_y = (int)(zoom_y / rate);
+            int width_g = 100; // 放大的宽度
+            int height_g = 100; // 放大的高度
+
+            Bitmap bmp = new Bitmap(width_g, height_g);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                g.DrawImage(pictureBox4.Image, new Rectangle(0, 0, width_g*2, height_g*2), new Rectangle(original_x-25, original_y-25, width_g, height_g), GraphicsUnit.Pixel);
+                g.FillEllipse(Brushes.Yellow, width_g/2 -2, height_g/2 -2, 4, 4);
+            }
+            pictureBox5.Image = bmp;
+            Point pt = new Point();
+            pt.X = Cursor.Position.X - this.Location.X- 55;
+            pt.Y = Cursor.Position.Y - this.Location.Y-200;
+            pictureBox5.Location = pt;
+
             if (clickCount == 1)
             {
                 // 计算矩形的位置和大小
@@ -2211,6 +2246,7 @@ namespace YOLIC
         private void button31_Click(object sender, EventArgs e)
         {
             int originalHeight = this.pictureBox4.Image.Height;
+            int originalWidth = this.pictureBox4.Image.Width;
 
             PropertyInfo rectangleProperty = this.pictureBox4.GetType().GetProperty("ImageRectangle", BindingFlags.Instance | BindingFlags.NonPublic);
             Rectangle picturerectangle = (Rectangle)rectangleProperty.GetValue(this.pictureBox4, null);
@@ -2231,11 +2267,31 @@ namespace YOLIC
 
                 float original_x = (float)zoom_x / rate;
                 float original_y = (float)zoom_y / rate;
+                if (original_x<0)
+                {
+                    original_x = 0;
+                    
+                }
+                if (original_y < 0)
+                {
+                    original_y = 0;
+                }
+
+                if(original_x > this.pictureBox4.Image.Width )
+                {
+                    original_x = this.pictureBox4.Image.Width;
+                    
+                }
+                if(original_y >= this.pictureBox4.Image.Height)
+                {
+                    original_y = this.pictureBox4.Image.Height;
+                }
+                
                 float original_width = rectangle.Width / rate;
                 float original_height = rectangle.Height / rate;
                 // 将矩形标记信息添加到 JArray 中
-                marksForsave.Add(new JArray("rectangle", original_x, original_y, original_width, original_height));
-                marks.Add(new JArray("Rectangle", rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height));
+                marksForsave.Add(new JArray("rectangle", original_x/ originalWidth, original_y/ originalHeight, original_width/ originalWidth, original_height/ originalHeight));
+                marks.Add(new JArray("rectangle", rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height));
                 pictureBox4.Invalidate();
                 clickCount = 0;
             }
@@ -2257,8 +2313,27 @@ namespace YOLIC
 
                     float original_x = (float)zoom_x / rate;
                     float original_y = (float)zoom_y / rate;
-                    pointArraySave.Add(original_x);
-                    pointArraySave.Add(original_y);
+                    if (original_x < 0)
+                    {
+                        original_x = 0;
+
+                    }
+                    if (original_y < 0)
+                    {
+                        original_y = 0;
+                    }
+
+                    if (original_x > this.pictureBox4.Image.Width)
+                    {
+                        original_x = this.pictureBox4.Image.Width;
+
+                    }
+                    if (original_y > this.pictureBox4.Image.Height)
+                    {
+                        original_y = this.pictureBox4.Image.Height;
+                    }
+                    pointArraySave.Add(original_x / originalWidth);
+                    pointArraySave.Add(original_y / originalHeight);
                 }
                 // 将多边形标记信息添加到 JArray 中
                 marks.Add(pointArray);
@@ -2304,6 +2379,36 @@ namespace YOLIC
             }
 
             Console.WriteLine(outputStr);
+        }
+
+        private void pictureBox4_MouseEnter(object sender, EventArgs e)
+        {
+            // 设置 picturebox2 的位置为鼠标的当前位置
+            pictureBox5.Enabled = true;
+            
+            Point pt = new Point();
+            pt.X = Cursor.Position.X - this.Location.X;
+            pt.Y = Cursor.Position.Y - this.Location.Y;
+            pictureBox5.Location = pt;
+            // 设置 picturebox2 的可见性为 true
+            pictureBox5.Visible = true;
+
+        }
+
+        private void pictureBox4_MouseLeave(object sender, EventArgs e)
+        {
+            pictureBox5.Visible = false;
+            pictureBox5.Enabled = false;
+        }
+
+        private void button33_Click(object sender, EventArgs e)
+        {
+            clickCount = 0;
+            rectangle = new Rectangle();
+            PolygonPoints = new PointF[0];
+            marks = new JArray();
+            marksForsave = new JArray();
+            pictureBox4.Invalidate();
         }
     }
 }

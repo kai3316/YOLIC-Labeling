@@ -127,6 +127,8 @@
             this.button29 = new System.Windows.Forms.Button();
             this.button28 = new System.Windows.Forms.Button();
             this.pictureBox4 = new System.Windows.Forms.PictureBox();
+            this.pictureBox5 = new System.Windows.Forms.PictureBox();
+            this.button33 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -137,6 +139,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             this.tabPage3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -280,10 +283,10 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label10.Font = new System.Drawing.Font("Verdana", 5F);
             this.label10.Location = new System.Drawing.Point(778, 629);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(31, 14);
+            this.label10.Size = new System.Drawing.Size(16, 8);
             this.label10.TabIndex = 34;
             this.label10.Text = "      ";
             // 
@@ -816,20 +819,20 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Font = new System.Drawing.Font("Verdana", 6F);
+            this.label9.Font = new System.Drawing.Font("Verdana", 5F);
             this.label9.Location = new System.Drawing.Point(805, 620);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(29, 10);
+            this.label9.Size = new System.Drawing.Size(20, 8);
             this.label9.TabIndex = 39;
             this.label9.Text = "        ";
             // 
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("Verdana", 6F);
+            this.label8.Font = new System.Drawing.Font("Verdana", 5F);
             this.label8.Location = new System.Drawing.Point(793, 592);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(29, 10);
+            this.label8.Size = new System.Drawing.Size(20, 8);
             this.label8.TabIndex = 38;
             this.label8.Text = "        ";
             // 
@@ -1268,6 +1271,8 @@
             // 
             // tabPage3
             // 
+            this.tabPage3.Controls.Add(this.button33);
+            this.tabPage3.Controls.Add(this.pictureBox5);
             this.tabPage3.Controls.Add(this.button32);
             this.tabPage3.Controls.Add(this.button31);
             this.tabPage3.Controls.Add(this.button30);
@@ -1296,7 +1301,7 @@
             // button31
             // 
             this.button31.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button31.Location = new System.Drawing.Point(404, 6);
+            this.button31.Location = new System.Drawing.Point(359, 6);
             this.button31.Name = "button31";
             this.button31.Size = new System.Drawing.Size(110, 50);
             this.button31.TabIndex = 5;
@@ -1307,7 +1312,7 @@
             // button30
             // 
             this.button30.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button30.Location = new System.Drawing.Point(288, 6);
+            this.button30.Location = new System.Drawing.Point(243, 6);
             this.button30.Name = "button30";
             this.button30.Size = new System.Drawing.Size(110, 50);
             this.button30.TabIndex = 4;
@@ -1318,7 +1323,7 @@
             // button29
             // 
             this.button29.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button29.Location = new System.Drawing.Point(172, 6);
+            this.button29.Location = new System.Drawing.Point(475, 6);
             this.button29.Name = "button29";
             this.button29.Size = new System.Drawing.Size(110, 50);
             this.button29.TabIndex = 3;
@@ -1349,7 +1354,32 @@
             this.pictureBox4.TabStop = false;
             this.pictureBox4.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox4_Paint);
             this.pictureBox4.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox4_MouseClick);
+            this.pictureBox4.MouseEnter += new System.EventHandler(this.pictureBox4_MouseEnter);
+            this.pictureBox4.MouseLeave += new System.EventHandler(this.pictureBox4_MouseLeave);
             this.pictureBox4.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox4_MouseMove);
+            // 
+            // pictureBox5
+            // 
+            this.pictureBox5.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pictureBox5.Location = new System.Drawing.Point(783, 539);
+            this.pictureBox5.Name = "pictureBox5";
+            this.pictureBox5.Size = new System.Drawing.Size(211, 112);
+            this.pictureBox5.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.pictureBox5.TabIndex = 7;
+            this.pictureBox5.TabStop = false;
+            this.pictureBox5.Visible = false;
+            // 
+            // button33
+            // 
+            this.button33.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button33.ForeColor = System.Drawing.Color.Red;
+            this.button33.Location = new System.Drawing.Point(127, 6);
+            this.button33.Name = "button33";
+            this.button33.Size = new System.Drawing.Size(110, 50);
+            this.button33.TabIndex = 8;
+            this.button33.Text = "Clear all marks";
+            this.button33.UseVisualStyleBackColor = true;
+            this.button33.Click += new System.EventHandler(this.button33_Click);
             // 
             // Form1
             // 
@@ -1374,7 +1404,9 @@
             this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
             this.tabPage3.ResumeLayout(false);
+            this.tabPage3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -1479,6 +1511,8 @@
         private System.Windows.Forms.Button button29;
         private System.Windows.Forms.Button button28;
         private System.Windows.Forms.PictureBox pictureBox4;
+        private System.Windows.Forms.PictureBox pictureBox5;
+        private System.Windows.Forms.Button button33;
     }
 }
 
