@@ -2353,7 +2353,7 @@ namespace YOLIC
 
         private void button32_Click(object sender, EventArgs e)
         {
-            JObject output = new JObject { { "COIs", new JObject { { "COINumber", marksForsave.Count.ToString() } } } };
+            JObject output = new JObject { { "Labels", new JObject { { "LabelList", new JArray("Class 1","Class 2") }, { "LabelAbbreviation", new JArray("C1", "C2") }, { "LabelNumber", "2" } } } ,{ "COIs", new JObject { { "COINumber", marksForsave.Count.ToString() } } } };
 
             // 遍历JArray数组，将每个数组元素添加到JSON对象中
             for (int i = 0; i < marksForsave.Count; i++)
