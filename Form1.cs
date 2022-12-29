@@ -26,7 +26,6 @@ namespace YOLIC
         Boolean KeepHistory = false;
         Boolean SemiAutomatic = false;
         Boolean CheckMode = false;
-        string ImageExtension = "png";
         private List<string> list_Img;
         private List<string> list_depthImg;
         OpenFileDialog OpenJson = new OpenFileDialog();
@@ -256,7 +255,7 @@ namespace YOLIC
 
                 if (openFile_Img.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    list_Img = new List<string>(Directory.GetFiles(openFile_Img.SelectedPath, "*." + ImageExtension));
+                    list_Img = new List<string>(Directory.GetFiles(openFile_Img.SelectedPath, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".png") || s.EndsWith(".jpg") || s.EndsWith(".jpeg")));
                     label6.Text = list_Img.Count.ToString();
                     button16.Text = "Start";
                     if (list_Img.Count == 0)
@@ -264,6 +263,10 @@ namespace YOLIC
                         MessageBox.Show("No images under folder!", "Notice", MessageBoxButtons.OK);
                         return;
                     }
+                    dat.Clear();
+                    dat2.Clear();
+                    button16.Text = "Start";
+                    CurrentIndex = 0;
 
                 }
             }
@@ -279,7 +282,7 @@ namespace YOLIC
             {
                 if (openFile_DepthImg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    list_depthImg = new List<string>(Directory.GetFiles(openFile_DepthImg.SelectedPath, "*." + ImageExtension));
+                    list_depthImg = new List<string>(Directory.GetFiles(openFile_DepthImg.SelectedPath, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".png") || s.EndsWith(".jpg") || s.EndsWith(".jpeg")));
                     if (list_depthImg.Count == 0)
                     {
                         MessageBox.Show("No images under folder!", "Notice", MessageBoxButtons.OK);
@@ -301,13 +304,19 @@ namespace YOLIC
 
                 if (openFile_Img.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    list_Img = new List<string>(Directory.GetFiles(openFile_Img.SelectedPath, "*." + ImageExtension));
+                    list_Img = new List<string>(Directory.GetFiles(openFile_Img.SelectedPath, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".png") || s.EndsWith(".jpg") || s.EndsWith(".jpeg")));
                     label7.Text = list_Img.Count.ToString();
                     if (list_Img.Count == 0)
                     {
                         MessageBox.Show("No images under this folder!", "Notice", MessageBoxButtons.OK);
                         return;
                     }
+                    dat.Clear();
+                    dat2.Clear();
+                    button7.Text = "Start";
+                    CurrentIndex = 0;
+                    
+
 
                 }
             }
@@ -444,8 +453,8 @@ namespace YOLIC
             {
                 if (COIList[i][0].ToString().Equals("rectangle"))
                 {
-                    rgb.DrawRectangle(new Pen(Color.Black, 3), (float)COIList[i][1] * pictureBox2.Image.Width, (float)COIList[i][2] * pictureBox2.Image.Height, (float)COIList[i][3] * pictureBox2.Image.Width, (float)COIList[i][4] * pictureBox2.Image.Height);
-                    depth.DrawRectangle(new Pen(Color.Black, 3), (float)COIList[i][1] * pictureBox3.Image.Width, (float)COIList[i][2] * pictureBox3.Image.Height, (float)COIList[i][3] * pictureBox3.Image.Width, (float)COIList[i][4] * pictureBox3.Image.Height);
+                    rgb.DrawRectangle(new Pen(Color.LightGreen, 2), (float)COIList[i][1] * pictureBox2.Image.Width, (float)COIList[i][2] * pictureBox2.Image.Height, (float)COIList[i][3] * pictureBox2.Image.Width, (float)COIList[i][4] * pictureBox2.Image.Height);
+                    depth.DrawRectangle(new Pen(Color.LightGreen, 2), (float)COIList[i][1] * pictureBox3.Image.Width, (float)COIList[i][2] * pictureBox3.Image.Height, (float)COIList[i][3] * pictureBox3.Image.Width, (float)COIList[i][4] * pictureBox3.Image.Height);
                 }
                 if (COIList[i][0].ToString().Equals("polygon"))
                 {
@@ -459,8 +468,8 @@ namespace YOLIC
                     }
                     PointF[] points_rgb = polygonListRgb.ToArray();
                     PointF[] points_depth = polygonListDepth.ToArray();
-                    rgb.DrawPolygon(new Pen(Color.Black, 3), points_rgb);
-                    depth.DrawPolygon(new Pen(Color.Black, 3), points_depth);
+                    rgb.DrawPolygon(new Pen(Color.LightGreen, 2), points_rgb);
+                    depth.DrawPolygon(new Pen(Color.LightGreen, 2), points_depth);
                 }
 
             }
@@ -678,7 +687,7 @@ namespace YOLIC
             {
                 if (COIList[i][0].ToString().Equals("rectangle"))
                 {
-                    rgb.DrawRectangle(new Pen(Color.Black, 3), (float)COIList[i][1] * pictureBox1.Image.Width, (float)COIList[i][2] * pictureBox1.Image.Height, (float)COIList[i][3] * pictureBox1.Image.Width, (float)COIList[i][4] * pictureBox1.Image.Height);
+                    rgb.DrawRectangle(new Pen(Color.LightGreen, 2), (float)COIList[i][1] * pictureBox1.Image.Width, (float)COIList[i][2] * pictureBox1.Image.Height, (float)COIList[i][3] * pictureBox1.Image.Width, (float)COIList[i][4] * pictureBox1.Image.Height);
 
                 }
                 if (COIList[i][0].ToString().Equals("polygon"))
@@ -690,7 +699,7 @@ namespace YOLIC
                         polygonList.Add(new PointF((float)COIList[i][index] * pictureBox1.Image.Width, (float)COIList[i][index + 1] * pictureBox1.Image.Height));
                     }
                     PointF[] points = polygonList.ToArray();
-                    rgb.DrawPolygon(new Pen(Color.Black, 3), points);
+                    rgb.DrawPolygon(new Pen(Color.LightGreen, 2), points);
                 }
 
             }
@@ -1577,7 +1586,7 @@ namespace YOLIC
                             {
                                 if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
                                 {
-                                    Pen p = new Pen(colorslist[ii], 3);
+                                    Pen p = new Pen(colorslist[ii], 2);
                                     g.DrawPolygon(p, dat2.ToArray());
                                     //Console.WriteLine(i);
                                     currentLabel[(i * (LabelList.Count + 1)) + ii] = "1";
@@ -1607,7 +1616,7 @@ namespace YOLIC
                             {
                                 if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
                                 {
-                                    Pen p = new Pen(colorslist[ii], 3);
+                                    Pen p = new Pen(colorslist[ii], 2);
                                     g.DrawPolygon(p, dat2.ToArray());
                                     //Console.WriteLine(i);
                                     currentLabel[(i * (LabelList.Count + 1)) + ii] = "1";
@@ -1625,6 +1634,14 @@ namespace YOLIC
                 dat.Clear();
                 dat2.Clear();
                 pictureBox2.Invalidate();
+                for (int ii = 0, j = 21; ii < LabelList.Count; ii++, j++)
+                {
+                    if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
+                    {
+                        ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked = false;
+                    }
+
+                }
             }
             catch (Exception)
             {
@@ -1965,7 +1982,7 @@ namespace YOLIC
                             {
                                 if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
                                 {
-                                    Pen p = new Pen(colorslist[ii], 3);
+                                    Pen p = new Pen(colorslist[ii], 2);
                                     g.DrawPolygon(p, dat2.ToArray());
                                     //Console.WriteLine(i);
                                     currentLabel[(i * (LabelList.Count + 1)) + ii] = "1";
@@ -1996,7 +2013,7 @@ namespace YOLIC
                             {
                                 if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
                                 {
-                                    Pen p = new Pen(colorslist[ii], 3);
+                                    Pen p = new Pen(colorslist[ii], 2);
                                     g.DrawPolygon(p, dat2.ToArray());
                                     //Console.WriteLine(i);
                                     currentLabel[(i * (LabelList.Count + 1)) + ii] = "1";
@@ -2014,6 +2031,15 @@ namespace YOLIC
                 dat.Clear();
                 dat2.Clear();
                 pictureBox1.Invalidate();
+                for (int ii = 0, j = 1; ii < LabelList.Count; ii++, j++)
+                {
+                    if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
+                    {
+                        ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked = false;
+                    }
+
+                }
+
             }
             catch (Exception)
             {
