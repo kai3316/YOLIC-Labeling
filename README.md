@@ -11,8 +11,11 @@ To use this project, you will need to install the YOLIC tool on a Windows system
 
 We hope you find this project helpful, and we welcome any feedback or contributions. Thank you for your interest in YOLIC!
 
-## Annotation Tool
+## Annotation Example
+### Cell Configuration for a road risk detection task
+![image](https://github.com/Inceptionnet/YOLIC-Labeling/blob/master/images/cellExample.png)
+### Annotation Tool with this configuration (Configuration3.json)
 ![image](https://github.com/Inceptionnet/YOLIC-Labeling/blob/master/images/LabelingGUI.png)
 
-Annotation Tool with Configuration3(Configuration3.json)
+
 
