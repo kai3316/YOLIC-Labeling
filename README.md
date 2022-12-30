@@ -13,7 +13,7 @@ We hope you find this project helpful, and we welcome any feedback or contributi
 
 ## Annotation Example
 ### Cell Configuration for a road risk detection task
-![image](https://github.com/Inceptionnet/YOLIC-Labeling/blob/master/images/cellExample.png)
+![image](https://github.com/kai3316/YOLIC-Labeling/blob/master/cellExample.png)
 ### Annotation Tool with this configuration (Configuration3.json)
 ![image](https://github.com/Inceptionnet/YOLIC-Labeling/blob/master/images/LabelingGUI.png)
 
