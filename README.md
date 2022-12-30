@@ -9,7 +9,7 @@ We have tested YOLIC using on-road risk detection, and found that it is signific
 
 To use this project, you will need to install the YOLIC tool on a Windows system and design your own cell configuration (i.e., interested cells) based on actual needs. You will also need to annotate your own data using the provided annotation tool. For more information on how to use these tools, please refer to the project's documentation. 
 
-We hope you find this project helpful, and we welcome any feedback or contributions. Thank you for your interest in YOLIC!
+Our team is dedicated to constantly improving and expanding the capabilities of this tool, we hope you find this project helpful, and we welcome any feedback or contributions. Thank you for your interest in YOLIC!
 
 ## Annotation Example
 ### Cell Configuration for a road risk detection task
