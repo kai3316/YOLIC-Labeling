@@ -652,7 +652,7 @@
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(110, 68);
             this.button4.TabIndex = 3;
-            this.button4.Text = "Previous Image";
+            this.button4.Text = "Previous Image(P)";
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
@@ -664,7 +664,7 @@
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(110, 68);
             this.button3.TabIndex = 2;
-            this.button3.Text = "Next Image";
+            this.button3.Text = "Next Image(N)";
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
@@ -1220,7 +1220,7 @@
             this.button12.Name = "button12";
             this.button12.Size = new System.Drawing.Size(116, 65);
             this.button12.TabIndex = 6;
-            this.button12.Text = "Previous Image";
+            this.button12.Text = "Previous Image(P)";
             this.button12.UseVisualStyleBackColor = true;
             this.button12.Click += new System.EventHandler(this.button12_Click);
             // 
@@ -1232,7 +1232,7 @@
             this.button11.Name = "button11";
             this.button11.Size = new System.Drawing.Size(116, 65);
             this.button11.TabIndex = 5;
-            this.button11.Text = "Next Image";
+            this.button11.Text = "Next Image(N)";
             this.button11.UseVisualStyleBackColor = true;
             this.button11.Click += new System.EventHandler(this.button11_Click);
             // 

@@ -11,8 +11,6 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Remoting.Contexts;
-using System.Windows;
 using System.Windows.Forms;
 using MessageBox = System.Windows.Forms.MessageBox;
 using Path = System.IO.Path;
@@ -60,7 +58,7 @@ namespace YOLIC
         JArray marks = new JArray();
         JArray marksForsave = new JArray();
         private PointF[] PolygonPoints = new PointF[0];
-
+        
         public Form1()
         {
             InitializeComponent();
@@ -296,7 +294,7 @@ namespace YOLIC
                 this.BeginInvoke((Action)(() => MessageBox.Show("Failed to read the RGB image, please check the image path!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
             }
         }
-
+        
         private void button1_Click_1(object sender, EventArgs e)
         {
             try
@@ -2435,6 +2433,53 @@ namespace YOLIC
             marks = new JArray();
             marksForsave = new JArray();
             pictureBox4.Invalidate();
+        }
+
+        
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            // if it is a hotkey, return true; otherwise, return false
+            switch (keyData)
+            {
+                case Keys.N:
+                    //焦点定位到控件button_num_0上，即数字0键上
+                    if (button3.Enabled)
+                    {
+                        button3.Focus();
+                        //执行按钮点击操作
+                        button3.PerformClick();
+                        return true;
+                    }
+                    if (button11.Enabled)
+                    {
+                        button11.Focus();
+                        //执行按钮点击操作
+                        button11.PerformClick();
+                        return true;
+                    }
+                    break;
+                case Keys.P:
+                    if (button4.Enabled)
+                    {
+                        button4.Focus();
+                        //执行按钮点击操作
+                        button4.PerformClick();
+                        return true;
+                    }
+                    if (button12.Enabled)
+                    {
+                        button12.Focus();
+                        //执行按钮点击操作
+                        button12.PerformClick();
+                        return true;
+                    }
+                    break;
+                //......
+                default:
+                    break;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
         }
     }
 }
