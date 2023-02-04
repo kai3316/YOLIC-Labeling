@@ -1,6 +1,6 @@
 {
   "Labels": {
-    "LabelList": [ "Cart", "Equipment", "Box", "Wall", "Human", ],
+    "LabelList": [ "Cart", "Equipment", "Box", "Wall", "Human"],
     "LabelAbbreviation": [ "Ca", "Eq", "Bo", "Wa", "Hu" ],
     "LabelNumber": 5
   },
