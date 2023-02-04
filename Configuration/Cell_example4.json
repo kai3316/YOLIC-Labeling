@@ -1,8 +1,8 @@
 {
   "Labels": {
-    "LabelList": [ "Bump", "Column", "Dent", "Fence", "Creature", "Vehicle", "Wall", "Weed", "ZebraCrossing", "TrafficCone", "TrafficSign" ],
-    "LabelAbbreviation": [ "Bp", "Cn", "Dt", "Fe", "Ce", "Ve", "Wl", "Wd", "ZC", "TC", "TS" ],
-    "LabelNumber": 11
+    "LabelList": [ "Cart", "Equipment", "Box", "Wall", "Human", ],
+    "LabelAbbreviation": [ "Ca", "Eq", "Bo", "Wa", "Hu" ],
+    "LabelNumber": 5
   },
   "COIs": {
     "COINumber": 20,
