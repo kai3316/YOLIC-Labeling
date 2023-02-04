@@ -685,7 +685,7 @@ namespace YOLIC
             {
                 if (COIList[i][0].ToString().Equals("rectangle"))
                 {
-                    rgb.DrawRectangle(new Pen(Color.LightGreen, 2), (float)COIList[i][1] * pictureBox1.Image.Width, (float)COIList[i][2] * pictureBox1.Image.Height, (float)COIList[i][3] * pictureBox1.Image.Width, (float)COIList[i][4] * pictureBox1.Image.Height);
+                    rgb.DrawRectangle(new Pen(Color.Red, 2), (float)COIList[i][1] * pictureBox1.Image.Width, (float)COIList[i][2] * pictureBox1.Image.Height, (float)COIList[i][3] * pictureBox1.Image.Width, (float)COIList[i][4] * pictureBox1.Image.Height);
 
                 }
                 if (COIList[i][0].ToString().Equals("polygon"))
@@ -697,7 +697,7 @@ namespace YOLIC
                         polygonList.Add(new PointF((float)COIList[i][index] * pictureBox1.Image.Width, (float)COIList[i][index + 1] * pictureBox1.Image.Height));
                     }
                     PointF[] points = polygonList.ToArray();
-                    rgb.DrawPolygon(new Pen(Color.LightGreen, 2), points);
+                    rgb.DrawPolygon(new Pen(Color.Red, 2), points);
                 }
 
             }
@@ -1137,7 +1137,10 @@ namespace YOLIC
                     {
                         rgb.DrawRectangle(new Pen(colorslist[colorindex], 2), (float)COIList[i][1] * pictureBox2.Image.Width, (float)COIList[i][2] * pictureBox2.Image.Height, (float)COIList[i][3] * pictureBox2.Image.Width, (float)COIList[i][4] * pictureBox2.Image.Height);
                         Rectangle rect = new Rectangle((int)((float)COIList[i][1] * pictureBox2.Image.Width), (int)((float)COIList[i][2] * pictureBox2.Image.Height), (int)((float)COIList[i][3] * pictureBox2.Image.Width), (int)((float)COIList[i][4] * pictureBox2.Image.Height));
-                        rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), rect);
+                        StringFormat format = new StringFormat();
+                        format.Alignment = StringAlignment.Center;
+                        format.LineAlignment = StringAlignment.Center;
+                        rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), rect.X + rect.Width / 2, rect.Y + rect.Height / 2, format);
                     }
                     if (COIList[i][0].ToString().Equals("polygon"))
                     {
@@ -1149,7 +1152,21 @@ namespace YOLIC
                         }
                         PointF[] points = polygonList.ToArray();
                         rgb.DrawPolygon(new Pen(colorslist[colorindex], 2), points);
-                        rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), new PointF((float)COIList[i][1] * pictureBox2.Image.Width, (float)COIList[i][2] * pictureBox2.Image.Height));
+                        PointF center = new PointF();
+
+                        for (int ci = 0; ci < points.Length; ci++)
+                        {
+                            center.X += points[ci].X;
+                            center.Y += points[ci].Y;
+                        }
+
+                        center.X /= points.Length;
+                        center.Y /= points.Length;
+
+                        StringFormat format = new StringFormat();
+                        format.Alignment = StringAlignment.Center;
+                        format.LineAlignment = StringAlignment.Center;
+                        rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), center, format);
                     }
                 }
 
@@ -1180,7 +1197,10 @@ namespace YOLIC
                     {
                         rgb.DrawRectangle(new Pen(colorslist[colorindex], 2), (float)COIList[i][1] * pictureBox1.Image.Width, (float)COIList[i][2] * pictureBox1.Image.Height, (float)COIList[i][3] * pictureBox1.Image.Width, (float)COIList[i][4] * pictureBox1.Image.Height);
                         Rectangle rect = new Rectangle((int)((float)COIList[i][1] * pictureBox1.Image.Width), (int)((float)COIList[i][2] * pictureBox1.Image.Height), (int)((float)COIList[i][3] * pictureBox1.Image.Width), (int)((float)COIList[i][4] * pictureBox1.Image.Height));
-                        rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), rect);
+                        StringFormat format = new StringFormat();
+                        format.Alignment = StringAlignment.Center;
+                        format.LineAlignment = StringAlignment.Center;
+                        rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), rect.X + rect.Width / 2, rect.Y + rect.Height / 2, format);
                     }
                     if (COIList[i][0].ToString().Equals("polygon"))
                     {
@@ -1192,7 +1212,21 @@ namespace YOLIC
                         }
                         PointF[] points = polygonList.ToArray();
                         rgb.DrawPolygon(new Pen(colorslist[colorindex], 2), points);
-                        rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), new PointF((float)COIList[i][1] * pictureBox1.Image.Width, (float)COIList[i][2] * pictureBox1.Image.Height));
+                        PointF center = new PointF();
+
+                        for (int ci = 0; ci < points.Length; ci++)
+                        {
+                            center.X += points[ci].X;
+                            center.Y += points[ci].Y;
+                        }
+
+                        center.X /= points.Length;
+                        center.Y /= points.Length;
+
+                        StringFormat format = new StringFormat();
+                        format.Alignment = StringAlignment.Center;
+                        format.LineAlignment = StringAlignment.Center;
+                        rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), center, format);
                     }
                 }
 
@@ -1424,19 +1458,27 @@ namespace YOLIC
 
         private void button15_Click(object sender, EventArgs e)
         {
-            if (File.Exists(Path.Combine(saveFile.SelectedPath, Path.GetFileNameWithoutExtension(list_Img[CurrentIndex]) + ".txt")) == true)
+            if (list_Img == null) { return; }
+            try
             {
-                string annotationpath = Path.Combine(saveFile.SelectedPath, Path.GetFileNameWithoutExtension(list_Img[CurrentIndex]) + ".txt");
-                FileInfo fi = new FileInfo(annotationpath);
-                fi.Delete();
-            }
+                if (File.Exists(Path.Combine(saveFile.SelectedPath, Path.GetFileNameWithoutExtension(list_Img[CurrentIndex]) + ".txt")) == true)
+                {
+                    string annotationpath = Path.Combine(saveFile.SelectedPath, Path.GetFileNameWithoutExtension(list_Img[CurrentIndex]) + ".txt");
+                    FileInfo fi = new FileInfo(annotationpath);
+                    fi.Delete();
+                }
 
-            for (int i = 0; i < currentLabel.Length; i++)
-            {
-                currentLabel[i] = "0";
+                for (int i = 0; i < currentLabel.Length; i++)
+                {
+                    currentLabel[i] = "0";
+                }
+                DisplayRGB(CurrentIndex, 0);
+                LastArea = -1;
             }
-            DisplayRGB(CurrentIndex, 0);
-            LastArea = -1;
+            catch (Exception)
+            {
+                this.BeginInvoke((Action)(() => MessageBox.Show("Failed to delete!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)));
+            }
         }
 
 
@@ -2269,6 +2311,10 @@ namespace YOLIC
 
         private void button31_Click(object sender, EventArgs e)
         {
+            if (this.pictureBox4.Image == null)
+            {
+                return;
+            }
             int originalHeight = this.pictureBox4.Image.Height;
             int originalWidth = this.pictureBox4.Image.Width;
 
@@ -2442,7 +2488,7 @@ namespace YOLIC
             // if it is a hotkey, return true; otherwise, return false
             switch (keyData)
             {
-                case Keys.N:
+                case Keys.Right:
                     //焦点定位到控件button_num_0上，即数字0键上
                     if (button3.Enabled)
                     {
@@ -2459,7 +2505,7 @@ namespace YOLIC
                         return true;
                     }
                     break;
-                case Keys.P:
+                case Keys.Left:
                     if (button4.Enabled)
                     {
                         button4.Focus();
