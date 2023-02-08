@@ -2286,7 +2286,6 @@ namespace YOLIC
             int original_y = (int)(zoom_y / rate);
             label15.Text = original_x.ToString();
             label16.Text = original_y.ToString();
-            Console.WriteLine(rate);
             int width_g = 100; // 放大的宽度
             int height_g = 100; // 放大的高度
 
