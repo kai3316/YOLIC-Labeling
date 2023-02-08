@@ -42,7 +42,7 @@ namespace YOLIC
         int CurrentIndex = 0;
         int LastArea = -1;
         int fullrgb = 0;
-        Color[] colorslist = new Color[]{Color.FromArgb(0,255,0), Color.FromArgb(138,244,123), Color.FromArgb(220,0,30),
+        Color[] colorslist = new Color[]{Color.FromArgb(0,255,0), Color.FromArgb(138,244,123), Color.FromArgb(100,0,60),
                               Color.FromArgb(87,96,105), Color.FromArgb(220,87,18), Color.FromArgb(230,180,80),
                               Color.FromArgb(255,0,255), Color.FromArgb(10,255,105), Color.FromArgb(255,0,0),
                                Color.FromArgb(50,60,246), Color.FromArgb(243,10,100), Color.FromArgb(153, 163, 112),
@@ -183,7 +183,7 @@ namespace YOLIC
                     {
                         ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Visible = true;
                         ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Text = LabelList[i].ToString();
-                        ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).ForeColor = colorslist[i];
+                        //((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).ForeColor = colorslist[i];
                     }
 
                     button16.Enabled = true;
@@ -232,7 +232,7 @@ namespace YOLIC
                     {
                         ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Visible = true;
                         ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Text = LabelList[i].ToString();
-                        ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).ForeColor = colorslist[i];
+                        //((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).ForeColor = colorslist[i];
                     }
 
                     button7.Enabled = true;
@@ -551,7 +551,7 @@ namespace YOLIC
 
 
             }
-            if (CheckMode == true)
+            if (CheckMode == true && auto == 1)
             {
                 string NameWithoutExtension = Path.GetFileNameWithoutExtension(list_Img[currentIndex]);
                 //Console.WriteLine(Path.Combine(saveFile.SelectedPath,NameWithoutExtension + ".txt"));
@@ -779,7 +779,7 @@ namespace YOLIC
 
 
             }
-            if (CheckMode == true)
+            if (CheckMode == true && auto == 1)
             {
                 string NameWithoutExtension = Path.GetFileNameWithoutExtension(list_Img[currentIndex]);
                 //Console.WriteLine(Path.Combine(saveFile.SelectedPath,NameWithoutExtension + ".txt"));
@@ -1140,7 +1140,7 @@ namespace YOLIC
                         StringFormat format = new StringFormat();
                         format.Alignment = StringAlignment.Center;
                         format.LineAlignment = StringAlignment.Center;
-                        rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), rect.X + rect.Width / 2, rect.Y + rect.Height / 2, format);
+                        rgb.DrawString(classlabel, new Font("Arial", 8), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), rect.X + rect.Width / 2, rect.Y + rect.Height / 2, format);
                     }
                     if (COIList[i][0].ToString().Equals("polygon"))
                     {
@@ -1166,7 +1166,7 @@ namespace YOLIC
                         StringFormat format = new StringFormat();
                         format.Alignment = StringAlignment.Center;
                         format.LineAlignment = StringAlignment.Center;
-                        rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), center, format);
+                        rgb.DrawString(classlabel, new Font("Arial", 8), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), center, format);
                     }
                 }
 
@@ -1200,7 +1200,7 @@ namespace YOLIC
                         StringFormat format = new StringFormat();
                         format.Alignment = StringAlignment.Center;
                         format.LineAlignment = StringAlignment.Center;
-                        rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), rect.X + rect.Width / 2, rect.Y + rect.Height / 2, format);
+                        rgb.DrawString(classlabel, new Font("Arial", 8), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), rect.X + rect.Width / 2, rect.Y + rect.Height / 2, format);
                     }
                     if (COIList[i][0].ToString().Equals("polygon"))
                     {
@@ -1226,7 +1226,7 @@ namespace YOLIC
                         StringFormat format = new StringFormat();
                         format.Alignment = StringAlignment.Center;
                         format.LineAlignment = StringAlignment.Center;
-                        rgb.DrawString(classlabel, new Font("Arial", 9), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), center, format);
+                        rgb.DrawString(classlabel, new Font("Arial", 8), new SolidBrush(Color.FromArgb(opacity, Color.Yellow)), center, format);
                     }
                 }
 
@@ -1319,18 +1319,14 @@ namespace YOLIC
                             DrawboxRGB(pictureBox1.Image, LabelArea, Color.White);
                             LastArea = LabelArea;
                         }
-                        else
-                        {
-                            currentLabel[(LabelArea * (LabelList.Count + 1)) + i] = "0";
-                        }
+                        //else
+                        //{
+                        //    currentLabel[(LabelArea * (LabelList.Count + 1)) + i] = "0";
+                        //}
 
                     }
-                    //if (LastArea != -1 && LastArea != LabelArea)
-                    //{
-                    //    DrawboxRGB(pictureBox1.Image, LastArea, Color.Blue);
-                    //}
-                    //DrawboxRGB(pictureBox1.Image, LabelArea, Color.White);
-                    //LastArea = LabelArea;
+                    DisplayRGB(CurrentIndex,0);
+                    RedrawR(pictureBox1.Image);
                 }
             }
 
@@ -1377,7 +1373,8 @@ namespace YOLIC
                         }
 
                     }
-
+                    DisplayRGB(CurrentIndex,0);
+                    RedrawR(pictureBox1.Image);
                     if (LastArea != -1 && LastArea != LabelArea)
                     {
                         DrawboxRGB(pictureBox1.Image, LastArea, Color.Black);
@@ -1673,6 +1670,8 @@ namespace YOLIC
                 }
                 dat.Clear();
                 dat2.Clear();
+                Display(CurrentIndex, 0);
+                Redraw(pictureBox2.Image);
                 pictureBox2.Invalidate();
                 for (int ii = 0, j = 21; ii < LabelList.Count; ii++, j++)
                 {
@@ -1810,6 +1809,8 @@ namespace YOLIC
                         }
 
                     }
+                    Display(CurrentIndex, 0);
+                    Redraw(pictureBox2.Image);
 
 
                 }
@@ -1858,7 +1859,8 @@ namespace YOLIC
 
 
                     }
-
+                    Display(CurrentIndex, 0);
+                    Redraw(pictureBox2.Image);
                     if (LastArea != -1 && LastArea != LabelArea)
                     {
                         Drawbox(pictureBox2.Image, LastArea, Color.Black);
@@ -2070,6 +2072,9 @@ namespace YOLIC
                 }
                 dat.Clear();
                 dat2.Clear();
+                
+                DisplayRGB(CurrentIndex, 0);
+                RedrawR(pictureBox1.Image);
                 pictureBox1.Invalidate();
                 for (int ii = 0, j = 1; ii < LabelList.Count; ii++, j++)
                 {
@@ -2279,6 +2284,9 @@ namespace YOLIC
 
             int original_x = (int)(zoom_x / rate);
             int original_y = (int)(zoom_y / rate);
+            label15.Text = original_x.ToString();
+            label16.Text = original_y.ToString();
+            Console.WriteLine(rate);
             int width_g = 100; // 放大的宽度
             int height_g = 100; // 放大的高度
 
@@ -2527,5 +2535,7 @@ namespace YOLIC
             }
             return base.ProcessCmdKey(ref msg, keyData);
         }
+
+       
     }
 }
