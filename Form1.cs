@@ -1673,14 +1673,14 @@ namespace YOLIC
                 Display(CurrentIndex, 0);
                 Redraw(pictureBox2.Image);
                 pictureBox2.Invalidate();
-                for (int ii = 0, j = 21; ii < LabelList.Count; ii++, j++)
-                {
-                    if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
-                    {
-                        ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked = false;
-                    }
+                //for (int ii = 0, j = 21; ii < LabelList.Count; ii++, j++)
+                //{
+                //    if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
+                //    {
+                //        ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked = false;
+                //    }
 
-                }
+                //}
             }
             catch (Exception)
             {
@@ -2076,14 +2076,14 @@ namespace YOLIC
                 DisplayRGB(CurrentIndex, 0);
                 RedrawR(pictureBox1.Image);
                 pictureBox1.Invalidate();
-                for (int ii = 0, j = 1; ii < LabelList.Count; ii++, j++)
-                {
-                    if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
-                    {
-                        ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked = false;
-                    }
+                //for (int ii = 0, j = 1; ii < LabelList.Count; ii++, j++)
+                //{
+                //    if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
+                //    {
+                //        ((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked = false;
+                //    }
 
-                }
+                //}
 
             }
             catch (Exception)
