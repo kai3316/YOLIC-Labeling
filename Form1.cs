@@ -640,6 +640,10 @@ namespace YOLIC
         }
         private void button7_Click(object sender, EventArgs e)
         {
+            if (COIList==null)
+            {
+                return;
+            }
             if (button7.Text.Equals("Start") == true)
             {
                 button3.Enabled = true;
@@ -1384,6 +1388,10 @@ namespace YOLIC
 
                 }
             }
+            if(e.Button == MouseButtons.Left)
+            {
+                button27_Click(sender,e);
+            }
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -2024,7 +2032,7 @@ namespace YOLIC
                             {
                                 if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
                                 {
-                                    Pen p = new Pen(colorslist[ii], 2);
+                                    Pen p = new Pen(colorslist[ii], 3);
                                     g.DrawPolygon(p, dat2.ToArray());
                                     //Console.WriteLine(i);
                                     currentLabel[(i * (LabelList.Count + 1)) + ii] = "1";
@@ -2055,7 +2063,7 @@ namespace YOLIC
                             {
                                 if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
                                 {
-                                    Pen p = new Pen(colorslist[ii], 2);
+                                    Pen p = new Pen(colorslist[ii], 3);
                                     g.DrawPolygon(p, dat2.ToArray());
                                     //Console.WriteLine(i);
                                     currentLabel[(i * (LabelList.Count + 1)) + ii] = "1";

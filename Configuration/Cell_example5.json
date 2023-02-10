@@ -1,8 +1,8 @@
 {
   "Labels": {
-    "LabelList": [ "Cart", "Equipment", "Box", "Wall", "Human", ],
-    "LabelAbbreviation": [ "Ca", "Eq", "Bo", "Wa", "Hu" ],
-    "LabelNumber": 5
+    "LabelList": [ "Equipment", "Box", "Wall", "Human"],
+    "LabelAbbreviation": [ "E", "B", "W", "H" ],
+    "LabelNumber": 4
   },
   "COIs": {
     "COINumber": 114,

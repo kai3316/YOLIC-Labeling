@@ -121,6 +121,9 @@
             this.button9 = new System.Windows.Forms.Button();
             this.button8 = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.label16 = new System.Windows.Forms.Label();
+            this.label15 = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
             this.button33 = new System.Windows.Forms.Button();
             this.pictureBox5 = new System.Windows.Forms.PictureBox();
@@ -130,9 +133,6 @@
             this.button29 = new System.Windows.Forms.Button();
             this.button28 = new System.Windows.Forms.Button();
             this.pictureBox4 = new System.Windows.Forms.PictureBox();
-            this.label14 = new System.Windows.Forms.Label();
-            this.label15 = new System.Windows.Forms.Label();
-            this.label16 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -656,7 +656,7 @@
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(110, 63);
             this.button4.TabIndex = 3;
-            this.button4.Text = "Previous Image(P)";
+            this.button4.Text = "Previous Image(<-)";
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
@@ -668,7 +668,7 @@
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(110, 63);
             this.button3.TabIndex = 2;
-            this.button3.Text = "Next Image(N)";
+            this.button3.Text = "Next Image(->)";
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
@@ -1295,6 +1295,36 @@
             this.tabPage3.Text = "Cell design";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Font = new System.Drawing.Font("Verdana", 6F);
+            this.label16.Location = new System.Drawing.Point(127, 608);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(23, 10);
+            this.label16.TabIndex = 38;
+            this.label16.Text = "      ";
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Font = new System.Drawing.Font("Verdana", 6F);
+            this.label15.Location = new System.Drawing.Point(36, 608);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(23, 10);
+            this.label15.TabIndex = 37;
+            this.label15.Text = "      ";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Font = new System.Drawing.Font("Verdana", 9F);
+            this.label14.Location = new System.Drawing.Point(102, 604);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(19, 14);
+            this.label14.TabIndex = 36;
+            this.label14.Text = "y:";
+            // 
             // label13
             // 
             this.label13.AutoSize = true;
@@ -1399,36 +1429,6 @@
             this.pictureBox4.MouseEnter += new System.EventHandler(this.pictureBox4_MouseEnter);
             this.pictureBox4.MouseLeave += new System.EventHandler(this.pictureBox4_MouseLeave);
             this.pictureBox4.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox4_MouseMove);
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Font = new System.Drawing.Font("Verdana", 9F);
-            this.label14.Location = new System.Drawing.Point(102, 604);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(19, 14);
-            this.label14.TabIndex = 36;
-            this.label14.Text = "y:";
-            // 
-            // label15
-            // 
-            this.label15.AutoSize = true;
-            this.label15.Font = new System.Drawing.Font("Verdana", 6F);
-            this.label15.Location = new System.Drawing.Point(36, 608);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(23, 10);
-            this.label15.TabIndex = 37;
-            this.label15.Text = "      ";
-            // 
-            // label16
-            // 
-            this.label16.AutoSize = true;
-            this.label16.Font = new System.Drawing.Font("Verdana", 6F);
-            this.label16.Location = new System.Drawing.Point(127, 608);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(23, 10);
-            this.label16.TabIndex = 38;
-            this.label16.Text = "      ";
             // 
             // Form1
             // 
