@@ -7,7 +7,7 @@ One unique feature of this method is that the size of the cells used to represen
 
 We have tested YOLIC using on-road risk detection, and found that it is significantly faster and more accurate than traditional object detection methods.
 
-To use this project, you will need to install the YOLIC tool on a Windows system and design your own cell configuration (i.e., interested cells) based on actual needs. You will also need to annotate your own data using the provided annotation tool. For more information on how to use these tools, please refer to the project's documentation. 
+To use this project, you will need to install the YOLIC tool on a Windows system and design your own cell configuration (i.e., interested cells) based on actual needs (the cell designer tool can be found at https://github.com/kai3316/Cell-designer). You will also need to annotate your own data using this annotation tool. For more information on how to use these tools, please refer to the project's documentation. 
 
 Our team is dedicated to constantly improving and expanding the capabilities of this tool, we hope you find this project helpful, and we welcome any feedback or contributions. Thank you for your interest in YOLIC!
 
