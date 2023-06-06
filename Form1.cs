@@ -240,6 +240,7 @@ namespace YOLIC
                         
                         
                     }
+                    //Console.WriteLine(COIList.ToString());
 
                     LabelList = (JArray)coijsonObject["Labels"]["LabelList"];
                     LabelAbbreviation = (JArray)coijsonObject["Labels"]["LabelAbbreviation"];
@@ -706,27 +707,27 @@ namespace YOLIC
             System.Drawing.Graphics rgb = Graphics.FromImage(pictureBox1.Image);
 
             //Console.WriteLine(COIList.Length);
-            //for (int i = 0; i < COIList.Length; i++)
-            //{
-            //    if (COIList[i][0].ToString().Equals("rectangle"))
-            //    {
-            //        rgb.DrawRectangle(new Pen(Color.Red, 2), (float)COIList[i][1] * pictureBox1.Image.Width, (float)COIList[i][2] * pictureBox1.Image.Height, (float)COIList[i][3] * pictureBox1.Image.Width, (float)COIList[i][4] * pictureBox1.Image.Height);
+            for (int i = 0; i < COIList.Length; i++)
+            {
+                if (COIList[i][0].ToString().Equals("rectangle"))
+                {
+                    rgb.DrawRectangle(new Pen(Color.Red, 2), (float)COIList[i][1] * pictureBox1.Image.Width, (float)COIList[i][2] * pictureBox1.Image.Height, (float)COIList[i][3] * pictureBox1.Image.Width, (float)COIList[i][4] * pictureBox1.Image.Height);
 
-            //    }
-            //    if (COIList[i][0].ToString().Equals("polygon"))
-            //    {
-            //        int COI_count = COIList[i].Count;
-            //        List<PointF> polygonList = new List<PointF>();
-            //        for (int index = 1; index < COI_count; index = index + 2)
-            //        {
-            //            polygonList.Add(new PointF((float)COIList[i][index] * pictureBox1.Image.Width, (float)COIList[i][index + 1] * pictureBox1.Image.Height));
-            //        }
-            //        PointF[] points = polygonList.ToArray();
-            //        rgb.DrawPolygon(new Pen(Color.Red, 2), points);
-            //    }
+                }
+                if (COIList[i][0].ToString().Equals("polygon"))
+                {
+                    int COI_count = COIList[i].Count;
+                    List<PointF> polygonList = new List<PointF>();
+                    for (int index = 1; index < COI_count; index = index + 2)
+                    {
+                        polygonList.Add(new PointF((float)COIList[i][index] * pictureBox1.Image.Width, (float)COIList[i][index + 1] * pictureBox1.Image.Height));
+                    }
+                    PointF[] points = polygonList.ToArray();
+                    rgb.DrawPolygon(new Pen(Color.Red, 2), points);
+                }
 
-            //}
-            if (SemiAutomatic == true && auto == 1)
+            }
+                if (SemiAutomatic == true && auto == 1)
             {
                 Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.Color);
                 //Console.WriteLine(outimg.Channels());
