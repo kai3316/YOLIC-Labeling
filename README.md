@@ -1,5 +1,4 @@
 # Image Annotation Tool Based on Cell-wise Segmentation
-## Welcome to the YOLIC project! a novel object detection method!
 
 In this project, we present a real-time object detection method called You Only Look at Interested Cells (YOLIC) that is based on cell-wise segmentation. Traditional object detection methods often require expensive computing resources and may not be suitable for low-cost devices. YOLIC addresses this issue by focusing on predefined interested cells (i.e., subregions) and using a single network to classify all interested cells at once. This approach applies the concept of multi-label classification to object detection, and can be implemented using existing classification models.
 
