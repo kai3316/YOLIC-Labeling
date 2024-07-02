@@ -24,6 +24,8 @@ To test the annotation tool, you can use the images provided in the `test image.
   2. Design your own cell configuration (i.e., interested cells) based on actual needs (locations and shapes) using the [Cell Designer Tool.](https://github.com/kai3316/Cell-designer)
   3. Annotate your data using the YOLIC Labeling Tool.
   4. Refer to the project's [code](https://github.com/kai3316/YOLIC_code) to train a YOLIC detection model.
+     
+For more information on the YOLIC method, please refer to the paper ["YOLIC: An Efficient Method for Object Localization and Classification on Edge Devices" ](https://arxiv.org/abs/2307.06689).
 
 ## Annotation Example
 
