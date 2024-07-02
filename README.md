@@ -44,6 +44,7 @@ To test the annotation tool, you can use the images provided in the `test image.
       "3": ["rectangle", 0.71226, 0, 0.07075, 0.125]
     }
   }
+ ```
   3. Annotate your data using the YOLIC Labeling Tool.
   4. Refer to the project's [code](https://github.com/kai3316/YOLIC_code) to train a YOLIC detection model.
      
