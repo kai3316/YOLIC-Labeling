@@ -21,7 +21,29 @@ To test the annotation tool, you can use the images provided in the `test image.
 ## Started with your own data
 
   1. Install the YOLIC Labeling Tool.
-  2. Design your own cell configuration (i.e., interested cells) based on actual needs (locations and shapes) using the [Cell Designer Tool.](https://github.com/kai3316/Cell-designer)
+  2. Design your own cell configuration (i.e., interested cells) based on actual needs (locations and shapes) using the [Cell Designer Tool](https://github.com/kai3316/Cell-designer), or manually input the label information and COIs coordinate information according to the JSON format. COIs currently support rectangles and polygons. Rectangles require the coordinates of the top-left and bottom-right points, while polygons require the coordinates of each point in order.
+
+  ```json
+  {
+    "Labels": {
+      "LabelList": [
+        "Bump", "Column", "Dent", "Fence",
+        "Creature", "Vehicle", "Wall", "Weed", "ZebraCrossing",
+        "TrafficCone", "TrafficSign"
+      ],
+      "LabelAbbreviation": [
+        "Bp", "Cn", "Dt", "Fe", "Ce",
+        "Ve", "Wl", "Wd", "ZC", "TC", "TS"
+      ],
+      "LabelNumber": 11
+    },
+    "COIs": {
+      "COINumber": 3,
+      "1": ["rectangle", 0.33962, 0.34583, 0.04009, 0.07083],
+      "2": ["rectangle", 0.37971, 0.34583, 0.04009, 0.07083],
+      "3": ["rectangle", 0.71226, 0, 0.07075, 0.125]
+    }
+  }
   3. Annotate your data using the YOLIC Labeling Tool.
   4. Refer to the project's [code](https://github.com/kai3316/YOLIC_code) to train a YOLIC detection model.
      
