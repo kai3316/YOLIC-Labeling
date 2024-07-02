@@ -9,24 +9,24 @@ The YOLIC Labeling Tool is a user-friendly software designed to support the You-
 - Customizable level of detail and granularity of object representation
 
 ## Getting Started
-1. Install the YOLIC Labeling Tool on a Windows system
-  
+
   To install the software, please follow these steps:
   1. Go to the "Releases" section of the repository.
   2. Download the `Tool.msi` file, which is a pre-compiled installer.
   3. Run the `Tool.msi` file on your Windows machine to install this annotation tool.
-
-2. Design your own cell configuration (i.e., interested cells) based on actual needs using the [Cell Designer Tool](https://github.com/kai3316/Cell-designer)
-
-3. Annotate your data using the YOLIC Labeling Tool
-  
-  For detailed information on how to use the software and its various features, please refer to the `Usage.pdf` file included in the repository.
-
-4. Refer to the project's code to train a YOLIC model
-
+  4. For detailed information on using the software and its various features, please refer to the `Usage.pdf` file in the repository.
+     
 To test the annotation tool, you can use the images provided in the `test image.zip` file along with the `Configuration3.json` configuration file to get started.
 
+## Started with your own data
+
+  1. Install the YOLIC Labeling Tool.
+  2. Design your own cell configuration (i.e., interested cells) based on actual needs (locations and shapes) using the [Cell Designer Tool.](https://github.com/kai3316/Cell-designer)
+  3. Annotate your data using the YOLIC Labeling Tool.
+  4. Refer to the project's [code](https://github.com/kai3316/YOLIC_code) to train a YOLIC detection model.
+
 ## Annotation Example
+
 ### Cell Configuration for a Road Risk Detection Task
 ![Cell Configuration Example](https://github.com/kai3316/YOLIC-Labeling/blob/master/cellExample.png)
 ### Annotation Tool with Configuration3.json
