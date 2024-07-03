@@ -1,6 +1,8 @@
 # YOLIC Labeling Tool
 The YOLIC Labeling Tool is a user-friendly software designed to support the You-Only-Look-at-Interested-Cells (YOLIC) methodology for real-time detection based on cell-wise segmentation. YOLIC focuses on predefined interested cells to classify objects using a single network, addressing the issue of expensive computing resources required by traditional object detection methods.
 
+Please note that this tool is primarily designed for annotating images to train YOLIC models, rather than directly recognizing objects in images. The YOLIC Labeling Tool enables users to define regions of interest and label objects within those regions, creating annotated datasets that can be used to train YOLIC models for efficient object detection.
+
 ## Key Features
 - Flexible cell configuration system allowing users to import different detection areas based on task-specific requirements
 - Polygon-based annotation for precise object localization
