@@ -3,15 +3,19 @@ using Microsoft.ML.OnnxRuntime.Tensors;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OpenCvSharp;
+using OpenCvSharp.ML;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using MessageBox = System.Windows.Forms.MessageBox;
 using Path = System.IO.Path;
 using Point = System.Drawing.Point;
@@ -57,8 +61,7 @@ namespace YOLIC
         System.Drawing.Rectangle rectangle;
         JArray marks = new JArray();
         JArray marksForsave = new JArray();
-        private PointF[] PolygonPoints = new PointF[0];
-        
+        float[] mImgEmbedding;
         public Form1()
         {
             InitializeComponent();
@@ -321,6 +324,7 @@ namespace YOLIC
         {
             try
             {
+
 
                 if (openFile_Img.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
@@ -676,7 +680,9 @@ namespace YOLIC
                 {
                     currentLabel[i] = "0";
                 }
-
+                
+                LoadSAM_Encode();
+                
                 DisplayRGB(CurrentIndex);
                 button7.Text = "Save";
             }
@@ -686,17 +692,104 @@ namespace YOLIC
                 button15.Enabled = true;
             }
         }
+        private void SAM_Decode(int orgHei, int orgWid, int pointCount)
+        {
+            
+            string exePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            string decode_model_path = exePath + @"\decoder-quant.onnx";
+            if (!File.Exists(decode_model_path))
+            {
+                MessageBox.Show(decode_model_path + " not exist!");
+                return;
+            }
+            var options = new SessionOptions();
+            InferenceSession mDecoder = new InferenceSession(decode_model_path, options);
+            var embedding_tensor = new DenseTensor<float>(mImgEmbedding, new[] { 1, 256, 64, 64 });
+            float[] mask = new float[256 * 256];
+            for (int i = 0; i < mask.Count(); i++)
+            {
+                mask[i] = 0;
+            }
+            var mask_tensor = new DenseTensor<float>(mask, new[] { 1, 1, 256, 256 });
 
+            float[] hasMaskValues = new float[1] { 0 };
+            var hasMaskValues_tensor = new DenseTensor<float>(hasMaskValues, new[] { 1 });
+
+            float[] orig_im_size_values = { (float)orgHei, (float)orgWid };
+            var orig_im_size_values_tensor = new DenseTensor<float>(orig_im_size_values, new[] { 2 });
+            float[] point_coords = new float[2 * pointCount];
+            float[] label = new float[pointCount];
+            var point_coords_tensor = new DenseTensor<float>(point_coords, new[] { 1, pointCount, 2 });
+
+            var point_label_tensor = new DenseTensor<float>(label, new[] { 1, pointCount });
+
+            var decode_inputs = new List<NamedOnnxValue>
+            {
+                NamedOnnxValue.CreateFromTensor("image_embeddings", embedding_tensor),
+                NamedOnnxValue.CreateFromTensor("point_coords", point_coords_tensor),
+                NamedOnnxValue.CreateFromTensor("point_labels", point_label_tensor),
+                NamedOnnxValue.CreateFromTensor("mask_input", mask_tensor),
+                NamedOnnxValue.CreateFromTensor("has_mask_input", hasMaskValues_tensor),
+                NamedOnnxValue.CreateFromTensor("orig_im_size", orig_im_size_values_tensor)
+            };
+            MaskData md = new MaskData();
+            var segmask = mDecoder.Run(decode_inputs).ToList();
+            md.mMask = segmask[0].AsTensor<float>().ToArray().ToList();
+            md.mShape = segmask[0].AsTensor<float>().Dimensions.ToArray();
+            md.mIoU = segmask[1].AsTensor<float>().ToList();
+        }
+        private void LoadSAM_Encode()
+        {
+
+            string exePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            string encode_model_path = exePath + @"\encoder-quant.onnx";
+            if (!File.Exists(encode_model_path))
+            {
+                MessageBox.Show(encode_model_path + " not exist!");
+                return;
+            }
+            var options = new SessionOptions();
+            InferenceSession mEncoder = new InferenceSession(encode_model_path, options);
+            var inputMeta = mEncoder.InputMetadata;
+
+            Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.Color);
+            Mat outimg = new Mat();
+            foreach (var name in inputMeta.Keys)
+            {
+                Console.WriteLine("Dimension Length: " + inputMeta[name].Dimensions[1]+" "+inputMeta[name].Dimensions[3]+" "+ inputMeta[name].Dimensions[2]);
+                Cv2.Resize(color_image, outimg, new OpenCvSharp.Size(inputMeta[name].Dimensions[3], inputMeta[name].Dimensions[2]));
+            }
+            Tensor<float> inputdata = ConvertImageToFloatTensor(outimg, 1);
+
+            //opencvsharp.mat image = opencvsharp.cv2.imread(list_img[currentindex], opencvsharp.imreadmodes.color);
+            //var tensor = new DenseTensor<float>(img, new[] { 1, 3, 1024, 1024 });
+            var inputs = new List<NamedOnnxValue>
+            {
+                NamedOnnxValue.CreateFromTensor("x", inputdata)
+            };
+
+            var results = mEncoder.Run(inputs);
+            var embedding = results.First().AsTensor<float>().ToArray();
+            mImgEmbedding = embedding;
+            Console.WriteLine(mImgEmbedding.Length);
+            //this.msam.loadonnxmodel();//加载segment anything模型
+            //opencvsharp.mat image = opencvsharp.cv2.imread(list_img[currentindex], opencvsharp.imreadmodes.color);
+            //this.mimgembedding = this.msam.encode(image, image.width, image.height);//image embedding
+
+            //this.mautomask = new samautomask();
+            //this.mautomask.mimgembedding = this.mimgembedding;
+            //this.mautomask.msam = this.msam;
+            //image.dispose();
+
+
+        }
         private void DisplayRGB(int currentIndex, int auto = 1)
         {
             string Imagename = Path.GetFileName(list_Img[currentIndex]);
 
             label10.Text = Imagename;
 
-
-
             Image OriginalImage = Image.FromFile(list_Img[CurrentIndex]);
-
 
             Image DetectedImage = cutImage(OriginalImage, new Point(0, 0), OriginalImage.Width, OriginalImage.Height);
 
@@ -705,6 +798,8 @@ namespace YOLIC
             pictureBox1.Image = DetectedImage;
 
             System.Drawing.Graphics rgb = Graphics.FromImage(pictureBox1.Image);
+
+            
 
             //Console.WriteLine(COIList.Length);
             for (int i = 0; i < COIList.Length; i++)
@@ -730,6 +825,7 @@ namespace YOLIC
                 if (SemiAutomatic == true && auto == 1)
             {
                 Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.Color);
+
                 //Console.WriteLine(outimg.Channels());
                 //Console.WriteLine(outimg.Get<Vec4b>(110, 140));
                 string ModelName = OpenOnnx.FileName;
@@ -1312,6 +1408,7 @@ namespace YOLIC
             if (e.Button == MouseButtons.Right)
             {
                 int originalHeight = this.pictureBox1.Image.Height;
+                int originalWidth = this.pictureBox1.Image.Width;
                 PropertyInfo rectangleProperty = this.pictureBox1.GetType().GetProperty("ImageRectangle", BindingFlags.Instance | BindingFlags.NonPublic);
                 Rectangle rectangle = (Rectangle)rectangleProperty.GetValue(this.pictureBox1, null);
 
@@ -1329,35 +1426,35 @@ namespace YOLIC
 
                 double original_x = (double)zoom_x / rate;
                 double original_y = (double)zoom_y / rate;
+                SAM_Decode(originalHeight, originalWidth);
+
+                //MaskData md = this.mSam.Decode(this.mPromotionList, this.mImgEmbedding, this.mOrgwid, this.mOrghei);
+                //this.ShowMask(md.mMask.ToArray(), Color.FromArgb((byte)100, (byte)255, (byte)0, (byte)0));
                 //Console.WriteLine(original_x.ToString());
                 //Console.WriteLine(original_y.ToString());
-                int LabelArea = JudgeAreaRGB(new Point((int)original_x, (int)original_y));
-                //Console.WriteLine(LabelArea.ToString());
-                if (LabelArea != -1)
-                {
+                //int LabelArea = JudgeAreaRGB(new Point((int)original_x, (int)original_y));
+                ////Console.WriteLine(LabelArea.ToString());
+                //if (LabelArea != -1)
+                //{
 
-                    for (int i = 0, j = 1; i < LabelList.Count; i++, j++)
-                    {
-                        if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
-                        {
-                            //Console.WriteLine(i);
-                            currentLabel[(LabelArea * (LabelList.Count + 1)) + i] = "1";
-                            if (LastArea != -1 && LastArea != LabelArea)
-                            {
-                                DrawboxRGB(pictureBox1.Image, LastArea, Color.Blue);
-                            }
-                            DrawboxRGB(pictureBox1.Image, LabelArea, Color.White);
-                            LastArea = LabelArea;
-                        }
-                        //else
-                        //{
-                        //    currentLabel[(LabelArea * (LabelList.Count + 1)) + i] = "0";
-                        //}
+                //    for (int i = 0, j = 1; i < LabelList.Count; i++, j++)
+                //    {
+                //        if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
+                //        {
+                //            //Console.WriteLine(i);
+                //            currentLabel[(LabelArea * (LabelList.Count + 1)) + i] = "1";
+                //            if (LastArea != -1 && LastArea != LabelArea)
+                //            {
+                //                DrawboxRGB(pictureBox1.Image, LastArea, Color.Blue);
+                //            }
+                //            DrawboxRGB(pictureBox1.Image, LabelArea, Color.White);
+                //            LastArea = LabelArea;
+                //        }
 
-                    }
-                    DisplayRGB(CurrentIndex,0);
-                    RedrawR(pictureBox1.Image);
-                }
+                //    }
+                //    DisplayRGB(CurrentIndex,0);
+                //    RedrawR(pictureBox1.Image);
+                //}
             }
 
         }
@@ -1428,7 +1525,7 @@ namespace YOLIC
                 SaveImage(CurrentIndex);
             }
             CurrentIndex++;
-
+            LoadSAM_Encode();
             LastArea = -1;
 
             if (CurrentIndex == list_Img.Count)
@@ -1468,6 +1565,7 @@ namespace YOLIC
         private void button4_Click(object sender, EventArgs e)
         {
             CurrentIndex--;
+            LoadSAM_Encode();
             if (CurrentIndex < 0)
             {
                 MessageBox.Show("No previous image!", "Notice", MessageBoxButtons.OK);
