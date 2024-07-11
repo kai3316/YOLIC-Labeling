@@ -692,7 +692,7 @@ namespace YOLIC
                 button15.Enabled = true;
             }
         }
-        private void SAM_Decode(int orgHei, int orgWid, int pointCount)
+        private void SAM_Decode(int orgHei, int orgWid, float[] point_coords, float[] label)
         {
             
             string exePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
@@ -717,8 +717,7 @@ namespace YOLIC
 
             float[] orig_im_size_values = { (float)orgHei, (float)orgWid };
             var orig_im_size_values_tensor = new DenseTensor<float>(orig_im_size_values, new[] { 2 });
-            float[] point_coords = new float[2 * pointCount];
-            float[] label = new float[pointCount];
+            int pointCount = point_coords.Length;
             var point_coords_tensor = new DenseTensor<float>(point_coords, new[] { 1, pointCount, 2 });
 
             var point_label_tensor = new DenseTensor<float>(label, new[] { 1, pointCount });
@@ -1426,7 +1425,7 @@ namespace YOLIC
 
                 double original_x = (double)zoom_x / rate;
                 double original_y = (double)zoom_y / rate;
-                SAM_Decode(originalHeight, originalWidth);
+                SAM_Decode(originalHeight, originalWidth, point_coords, label);
 
                 //MaskData md = this.mSam.Decode(this.mPromotionList, this.mImgEmbedding, this.mOrgwid, this.mOrghei);
                 //this.ShowMask(md.mMask.ToArray(), Color.FromArgb((byte)100, (byte)255, (byte)0, (byte)0));
