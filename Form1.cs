@@ -694,7 +694,7 @@ namespace YOLIC
                 button15.Enabled = true;
             }
         }
-        private void SAM_Decode(int orgHei, int orgWid, float[] point_coords, float[] label)
+        private MaskData SAM_Decode(int orgHei, int orgWid, float[] point_coords, float[] label)
         {
             
             string exePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
@@ -702,7 +702,7 @@ namespace YOLIC
             if (!File.Exists(decode_model_path))
             {
                 MessageBox.Show(decode_model_path + " not exist!");
-                return;
+                return null;
             }
             var options = new SessionOptions();
             InferenceSession mDecoder = new InferenceSession(decode_model_path, options);
@@ -733,11 +733,12 @@ namespace YOLIC
                 NamedOnnxValue.CreateFromTensor("has_mask_input", hasMaskValues_tensor),
                 NamedOnnxValue.CreateFromTensor("orig_im_size", orig_im_size_values_tensor)
             };
-            MaskData md = new MaskData();
+            MaskData result = new MaskData();
             var segmask = mDecoder.Run(decode_inputs).ToList();
-            md.mMask = segmask[0].AsTensor<float>().ToArray().ToList();
-            md.mShape = segmask[0].AsTensor<float>().Dimensions.ToArray();
-            md.mIoU = segmask[1].AsTensor<float>().ToList();
+            result.mMask = segmask[0].AsTensor<float>().ToArray().ToList();
+            result.mShape = segmask[0].AsTensor<float>().Dimensions.ToArray();
+            result.mIoU = segmask[1].AsTensor<float>().ToList();
+            return result;
             
         }
         private void LoadSAM_Encode()
@@ -1470,12 +1471,10 @@ namespace YOLIC
                 double newY = original_y * scale_y;
                 AddPointCoords(newX, newY);
                 AddLabel();
-                SAM_Decode(originalHeight, originalWidth, point_coords, label);
+                MaskData result = SAM_Decode(originalHeight, originalWidth, point_coords, label);
+                if (result == null) return;
+                ShowMask(result.mMask.ToArray(), Color.FromArgb((byte)100, (byte)0, (byte)0, (byte)139));
 
-                //MaskData md = this.mSam.Decode(this.mPromotionList, this.mImgEmbedding, this.mOrgwid, this.mOrghei);
-                //this.ShowMask(md.mMask.ToArray(), Color.FromArgb((byte)100, (byte)255, (byte)0, (byte)0));
-                //Console.WriteLine(original_x.ToString());
-                //Console.WriteLine(original_y.ToString());
                 //int LabelArea = JudgeAreaRGB(new Point((int)original_x, (int)original_y));
                 ////Console.WriteLine(LabelArea.ToString());
                 //if (LabelArea != -1)
@@ -1501,6 +1500,54 @@ namespace YOLIC
                 //}
             }
 
+        }
+
+        private void ShowMask(float[] floats, Color color)
+        {
+            if (pictureBox1.Image == null)
+                return;
+
+            int width = pictureBox1.Image.Width;
+            int height = pictureBox1.Image.Height;
+
+            // Create a new bitmap to draw the mask
+            using (Bitmap maskBitmap = new Bitmap(width, height))
+            {
+                using (Graphics g = Graphics.FromImage(maskBitmap))
+                {
+                    // Draw the original image
+                    g.DrawImage(pictureBox1.Image, 0, 0, width, height);
+
+                    // Create a color matrix that sets the alpha to 50%
+                    ColorMatrix cm = new ColorMatrix();
+                    cm.Matrix33 = 0.5f; // 50% opacity
+
+                    ImageAttributes ia = new ImageAttributes();
+                    ia.SetColorMatrix(cm);
+
+                    // Create the mask overlay
+                    using (Bitmap overlay = new Bitmap(width, height))
+                    {
+                        for (int y = 0; y < height; y++)
+                        {
+                            for (int x = 0; x < width; x++)
+                            {
+                                int index = y * width + x;
+                                if (floats[index] > 0.5f) // Adjust threshold as needed
+                                {
+                                    overlay.SetPixel(x, y, color);
+                                }
+                            }
+                        }
+
+                        // Draw the overlay with transparency
+                        g.DrawImage(overlay, new Rectangle(0, 0, width, height), 0, 0, width, height, GraphicsUnit.Pixel, ia);
+                    }
+                }
+
+                // Display the result in the PictureBox
+                pictureBox1.Image = new Bitmap(maskBitmap);
+            }
         }
 
         private void AddLabel()
@@ -2320,6 +2367,7 @@ namespace YOLIC
         {
             point_coords = null;
             label = null;
+            DisplayRGB(CurrentIndex, 0);
             dat.Clear();
             dat2.Clear();
             pictureBox1.Invalidate();
