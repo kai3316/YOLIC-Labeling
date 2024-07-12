@@ -237,7 +237,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutoSAM.cs" />
     <Compile Include="MaskData.cs" />
     <Compile Include="Promotion.cs" />
     <Compile Include="Form1.cs">

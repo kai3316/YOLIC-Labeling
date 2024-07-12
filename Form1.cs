@@ -62,6 +62,11 @@ namespace YOLIC
         JArray marks = new JArray();
         JArray marksForsave = new JArray();
         float[] mImgEmbedding;
+        int SAM_w = 0;
+        int SAM_h = 0;
+        float[] point_coords = null;
+        float[] label = null;
+
         public Form1()
         {
             InitializeComponent();
@@ -325,7 +330,6 @@ namespace YOLIC
             try
             {
 
-
                 if (openFile_Img.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     list_Img = new List<string>(Directory.GetFiles(openFile_Img.SelectedPath, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".png") || s.EndsWith(".jpg") || s.EndsWith(".jpeg")));
@@ -340,8 +344,6 @@ namespace YOLIC
                     button7.Text = "Start";
                     CurrentIndex = 0;
                     
-
-
                 }
             }
             catch (Exception)
@@ -717,7 +719,7 @@ namespace YOLIC
 
             float[] orig_im_size_values = { (float)orgHei, (float)orgWid };
             var orig_im_size_values_tensor = new DenseTensor<float>(orig_im_size_values, new[] { 2 });
-            int pointCount = point_coords.Length;
+            int pointCount = label.Length;
             var point_coords_tensor = new DenseTensor<float>(point_coords, new[] { 1, pointCount, 2 });
 
             var point_label_tensor = new DenseTensor<float>(label, new[] { 1, pointCount });
@@ -736,6 +738,7 @@ namespace YOLIC
             md.mMask = segmask[0].AsTensor<float>().ToArray().ToList();
             md.mShape = segmask[0].AsTensor<float>().Dimensions.ToArray();
             md.mIoU = segmask[1].AsTensor<float>().ToList();
+            
         }
         private void LoadSAM_Encode()
         {
@@ -752,16 +755,56 @@ namespace YOLIC
             var inputMeta = mEncoder.InputMetadata;
 
             Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.Color);
-            Mat outimg = new Mat();
+            int orgh = color_image.Height;
+            int orgw = color_image.Width;
+            Mat resizedImage = new Mat();
+            int model_size = 0;
             foreach (var name in inputMeta.Keys)
             {
                 Console.WriteLine("Dimension Length: " + inputMeta[name].Dimensions[1]+" "+inputMeta[name].Dimensions[3]+" "+ inputMeta[name].Dimensions[2]);
-                Cv2.Resize(color_image, outimg, new OpenCvSharp.Size(inputMeta[name].Dimensions[3], inputMeta[name].Dimensions[2]));
+                if (inputMeta[name].Dimensions[3]!= inputMeta[name].Dimensions[2])
+                {
+                    MessageBox.Show("Width != Height");
+                    return;
+                }
+                else
+                {
+                    model_size = inputMeta[name].Dimensions[3];
+                }
             }
-            Tensor<float> inputdata = ConvertImageToFloatTensor(outimg, 1);
+            float scale = model_size * 1.0f / Math.Max(orgh, orgw);
+            float newht = orgh * scale;
+            float newwt = orgw * scale;
 
-            //opencvsharp.mat image = opencvsharp.cv2.imread(list_img[currentindex], opencvsharp.imreadmodes.color);
-            //var tensor = new DenseTensor<float>(img, new[] { 1, 3, 1024, 1024 });
+            int neww = (int)(newwt + 0.5);
+            int newh = (int)(newht + 0.5);
+            SAM_w = neww;
+            SAM_h = newh;
+            Cv2.Resize(color_image, resizedImage, new OpenCvSharp.Size(neww, newh));
+            Mat floatImage = new Mat();
+            resizedImage.ConvertTo(floatImage, MatType.CV_32FC3);
+
+            // 计算均值和标准差
+            Scalar mean, stddev;
+            Cv2.MeanStdDev(floatImage, out mean, out stddev);
+
+            // 标准化图像
+            Mat normalizedImage = new Mat();
+            Cv2.Subtract(floatImage, mean, normalizedImage);
+            Cv2.Divide(normalizedImage, stddev, normalizedImage);
+            float[] img = new float[3 * model_size * model_size];
+            for (int i = 0; i < neww; i++)
+            {
+                for (int j = 0; j < newh; j++)
+                {
+                    int index = j * model_size + i;
+                    img[index] = normalizedImage.At<Vec3f>(j, i)[0];
+                    img[model_size * model_size + index] = normalizedImage.At<Vec3f>(j, i)[1];
+                    img[2 * model_size * model_size + index] = normalizedImage.At<Vec3f>(j, i)[2];
+                }
+            }
+            Tensor<float> inputdata = new DenseTensor<float>(img, new[] { 1, 3, model_size, model_size });
+
             var inputs = new List<NamedOnnxValue>
             {
                 NamedOnnxValue.CreateFromTensor("x", inputdata)
@@ -770,16 +813,10 @@ namespace YOLIC
             var results = mEncoder.Run(inputs);
             var embedding = results.First().AsTensor<float>().ToArray();
             mImgEmbedding = embedding;
-            Console.WriteLine(mImgEmbedding.Length);
-            //this.msam.loadonnxmodel();//加载segment anything模型
-            //opencvsharp.mat image = opencvsharp.cv2.imread(list_img[currentindex], opencvsharp.imreadmodes.color);
-            //this.mimgembedding = this.msam.encode(image, image.width, image.height);//image embedding
-
-            //this.mautomask = new samautomask();
-            //this.mautomask.mimgembedding = this.mimgembedding;
-            //this.mautomask.msam = this.msam;
-            //image.dispose();
-
+            color_image.Dispose();
+            resizedImage.Dispose();
+            floatImage.Dispose();
+            normalizedImage.Dispose();
 
         }
         private void DisplayRGB(int currentIndex, int auto = 1)
@@ -1425,6 +1462,14 @@ namespace YOLIC
 
                 double original_x = (double)zoom_x / rate;
                 double original_y = (double)zoom_y / rate;
+
+                double scale_x = (double)SAM_w / (double)originalWidth;
+                double scale_y = (double)SAM_h / (double)originalHeight;
+
+                double newX = original_x * scale_x;
+                double newY = original_y * scale_y;
+                AddPointCoords(newX, newY);
+                AddLabel();
                 SAM_Decode(originalHeight, originalWidth, point_coords, label);
 
                 //MaskData md = this.mSam.Decode(this.mPromotionList, this.mImgEmbedding, this.mOrgwid, this.mOrghei);
@@ -1455,6 +1500,48 @@ namespace YOLIC
                 //    RedrawR(pictureBox1.Image);
                 //}
             }
+
+        }
+
+        private void AddLabel()
+        {
+            if (label == null)
+            {
+                label = new float[1];
+                label[0] = 1;
+                return;
+            }
+            int newSize = label.Length + 1;
+
+            float[] newArray = new float[newSize];
+
+            Array.Copy(label, newArray, label.Length);
+
+            newArray[newSize - 1] = 1;
+
+            label = newArray;
+        }
+
+        private void AddPointCoords(double newX, double newY)
+        {
+            if (point_coords == null)
+            {
+                point_coords = new float[2];
+                point_coords[0] = (int)newX;
+                point_coords[1] = (int)newY;
+                return;
+            }
+            int newSize = point_coords.Length + 2;
+
+            float[] newArray = new float[newSize];
+
+            Array.Copy(point_coords, newArray, point_coords.Length);
+
+            newArray[newSize - 2] = (int)newX;
+            newArray[newSize - 1] = (int)newY;
+
+            point_coords = newArray;
+
 
         }
 
@@ -1525,6 +1612,8 @@ namespace YOLIC
             }
             CurrentIndex++;
             LoadSAM_Encode();
+            point_coords = null;
+            label = null;
             LastArea = -1;
 
             if (CurrentIndex == list_Img.Count)
@@ -1565,6 +1654,8 @@ namespace YOLIC
         {
             CurrentIndex--;
             LoadSAM_Encode();
+            point_coords = null;
+            label = null;
             if (CurrentIndex < 0)
             {
                 MessageBox.Show("No previous image!", "Notice", MessageBoxButtons.OK);
@@ -2227,6 +2318,8 @@ namespace YOLIC
 
         private void button26_Click(object sender, EventArgs e)
         {
+            point_coords = null;
+            label = null;
             dat.Clear();
             dat2.Clear();
             pictureBox1.Invalidate();
