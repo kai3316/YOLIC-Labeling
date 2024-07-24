@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using OpenCvSharp;
 using OpenCvSharp.ML;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -1546,8 +1547,74 @@ namespace YOLIC
                 }
 
                 // Display the result in the PictureBox
+                if (pictureBox1.Image != null)
+                {
+                    pictureBox1.Invalidate();
+                }
                 pictureBox1.Image = new Bitmap(maskBitmap);
+                ConvertMaskToPolygonAndMark(floats, width, height);
             }
+        }
+
+        private void ConvertMaskToPolygonAndMark(float[] maskData, int width, int height)
+        {
+            // Convert mask to OpenCV Mat
+            Mat mask = new Mat(height, width, MatType.CV_8UC1);
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    int index = y * width + x;
+                    mask.Set(y, x, maskData[index] > 0.5f ? 255 : 0);
+                }
+            }
+            
+            // Find contours
+            // Find contours
+            OpenCvSharp.Point[][] contours;
+            HierarchyIndex[] hierarchy;
+            Cv2.FindContours(mask, out contours, out hierarchy, RetrievalModes.External, ContourApproximationModes.ApproxSimple);
+
+            // Find the largest contour
+            if (contours.Length == 0)
+            {
+                Console.WriteLine("No contours found.");
+                return;
+            }
+
+            var largestContour = contours.OrderByDescending(c => Cv2.ContourArea(c)).First();
+
+            // Approximate contour to polygon
+            OpenCvSharp.Point[] polygon = Cv2.ApproxPolyDP(largestContour, 3, true);
+
+            // Convert OpenCV points to System.Drawing.PointF
+            PointF[] polygonF = polygon.Select(p => new PointF((float)p.X / width, (float)p.Y / height)).ToArray();
+
+            // Clear existing dat and dat2
+            dat.Clear();
+            dat2.Clear();
+
+            // Get image position and scaling information
+            int originalHeight = pictureBox1.Image.Height;
+            int originalWidth = pictureBox1.Image.Width;
+            PropertyInfo rectangleProperty = pictureBox1.GetType().GetProperty("ImageRectangle", BindingFlags.Instance | BindingFlags.NonPublic);
+            Rectangle rectangle = (Rectangle)rectangleProperty.GetValue(pictureBox1, null);
+            int currentWidth = rectangle.Width;
+            int currentHeight = rectangle.Height;
+            float rate = (float)currentHeight / (float)originalHeight;
+            int black_left_width = (currentWidth == pictureBox1.Width) ? 0 : (pictureBox1.Width - currentWidth) / 2;
+            int black_top_height = (currentHeight == pictureBox1.Height) ? 0 : (pictureBox1.Height - currentHeight) / 2;
+            // Add points to dat and dat2
+            foreach (var point in polygonF)
+            {
+                float zoom_x = point.X * pictureBox1.Image.Width * rate;
+                float zoom_y = point.Y * pictureBox1.Image.Height * rate;
+                int dat_x = (int)zoom_x + black_left_width;
+                int dat_y = (int)zoom_y + black_top_height;
+                dat.Add(new System.Drawing.Point(dat_x, dat_y));
+                dat2.Add(new PointF(point.X * pictureBox1.Image.Width, point.Y * pictureBox1.Image.Height));
+            }
+
         }
 
         private void AddLabel()
@@ -1661,6 +1728,8 @@ namespace YOLIC
             LoadSAM_Encode();
             point_coords = null;
             label = null;
+            dat.Clear();
+            dat2.Clear();
             LastArea = -1;
 
             if (CurrentIndex == list_Img.Count)
@@ -1703,6 +1772,8 @@ namespace YOLIC
             LoadSAM_Encode();
             point_coords = null;
             label = null;
+            dat.Clear();
+            dat2.Clear();
             if (CurrentIndex < 0)
             {
                 MessageBox.Show("No previous image!", "Notice", MessageBoxButtons.OK);
@@ -2342,11 +2413,12 @@ namespace YOLIC
                 }
                 dat.Clear();
                 dat2.Clear();
-                
+                point_coords = null;
+                label = null;
                 DisplayRGB(CurrentIndex, 0);
                 RedrawR(pictureBox1.Image);
                 pictureBox1.Invalidate();
-                System.Threading.Thread.Sleep(500);
+                System.Threading.Thread.Sleep(100);
                 //for (int ii = 0, j = 1; ii < LabelList.Count; ii++, j++)
                 //{
                 //    if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
