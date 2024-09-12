@@ -29,6 +29,7 @@ namespace YOLIC
         Boolean KeepHistory = false;
         Boolean SemiAutomatic = false;
         Boolean CheckMode = false;
+        Boolean PolygonMode = false;
         private List<string> list_Img;
         private List<string> list_depthImg;
         OpenFileDialog OpenJson = new OpenFileDialog();
@@ -677,14 +678,18 @@ namespace YOLIC
             {
                 button3.Enabled = true;
                 button4.Enabled = true;
+                button28.Enabled = true;
                 pictureBox1.Enabled = true;
                 currentLabel = new string[COIList.Length * (LabelList.Count + 1)];
                 for (int i = 0; i < currentLabel.Length; i++)
                 {
                     currentLabel[i] = "0";
                 }
-                
-                LoadSAM_Encode();
+                if (PolygonMode == false)
+                {
+                    label13.Text = "Annotation Mode: SAM";
+                    LoadSAM_Encode();
+                }
                 
                 DisplayRGB(CurrentIndex);
                 button7.Text = "Save";
@@ -1418,87 +1423,76 @@ namespace YOLIC
 
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
+            int originalHeight = this.pictureBox1.Image.Height;
+            int originalWidth = this.pictureBox1.Image.Width;
+            PropertyInfo rectangleProperty = this.pictureBox1.GetType().GetProperty("ImageRectangle", BindingFlags.Instance | BindingFlags.NonPublic);
+            Rectangle rectangle = (Rectangle)rectangleProperty.GetValue(this.pictureBox1, null);
+
+            int currentWidth = rectangle.Width;
+
+            int currentHeight = rectangle.Height;
+
+            double rate = (double)currentHeight / (double)originalHeight;
+
+            int black_left_width = (currentWidth == this.pictureBox1.Width) ? 0 : (this.pictureBox1.Width - currentWidth) / 2;
+            int black_top_height = (currentHeight == this.pictureBox1.Height) ? 0 : (this.pictureBox1.Height - currentHeight) / 2;
+
+            int zoom_x = e.X - black_left_width;
+            int zoom_y = e.Y - black_top_height;
+
+            double original_x = (double)zoom_x / rate;
+            double original_y = (double)zoom_y / rate;
+
             if (e.Button == MouseButtons.Left)
             {
-                int originalHeight = this.pictureBox1.Image.Height;
+                if (PolygonMode == true)
+                {
+                    
+                    dat2.Add(new Point(Convert.ToInt32(original_x), Convert.ToInt32(original_y)));
+                    dat.Add(new Point(e.X, e.Y));
+                    pictureBox1.Invalidate();
+                }
+                else
+                {
+                    
+                    double scale_x = (double)SAM_w / (double)originalWidth;
+                    double scale_y = (double)SAM_h / (double)originalHeight;
 
-                PropertyInfo rectangleProperty = this.pictureBox1.GetType().GetProperty("ImageRectangle", BindingFlags.Instance | BindingFlags.NonPublic);
-                Rectangle rectangle = (Rectangle)rectangleProperty.GetValue(this.pictureBox1, null);
-
-                int currentWidth = rectangle.Width;
-
-                int currentHeight = rectangle.Height;
-
-                double rate = (double)currentHeight / (double)originalHeight;
-
-                int black_left_width = (currentWidth == this.pictureBox1.Width) ? 0 : (this.pictureBox1.Width - currentWidth) / 2;
-                int black_top_height = (currentHeight == this.pictureBox1.Height) ? 0 : (this.pictureBox1.Height - currentHeight) / 2;
-
-                int zoom_x = e.X - black_left_width;
-                int zoom_y = e.Y - black_top_height;
-
-                double original_x = (double)zoom_x / rate;
-                double original_y = (double)zoom_y / rate;
-                dat2.Add(new Point(Convert.ToInt32(original_x), Convert.ToInt32(original_y)));
-                dat.Add(new Point(e.X, e.Y));
-                pictureBox1.Invalidate();
+                    double newX = original_x * scale_x;
+                    double newY = original_y * scale_y;
+                    AddPointCoords(newX, newY);
+                    AddLabel();
+                    MaskData result = SAM_Decode(originalHeight, originalWidth, point_coords, label);
+                    if (result == null) return;
+                    ShowMask(result.mMask.ToArray(), Color.FromArgb((byte)100, (byte)0, (byte)0, (byte)139));
+                }
+                
             }
             if (e.Button == MouseButtons.Right)
             {
-                int originalHeight = this.pictureBox1.Image.Height;
-                int originalWidth = this.pictureBox1.Image.Width;
-                PropertyInfo rectangleProperty = this.pictureBox1.GetType().GetProperty("ImageRectangle", BindingFlags.Instance | BindingFlags.NonPublic);
-                Rectangle rectangle = (Rectangle)rectangleProperty.GetValue(this.pictureBox1, null);
 
-                int currentWidth = rectangle.Width;
+                int LabelArea = JudgeAreaRGB(new Point((int)original_x, (int)original_y));
+                //Console.WriteLine(LabelArea.ToString());
+                if (LabelArea != -1)
+                {
+                    for (int i = 0, j = 1; i < LabelList.Count; i++, j++)
+                    {
+                        if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
+                        {
+                            //Console.WriteLine(i);
+                            currentLabel[(LabelArea * (LabelList.Count + 1)) + i] = "1";
+                            if (LastArea != -1 && LastArea != LabelArea)
+                            {
+                                DrawboxRGB(pictureBox1.Image, LastArea, Color.Blue);
+                            }
+                            DrawboxRGB(pictureBox1.Image, LabelArea, Color.White);
+                            LastArea = LabelArea;
+                        }
 
-                int currentHeight = rectangle.Height;
-
-                double rate = (double)currentHeight / (double)originalHeight;
-
-                int black_left_width = (currentWidth == this.pictureBox1.Width) ? 0 : (this.pictureBox1.Width - currentWidth) / 2;
-                int black_top_height = (currentHeight == this.pictureBox1.Height) ? 0 : (this.pictureBox1.Height - currentHeight) / 2;
-
-                int zoom_x = e.X - black_left_width;
-                int zoom_y = e.Y - black_top_height;
-
-                double original_x = (double)zoom_x / rate;
-                double original_y = (double)zoom_y / rate;
-
-                double scale_x = (double)SAM_w / (double)originalWidth;
-                double scale_y = (double)SAM_h / (double)originalHeight;
-
-                double newX = original_x * scale_x;
-                double newY = original_y * scale_y;
-                AddPointCoords(newX, newY);
-                AddLabel();
-                MaskData result = SAM_Decode(originalHeight, originalWidth, point_coords, label);
-                if (result == null) return;
-                ShowMask(result.mMask.ToArray(), Color.FromArgb((byte)100, (byte)0, (byte)0, (byte)139));
-
-                //int LabelArea = JudgeAreaRGB(new Point((int)original_x, (int)original_y));
-                ////Console.WriteLine(LabelArea.ToString());
-                //if (LabelArea != -1)
-                //{
-
-                //    for (int i = 0, j = 1; i < LabelList.Count; i++, j++)
-                //    {
-                //        if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
-                //        {
-                //            //Console.WriteLine(i);
-                //            currentLabel[(LabelArea * (LabelList.Count + 1)) + i] = "1";
-                //            if (LastArea != -1 && LastArea != LabelArea)
-                //            {
-                //                DrawboxRGB(pictureBox1.Image, LastArea, Color.Blue);
-                //            }
-                //            DrawboxRGB(pictureBox1.Image, LabelArea, Color.White);
-                //            LastArea = LabelArea;
-                //        }
-
-                //    }
-                //    DisplayRGB(CurrentIndex,0);
-                //    RedrawR(pictureBox1.Image);
-                //}
+                    }
+                    DisplayRGB(CurrentIndex, 0);
+                    RedrawR(pictureBox1.Image);
+                }
             }
 
         }
@@ -1725,9 +1719,13 @@ namespace YOLIC
                 SaveImage(CurrentIndex);
             }
             CurrentIndex++;
-            LoadSAM_Encode();
-            point_coords = null;
-            label = null;
+            if (PolygonMode == false)
+            {
+                LoadSAM_Encode();
+                point_coords = null;
+                label = null;
+            }
+            
             dat.Clear();
             dat2.Clear();
             LastArea = -1;
@@ -1769,9 +1767,12 @@ namespace YOLIC
         private void button4_Click(object sender, EventArgs e)
         {
             CurrentIndex--;
-            LoadSAM_Encode();
-            point_coords = null;
-            label = null;
+            if (PolygonMode == false)
+            {
+                LoadSAM_Encode();
+                point_coords = null;
+                label = null;
+            }
             dat.Clear();
             dat2.Clear();
             if (CurrentIndex < 0)
@@ -1876,6 +1877,12 @@ namespace YOLIC
                 currentLabel[i] = "0";
             }
             DisplayRGB(CurrentIndex);
+            if (PolygonMode == false)
+            {
+                LoadSAM_Encode();
+                point_coords = null;
+                label = null;
+            }
         }
 
         private void textBox2_KeyPress(object sender, KeyPressEventArgs e)
@@ -2512,6 +2519,29 @@ namespace YOLIC
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
-       
+        private void button28_Click(object sender, EventArgs e)
+        {
+            point_coords = null;
+            label = null;
+            dat.Clear();
+            dat2.Clear();
+            
+            if (PolygonMode == true)
+            {
+                PolygonMode = false;
+                label13.Text = "Annotation Mode: SAM";
+                button27.Text = "Add/Save Mask";
+                button26.Text = "Remove Mask";
+                LoadSAM_Encode();
+            }
+            else
+            {
+                PolygonMode = true;
+                label13.Text = "Annotation Mode: Polygon";
+                button27.Text = "Add/Save Polygon";
+                button26.Text = "Remove Polygon";
+
+            }
+        }
     }
 }
