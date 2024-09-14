@@ -3,15 +3,20 @@ using Microsoft.ML.OnnxRuntime.Tensors;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OpenCvSharp;
+using OpenCvSharp.ML;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using MessageBox = System.Windows.Forms.MessageBox;
 using Path = System.IO.Path;
 using Point = System.Drawing.Point;
@@ -24,6 +29,7 @@ namespace YOLIC
         Boolean KeepHistory = false;
         Boolean SemiAutomatic = false;
         Boolean CheckMode = false;
+        Boolean PolygonMode = false;
         private List<string> list_Img;
         private List<string> list_depthImg;
         OpenFileDialog OpenJson = new OpenFileDialog();
@@ -57,8 +63,12 @@ namespace YOLIC
         System.Drawing.Rectangle rectangle;
         JArray marks = new JArray();
         JArray marksForsave = new JArray();
-        private PointF[] PolygonPoints = new PointF[0];
-        
+        float[] mImgEmbedding;
+        int SAM_w = 0;
+        int SAM_h = 0;
+        float[] point_coords = null;
+        float[] label = null;
+
         public Form1()
         {
             InitializeComponent();
@@ -336,8 +346,6 @@ namespace YOLIC
                     button7.Text = "Start";
                     CurrentIndex = 0;
                     
-
-
                 }
             }
             catch (Exception)
@@ -670,13 +678,19 @@ namespace YOLIC
             {
                 button3.Enabled = true;
                 button4.Enabled = true;
+                button28.Enabled = true;
                 pictureBox1.Enabled = true;
                 currentLabel = new string[COIList.Length * (LabelList.Count + 1)];
                 for (int i = 0; i < currentLabel.Length; i++)
                 {
                     currentLabel[i] = "0";
                 }
-
+                if (PolygonMode == false)
+                {
+                    label13.Text = "Annotation Mode: SAM";
+                    LoadSAM_Encode();
+                }
+                
                 DisplayRGB(CurrentIndex);
                 button7.Text = "Save";
             }
@@ -686,17 +700,139 @@ namespace YOLIC
                 button15.Enabled = true;
             }
         }
+        private MaskData SAM_Decode(int orgHei, int orgWid, float[] point_coords, float[] label)
+        {
+            
+            string exePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            string decode_model_path = exePath + @"\decoder-quant.onnx";
+            if (!File.Exists(decode_model_path))
+            {
+                MessageBox.Show(decode_model_path + " not exist!");
+                return null;
+            }
+            var options = new SessionOptions();
+            InferenceSession mDecoder = new InferenceSession(decode_model_path, options);
+            var embedding_tensor = new DenseTensor<float>(mImgEmbedding, new[] { 1, 256, 64, 64 });
+            float[] mask = new float[256 * 256];
+            for (int i = 0; i < mask.Count(); i++)
+            {
+                mask[i] = 0;
+            }
+            var mask_tensor = new DenseTensor<float>(mask, new[] { 1, 1, 256, 256 });
 
+            float[] hasMaskValues = new float[1] { 0 };
+            var hasMaskValues_tensor = new DenseTensor<float>(hasMaskValues, new[] { 1 });
+
+            float[] orig_im_size_values = { (float)orgHei, (float)orgWid };
+            var orig_im_size_values_tensor = new DenseTensor<float>(orig_im_size_values, new[] { 2 });
+            int pointCount = label.Length;
+            var point_coords_tensor = new DenseTensor<float>(point_coords, new[] { 1, pointCount, 2 });
+
+            var point_label_tensor = new DenseTensor<float>(label, new[] { 1, pointCount });
+
+            var decode_inputs = new List<NamedOnnxValue>
+            {
+                NamedOnnxValue.CreateFromTensor("image_embeddings", embedding_tensor),
+                NamedOnnxValue.CreateFromTensor("point_coords", point_coords_tensor),
+                NamedOnnxValue.CreateFromTensor("point_labels", point_label_tensor),
+                NamedOnnxValue.CreateFromTensor("mask_input", mask_tensor),
+                NamedOnnxValue.CreateFromTensor("has_mask_input", hasMaskValues_tensor),
+                NamedOnnxValue.CreateFromTensor("orig_im_size", orig_im_size_values_tensor)
+            };
+            MaskData result = new MaskData();
+            var segmask = mDecoder.Run(decode_inputs).ToList();
+            result.mMask = segmask[0].AsTensor<float>().ToArray().ToList();
+            result.mShape = segmask[0].AsTensor<float>().Dimensions.ToArray();
+            result.mIoU = segmask[1].AsTensor<float>().ToList();
+            return result;
+            
+        }
+        private void LoadSAM_Encode()
+        {
+
+            string exePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            string encode_model_path = exePath + @"\encoder-quant.onnx";
+            if (!File.Exists(encode_model_path))
+            {
+                MessageBox.Show(encode_model_path + " not exist!");
+                return;
+            }
+            var options = new SessionOptions();
+            InferenceSession mEncoder = new InferenceSession(encode_model_path, options);
+            var inputMeta = mEncoder.InputMetadata;
+
+            Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.Color);
+            int orgh = color_image.Height;
+            int orgw = color_image.Width;
+            Mat resizedImage = new Mat();
+            int model_size = 0;
+            foreach (var name in inputMeta.Keys)
+            {
+                Console.WriteLine("Dimension Length: " + inputMeta[name].Dimensions[1]+" "+inputMeta[name].Dimensions[3]+" "+ inputMeta[name].Dimensions[2]);
+                if (inputMeta[name].Dimensions[3]!= inputMeta[name].Dimensions[2])
+                {
+                    MessageBox.Show("Width != Height");
+                    return;
+                }
+                else
+                {
+                    model_size = inputMeta[name].Dimensions[3];
+                }
+            }
+            float scale = model_size * 1.0f / Math.Max(orgh, orgw);
+            float newht = orgh * scale;
+            float newwt = orgw * scale;
+
+            int neww = (int)(newwt + 0.5);
+            int newh = (int)(newht + 0.5);
+            SAM_w = neww;
+            SAM_h = newh;
+            Cv2.Resize(color_image, resizedImage, new OpenCvSharp.Size(neww, newh));
+            Mat floatImage = new Mat();
+            resizedImage.ConvertTo(floatImage, MatType.CV_32FC3);
+
+            // 计算均值和标准差
+            Scalar mean, stddev;
+            Cv2.MeanStdDev(floatImage, out mean, out stddev);
+
+            // 标准化图像
+            Mat normalizedImage = new Mat();
+            Cv2.Subtract(floatImage, mean, normalizedImage);
+            Cv2.Divide(normalizedImage, stddev, normalizedImage);
+            float[] img = new float[3 * model_size * model_size];
+            for (int i = 0; i < neww; i++)
+            {
+                for (int j = 0; j < newh; j++)
+                {
+                    int index = j * model_size + i;
+                    img[index] = normalizedImage.At<Vec3f>(j, i)[0];
+                    img[model_size * model_size + index] = normalizedImage.At<Vec3f>(j, i)[1];
+                    img[2 * model_size * model_size + index] = normalizedImage.At<Vec3f>(j, i)[2];
+                }
+            }
+            Tensor<float> inputdata = new DenseTensor<float>(img, new[] { 1, 3, model_size, model_size });
+
+            var inputs = new List<NamedOnnxValue>
+            {
+                NamedOnnxValue.CreateFromTensor("x", inputdata)
+            };
+
+            var results = mEncoder.Run(inputs);
+            var embedding = results.First().AsTensor<float>().ToArray();
+            mImgEmbedding = embedding;
+            color_image.Dispose();
+            resizedImage.Dispose();
+            floatImage.Dispose();
+            normalizedImage.Dispose();
+
+        }
         private void DisplayRGB(int currentIndex, int auto = 1)
         {
             string Imagename = Path.GetFileName(list_Img[currentIndex]);
 
             label10.Text = Imagename;
 
-
-
             Image OriginalImage = Image.FromFile(list_Img[CurrentIndex]);
-
 
             Image DetectedImage = cutImage(OriginalImage, new Point(0, 0), OriginalImage.Width, OriginalImage.Height);
 
@@ -705,6 +841,8 @@ namespace YOLIC
             pictureBox1.Image = DetectedImage;
 
             System.Drawing.Graphics rgb = Graphics.FromImage(pictureBox1.Image);
+
+            
 
             //Console.WriteLine(COIList.Length);
             for (int i = 0; i < COIList.Length; i++)
@@ -730,6 +868,7 @@ namespace YOLIC
                 if (SemiAutomatic == true && auto == 1)
             {
                 Mat color_image = Cv2.ImRead(list_Img[CurrentIndex], ImreadModes.Color);
+
                 //Console.WriteLine(outimg.Channels());
                 //Console.WriteLine(outimg.Get<Vec4b>(110, 140));
                 string ModelName = OpenOnnx.FileName;
@@ -1284,58 +1423,58 @@ namespace YOLIC
 
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
+            int originalHeight = this.pictureBox1.Image.Height;
+            int originalWidth = this.pictureBox1.Image.Width;
+            PropertyInfo rectangleProperty = this.pictureBox1.GetType().GetProperty("ImageRectangle", BindingFlags.Instance | BindingFlags.NonPublic);
+            Rectangle rectangle = (Rectangle)rectangleProperty.GetValue(this.pictureBox1, null);
+
+            int currentWidth = rectangle.Width;
+
+            int currentHeight = rectangle.Height;
+
+            double rate = (double)currentHeight / (double)originalHeight;
+
+            int black_left_width = (currentWidth == this.pictureBox1.Width) ? 0 : (this.pictureBox1.Width - currentWidth) / 2;
+            int black_top_height = (currentHeight == this.pictureBox1.Height) ? 0 : (this.pictureBox1.Height - currentHeight) / 2;
+
+            int zoom_x = e.X - black_left_width;
+            int zoom_y = e.Y - black_top_height;
+
+            double original_x = (double)zoom_x / rate;
+            double original_y = (double)zoom_y / rate;
+
             if (e.Button == MouseButtons.Left)
             {
-                int originalHeight = this.pictureBox1.Image.Height;
+                if (PolygonMode == true)
+                {
+                    
+                    dat2.Add(new Point(Convert.ToInt32(original_x), Convert.ToInt32(original_y)));
+                    dat.Add(new Point(e.X, e.Y));
+                    pictureBox1.Invalidate();
+                }
+                else
+                {
+                    
+                    double scale_x = (double)SAM_w / (double)originalWidth;
+                    double scale_y = (double)SAM_h / (double)originalHeight;
 
-                PropertyInfo rectangleProperty = this.pictureBox1.GetType().GetProperty("ImageRectangle", BindingFlags.Instance | BindingFlags.NonPublic);
-                Rectangle rectangle = (Rectangle)rectangleProperty.GetValue(this.pictureBox1, null);
-
-                int currentWidth = rectangle.Width;
-
-                int currentHeight = rectangle.Height;
-
-                double rate = (double)currentHeight / (double)originalHeight;
-
-                int black_left_width = (currentWidth == this.pictureBox1.Width) ? 0 : (this.pictureBox1.Width - currentWidth) / 2;
-                int black_top_height = (currentHeight == this.pictureBox1.Height) ? 0 : (this.pictureBox1.Height - currentHeight) / 2;
-
-                int zoom_x = e.X - black_left_width;
-                int zoom_y = e.Y - black_top_height;
-
-                double original_x = (double)zoom_x / rate;
-                double original_y = (double)zoom_y / rate;
-                dat2.Add(new Point(Convert.ToInt32(original_x), Convert.ToInt32(original_y)));
-                dat.Add(new Point(e.X, e.Y));
-                pictureBox1.Invalidate();
+                    double newX = original_x * scale_x;
+                    double newY = original_y * scale_y;
+                    AddPointCoords(newX, newY);
+                    AddLabel();
+                    MaskData result = SAM_Decode(originalHeight, originalWidth, point_coords, label);
+                    if (result == null) return;
+                    ShowMask(result.mMask.ToArray(), Color.FromArgb((byte)100, (byte)0, (byte)0, (byte)139));
+                }
+                
             }
             if (e.Button == MouseButtons.Right)
             {
-                int originalHeight = this.pictureBox1.Image.Height;
-                PropertyInfo rectangleProperty = this.pictureBox1.GetType().GetProperty("ImageRectangle", BindingFlags.Instance | BindingFlags.NonPublic);
-                Rectangle rectangle = (Rectangle)rectangleProperty.GetValue(this.pictureBox1, null);
 
-                int currentWidth = rectangle.Width;
-
-                int currentHeight = rectangle.Height;
-
-                double rate = (double)currentHeight / (double)originalHeight;
-
-                int black_left_width = (currentWidth == this.pictureBox1.Width) ? 0 : (this.pictureBox1.Width - currentWidth) / 2;
-                int black_top_height = (currentHeight == this.pictureBox1.Height) ? 0 : (this.pictureBox1.Height - currentHeight) / 2;
-
-                int zoom_x = e.X - black_left_width;
-                int zoom_y = e.Y - black_top_height;
-
-                double original_x = (double)zoom_x / rate;
-                double original_y = (double)zoom_y / rate;
-                //Console.WriteLine(original_x.ToString());
-                //Console.WriteLine(original_y.ToString());
                 int LabelArea = JudgeAreaRGB(new Point((int)original_x, (int)original_y));
                 //Console.WriteLine(LabelArea.ToString());
                 if (LabelArea != -1)
                 {
-
                     for (int i = 0, j = 1; i < LabelList.Count; i++, j++)
                     {
                         if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
@@ -1349,16 +1488,168 @@ namespace YOLIC
                             DrawboxRGB(pictureBox1.Image, LabelArea, Color.White);
                             LastArea = LabelArea;
                         }
-                        //else
-                        //{
-                        //    currentLabel[(LabelArea * (LabelList.Count + 1)) + i] = "0";
-                        //}
 
                     }
-                    DisplayRGB(CurrentIndex,0);
+                    DisplayRGB(CurrentIndex, 0);
                     RedrawR(pictureBox1.Image);
                 }
             }
+
+        }
+
+        private void ShowMask(float[] floats, Color color)
+        {
+            if (pictureBox1.Image == null)
+                return;
+
+            int width = pictureBox1.Image.Width;
+            int height = pictureBox1.Image.Height;
+
+            // Create a new bitmap to draw the mask
+            using (Bitmap maskBitmap = new Bitmap(width, height))
+            {
+                using (Graphics g = Graphics.FromImage(maskBitmap))
+                {
+                    // Draw the original image
+                    g.DrawImage(pictureBox1.Image, 0, 0, width, height);
+
+                    // Create a color matrix that sets the alpha to 50%
+                    ColorMatrix cm = new ColorMatrix();
+                    cm.Matrix33 = 0.5f; // 50% opacity
+
+                    ImageAttributes ia = new ImageAttributes();
+                    ia.SetColorMatrix(cm);
+
+                    // Create the mask overlay
+                    using (Bitmap overlay = new Bitmap(width, height))
+                    {
+                        for (int y = 0; y < height; y++)
+                        {
+                            for (int x = 0; x < width; x++)
+                            {
+                                int index = y * width + x;
+                                if (floats[index] > 0.5f) // Adjust threshold as needed
+                                {
+                                    overlay.SetPixel(x, y, color);
+                                }
+                            }
+                        }
+
+                        // Draw the overlay with transparency
+                        g.DrawImage(overlay, new Rectangle(0, 0, width, height), 0, 0, width, height, GraphicsUnit.Pixel, ia);
+                    }
+                }
+
+                // Display the result in the PictureBox
+                if (pictureBox1.Image != null)
+                {
+                    pictureBox1.Invalidate();
+                }
+                pictureBox1.Image = new Bitmap(maskBitmap);
+                ConvertMaskToPolygonAndMark(floats, width, height);
+            }
+        }
+
+        private void ConvertMaskToPolygonAndMark(float[] maskData, int width, int height)
+        {
+            // Convert mask to OpenCV Mat
+            Mat mask = new Mat(height, width, MatType.CV_8UC1);
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    int index = y * width + x;
+                    mask.Set(y, x, maskData[index] > 0.5f ? 255 : 0);
+                }
+            }
+            
+            // Find contours
+            // Find contours
+            OpenCvSharp.Point[][] contours;
+            HierarchyIndex[] hierarchy;
+            Cv2.FindContours(mask, out contours, out hierarchy, RetrievalModes.External, ContourApproximationModes.ApproxSimple);
+
+            // Find the largest contour
+            if (contours.Length == 0)
+            {
+                Console.WriteLine("No contours found.");
+                return;
+            }
+
+            var largestContour = contours.OrderByDescending(c => Cv2.ContourArea(c)).First();
+
+            // Approximate contour to polygon
+            OpenCvSharp.Point[] polygon = Cv2.ApproxPolyDP(largestContour, 3, true);
+
+            // Convert OpenCV points to System.Drawing.PointF
+            PointF[] polygonF = polygon.Select(p => new PointF((float)p.X / width, (float)p.Y / height)).ToArray();
+
+            // Clear existing dat and dat2
+            dat.Clear();
+            dat2.Clear();
+
+            // Get image position and scaling information
+            int originalHeight = pictureBox1.Image.Height;
+            int originalWidth = pictureBox1.Image.Width;
+            PropertyInfo rectangleProperty = pictureBox1.GetType().GetProperty("ImageRectangle", BindingFlags.Instance | BindingFlags.NonPublic);
+            Rectangle rectangle = (Rectangle)rectangleProperty.GetValue(pictureBox1, null);
+            int currentWidth = rectangle.Width;
+            int currentHeight = rectangle.Height;
+            float rate = (float)currentHeight / (float)originalHeight;
+            int black_left_width = (currentWidth == pictureBox1.Width) ? 0 : (pictureBox1.Width - currentWidth) / 2;
+            int black_top_height = (currentHeight == pictureBox1.Height) ? 0 : (pictureBox1.Height - currentHeight) / 2;
+            // Add points to dat and dat2
+            foreach (var point in polygonF)
+            {
+                float zoom_x = point.X * pictureBox1.Image.Width * rate;
+                float zoom_y = point.Y * pictureBox1.Image.Height * rate;
+                int dat_x = (int)zoom_x + black_left_width;
+                int dat_y = (int)zoom_y + black_top_height;
+                dat.Add(new System.Drawing.Point(dat_x, dat_y));
+                dat2.Add(new PointF(point.X * pictureBox1.Image.Width, point.Y * pictureBox1.Image.Height));
+            }
+
+        }
+
+        private void AddLabel()
+        {
+            if (label == null)
+            {
+                label = new float[1];
+                label[0] = 1;
+                return;
+            }
+            int newSize = label.Length + 1;
+
+            float[] newArray = new float[newSize];
+
+            Array.Copy(label, newArray, label.Length);
+
+            newArray[newSize - 1] = 1;
+
+            label = newArray;
+        }
+
+        private void AddPointCoords(double newX, double newY)
+        {
+            if (point_coords == null)
+            {
+                point_coords = new float[2];
+                point_coords[0] = (int)newX;
+                point_coords[1] = (int)newY;
+                return;
+            }
+            int newSize = point_coords.Length + 2;
+
+            float[] newArray = new float[newSize];
+
+            Array.Copy(point_coords, newArray, point_coords.Length);
+
+            newArray[newSize - 2] = (int)newX;
+            newArray[newSize - 1] = (int)newY;
+
+            point_coords = newArray;
+
 
         }
 
@@ -1428,7 +1719,15 @@ namespace YOLIC
                 SaveImage(CurrentIndex);
             }
             CurrentIndex++;
-
+            if (PolygonMode == false)
+            {
+                LoadSAM_Encode();
+                point_coords = null;
+                label = null;
+            }
+            
+            dat.Clear();
+            dat2.Clear();
             LastArea = -1;
 
             if (CurrentIndex == list_Img.Count)
@@ -1468,6 +1767,14 @@ namespace YOLIC
         private void button4_Click(object sender, EventArgs e)
         {
             CurrentIndex--;
+            if (PolygonMode == false)
+            {
+                LoadSAM_Encode();
+                point_coords = null;
+                label = null;
+            }
+            dat.Clear();
+            dat2.Clear();
             if (CurrentIndex < 0)
             {
                 MessageBox.Show("No previous image!", "Notice", MessageBoxButtons.OK);
@@ -1570,6 +1877,12 @@ namespace YOLIC
                 currentLabel[i] = "0";
             }
             DisplayRGB(CurrentIndex);
+            if (PolygonMode == false)
+            {
+                LoadSAM_Encode();
+                point_coords = null;
+                label = null;
+            }
         }
 
         private void textBox2_KeyPress(object sender, KeyPressEventArgs e)
@@ -2107,11 +2420,12 @@ namespace YOLIC
                 }
                 dat.Clear();
                 dat2.Clear();
-                
+                point_coords = null;
+                label = null;
                 DisplayRGB(CurrentIndex, 0);
                 RedrawR(pictureBox1.Image);
                 pictureBox1.Invalidate();
-                System.Threading.Thread.Sleep(500);
+                System.Threading.Thread.Sleep(100);
                 //for (int ii = 0, j = 1; ii < LabelList.Count; ii++, j++)
                 //{
                 //    if (((CheckBox)this.Controls.Find("checkBox" + j, true)[0]).Checked)
@@ -2130,6 +2444,9 @@ namespace YOLIC
 
         private void button26_Click(object sender, EventArgs e)
         {
+            point_coords = null;
+            label = null;
+            DisplayRGB(CurrentIndex, 0);
             dat.Clear();
             dat2.Clear();
             pictureBox1.Invalidate();
@@ -2202,6 +2519,29 @@ namespace YOLIC
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
-       
+        private void button28_Click(object sender, EventArgs e)
+        {
+            point_coords = null;
+            label = null;
+            dat.Clear();
+            dat2.Clear();
+            
+            if (PolygonMode == true)
+            {
+                PolygonMode = false;
+                label13.Text = "Annotation Mode: SAM";
+                button27.Text = "Add/Save Mask";
+                button26.Text = "Remove Mask";
+                LoadSAM_Encode();
+            }
+            else
+            {
+                PolygonMode = true;
+                label13.Text = "Annotation Mode: Polygon";
+                button27.Text = "Add/Save Polygon";
+                button26.Text = "Remove Polygon";
+
+            }
+        }
     }
 }

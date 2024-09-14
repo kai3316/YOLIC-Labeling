@@ -31,6 +31,8 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.label13 = new System.Windows.Forms.Label();
+            this.button28 = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.button26 = new System.Windows.Forms.Button();
             this.button27 = new System.Windows.Forms.Button();
@@ -147,6 +149,8 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.label13);
+            this.tabPage1.Controls.Add(this.button28);
             this.tabPage1.Controls.Add(this.pictureBox1);
             this.tabPage1.Controls.Add(this.button26);
             this.tabPage1.Controls.Add(this.button27);
@@ -178,6 +182,30 @@
             this.tabPage1.Text = "RGB Leabling Mode";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Font = new System.Drawing.Font("Verdana", 7.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label13.Location = new System.Drawing.Point(15, 922);
+            this.label13.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(38, 18);
+            this.label13.TabIndex = 53;
+            this.label13.Text = "      ";
+            // 
+            // button28
+            // 
+            this.button28.Enabled = false;
+            this.button28.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button28.Location = new System.Drawing.Point(13, 483);
+            this.button28.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
+            this.button28.Name = "button28";
+            this.button28.Size = new System.Drawing.Size(180, 64);
+            this.button28.TabIndex = 52;
+            this.button28.Text = "Change Labeling Mode";
+            this.button28.UseVisualStyleBackColor = true;
+            this.button28.Click += new System.EventHandler(this.button28_Click);
+            // 
             // pictureBox1
             // 
             this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -201,7 +229,7 @@
             this.button26.Name = "button26";
             this.button26.Size = new System.Drawing.Size(170, 63);
             this.button26.TabIndex = 51;
-            this.button26.Text = "Remove Polygon";
+            this.button26.Text = "Remove Mask";
             this.button26.UseVisualStyleBackColor = true;
             this.button26.Click += new System.EventHandler(this.button26_Click);
             // 
@@ -213,7 +241,7 @@
             this.button27.Name = "button27";
             this.button27.Size = new System.Drawing.Size(180, 63);
             this.button27.TabIndex = 50;
-            this.button27.Text = "Add/Save Polygon";
+            this.button27.Text = "Add/Save Mask";
             this.button27.UseVisualStyleBackColor = true;
             this.button27.Click += new System.EventHandler(this.button27_Click);
             // 
@@ -232,7 +260,7 @@
             // button24
             // 
             this.button24.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button24.Location = new System.Drawing.Point(13, 478);
+            this.button24.Location = new System.Drawing.Point(13, 555);
             this.button24.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.button24.Name = "button24";
             this.button24.Size = new System.Drawing.Size(180, 64);
@@ -245,7 +273,7 @@
             // 
             this.button25.Enabled = false;
             this.button25.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button25.Location = new System.Drawing.Point(13, 552);
+            this.button25.Location = new System.Drawing.Point(13, 629);
             this.button25.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.button25.Name = "button25";
             this.button25.Size = new System.Drawing.Size(180, 64);
@@ -257,13 +285,13 @@
             // button14
             // 
             this.button14.Enabled = false;
-            this.button14.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button14.Font = new System.Drawing.Font("Verdana", 7.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button14.Location = new System.Drawing.Point(33, 870);
             this.button14.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.button14.Name = "button14";
             this.button14.Size = new System.Drawing.Size(125, 48);
             this.button14.TabIndex = 43;
-            this.button14.Text = "Jump";
+            this.button14.Text = "Go to Image";
             this.button14.UseVisualStyleBackColor = true;
             this.button14.Click += new System.EventHandler(this.button14_Click);
             // 
@@ -626,7 +654,7 @@
             // button19
             // 
             this.button19.Font = new System.Drawing.Font("Verdana", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button19.Location = new System.Drawing.Point(13, 626);
+            this.button19.Location = new System.Drawing.Point(13, 703);
             this.button19.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
             this.button19.Name = "button19";
             this.button19.Size = new System.Drawing.Size(180, 64);
@@ -1353,7 +1381,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1678, 996);
+            this.ClientSize = new System.Drawing.Size(1678, 997);
             this.Controls.Add(this.tabControl1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
@@ -1469,6 +1497,8 @@
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Button button26;
         private System.Windows.Forms.Button button27;
+        private System.Windows.Forms.Button button28;
+        private System.Windows.Forms.Label label13;
     }
 }
 
