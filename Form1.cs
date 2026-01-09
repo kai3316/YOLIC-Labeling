@@ -1,4 +1,4 @@
-﻿using Microsoft.ML.OnnxRuntime;
+﻿﻿﻿using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -74,8 +74,10 @@ namespace YOLIC
         private PointF? highlightedPoint = null;
         int snapThreshold = 10;
         private PointF? temporaryPoint = null;
-
         
+        // Button for grid generation
+        private Button btnGenerateGrid;
+
         
         
         public Form1()
@@ -2746,6 +2748,94 @@ namespace YOLIC
             Console.WriteLine(outputStr);
         }
 
+        private void btnGenerateGrid_Click(object sender, EventArgs e)
+        {
+            if (this.pictureBox4.Image == null)
+            {
+                MessageBox.Show("Please load an image first!");
+                return;
+            }
+
+            // 创建并显示网格生成对话框
+            using (GridGeneratorDialog dialog = new GridGeneratorDialog())
+            {
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        int rows = dialog.Rows;
+                        int cols = dialog.Cols;
+                        int cellWidth = dialog.CellWidth;
+                        int cellHeight = dialog.CellHeight;
+                        int startX = dialog.StartX;
+                        int startY = dialog.StartY;
+
+                        int originalHeight = this.pictureBox4.Image.Height;
+                        int originalWidth = this.pictureBox4.Image.Width;
+
+                        PropertyInfo rectangleProperty = this.pictureBox4.GetType().GetProperty("ImageRectangle", BindingFlags.Instance | BindingFlags.NonPublic);
+                        Rectangle picturerectangle = (Rectangle)rectangleProperty.GetValue(this.pictureBox4, null);
+
+                        int currentWidth = picturerectangle.Width;
+                        int currentHeight = picturerectangle.Height;
+
+                        // Calculate scaling factor: original image coordinates to display coordinates
+                        float scaleX = (float)currentWidth / (float)originalWidth;
+                        float scaleY = (float)currentHeight / (float)originalHeight;
+
+                        int black_left_width = (currentWidth == this.pictureBox4.Width) ? 0 : (this.pictureBox4.Width - currentWidth) / 2;
+                        int black_top_height = (currentHeight == this.pictureBox4.Height) ? 0 : (this.pictureBox4.Height - currentHeight) / 2;
+
+                        // Generate grid cells
+                        for (int row = 0; row < rows; row++)
+                        {
+                            for (int col = 0; col < cols; col++)
+                            {
+                                // USER ENTERS CELL SIZE IN ORIGINAL IMAGE COORDINATES
+                                // These values represent actual pixels in the original image
+                                float originalCellWidth = cellWidth;
+                                float originalCellHeight = cellHeight;
+                                float originalStartX = startX;
+                                float originalStartY = startY;
+
+                                // Convert original image coordinates to display coordinates for drawing
+                                // This ensures the cell appears correctly scaled on the displayed image
+                                int displayCellWidth = (int)(originalCellWidth * scaleX);
+                                int displayCellHeight = (int)(originalCellHeight * scaleY);
+                                int displayStartX = (int)(originalStartX * scaleX);
+                                int displayStartY = (int)(originalStartY * scaleY);
+
+                                // Calculate cell position in pictureBox coordinates
+                                int x = displayStartX + black_left_width + col * displayCellWidth;
+                                int y = displayStartY + black_top_height + row * displayCellHeight;
+
+                                // Create rectangle in pictureBox coordinates
+                                System.Drawing.Rectangle rect = new System.Drawing.Rectangle(x, y, displayCellWidth, displayCellHeight);
+
+                                // Add to marks (for display) using display coordinates
+                                JArray mark = new JArray("rectangle", x, y, displayCellWidth, displayCellHeight);
+                                marks.Add(mark);
+
+                                // Add to marksForsave (for export) using original image coordinates
+                                // These values are already in the correct coordinate system
+                                float exportX = originalStartX + col * originalCellWidth;
+                                float exportY = originalStartY + row * originalCellHeight;
+                                JArray markSave = new JArray("rectangle", exportX / originalWidth, exportY / originalHeight, originalCellWidth / originalWidth, originalCellHeight / originalHeight);
+                                marksForsave.Add(markSave);
+                            }
+                        }
+
+                        // Trigger redraw to show the generated grid
+                        pictureBox4.Invalidate();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Invalid input parameters: " + ex.Message);
+                    }
+                }
+            }
+        }
+
         private bool IsNear(PointF p1, PointF p2, float threshold)
         {
             // 计算两点之间的距离
@@ -3064,5 +3154,104 @@ namespace YOLIC
         }
 
        
+    }
+}
+
+// Grid Generator Dialog
+public class GridGeneratorDialog : Form
+{
+    private Label lblRows, lblCols, lblCellWidth, lblCellHeight, lblStartX, lblStartY;
+    private TextBox txtRows, txtCols, txtCellWidth, txtCellHeight, txtStartX, txtStartY;
+    private Button btnOK, btnCancel;
+    
+    public int Rows { get; private set; }
+    public int Cols { get; private set; }
+    public int CellWidth { get; private set; }
+    public int CellHeight { get; private set; }
+    public int StartX { get; private set; }
+    public int StartY { get; private set; }
+    
+    public GridGeneratorDialog()
+        {
+            this.Text = "Generate Grid";  // 设置对话框标题
+            this.Size = new System.Drawing.Size(300, 400);
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.MinimizeBox = false;
+            this.MaximizeBox = false;
+            this.ShowInTaskbar = false;
+        
+        // 初始化标签和文本框
+        lblRows = new Label { Text = "Rows:", Location = new Point(20, 20), Width = 80 };
+        txtRows = new TextBox { Location = new Point(120, 20), Width = 100, Text = "16" };
+        
+        lblCols = new Label { Text = "Columns:", Location = new Point(20, 60), Width = 80 };
+        txtCols = new TextBox { Location = new Point(120, 60), Width = 100, Text = "16" };
+        
+        lblCellWidth = new Label { Text = "Width:", Location = new Point(20, 100), Width = 80 };
+        txtCellWidth = new TextBox { Location = new Point(120, 100), Width = 100, Text = "53" };
+        
+        lblCellHeight = new Label { Text = "Height:", Location = new Point(20, 140), Width = 80 };
+        txtCellHeight = new TextBox { Location = new Point(120, 140), Width = 100, Text = "30" };
+        
+        lblStartX = new Label { Text = "Start X:", Location = new Point(20, 180), Width = 80 };
+        txtStartX = new TextBox { Location = new Point(120, 180), Width = 100, Text = "0" };
+        
+        lblStartY = new Label { Text = "Start Y:", Location = new Point(20, 220), Width = 80 };
+        txtStartY = new TextBox { Location = new Point(120, 220), Width = 100, Text = "0" };
+        
+        // 初始化按钮
+        btnOK = new Button { Text = "OK", Location = new Point(50, 280), DialogResult = DialogResult.OK, Width = 80 };
+        btnCancel = new Button { Text = "Cancel", Location = new Point(150, 280), DialogResult = DialogResult.Cancel, Width = 80 };
+        
+        // 添加控件到对话框
+        this.Controls.Add(lblRows);
+        this.Controls.Add(txtRows);
+        this.Controls.Add(lblCols);
+        this.Controls.Add(txtCols);
+        this.Controls.Add(lblCellWidth);
+        this.Controls.Add(txtCellWidth);
+        this.Controls.Add(lblCellHeight);
+        this.Controls.Add(txtCellHeight);
+        this.Controls.Add(lblStartX);
+        this.Controls.Add(txtStartX);
+        this.Controls.Add(lblStartY);
+        this.Controls.Add(txtStartY);
+        this.Controls.Add(btnOK);
+        this.Controls.Add(btnCancel);
+        
+        // 设置默认按钮
+        this.AcceptButton = btnOK;
+        this.CancelButton = btnCancel;
+        
+        // 注册事件处理程序
+        btnOK.Click += BtnOK_Click;
+    }
+    
+    private void BtnOK_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            Rows = int.Parse(txtRows.Text);
+            Cols = int.Parse(txtCols.Text);
+            CellWidth = int.Parse(txtCellWidth.Text);
+            CellHeight = int.Parse(txtCellHeight.Text);
+            StartX = int.Parse(txtStartX.Text);
+            StartY = int.Parse(txtStartY.Text);
+            
+            // 验证输入
+            if (Rows <= 0 || Cols <= 0 || CellWidth <= 0 || CellHeight <= 0)
+            {
+                MessageBox.Show("Please enter positive integers for all fields!");
+                return;
+            }
+            
+            this.DialogResult = DialogResult.OK;
+            this.Close();
+        }
+        catch (FormatException)
+        {
+            MessageBox.Show("Please enter valid integers for all fields!");
+        }
     }
 }

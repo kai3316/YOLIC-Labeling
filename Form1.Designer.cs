@@ -127,6 +127,7 @@
             this.label14 = new System.Windows.Forms.Label();
             this.pictureBox4 = new System.Windows.Forms.PictureBox();
             this.button34 = new System.Windows.Forms.Button();
+            this.btnGenerateGrid = new System.Windows.Forms.Button();
             this.button33 = new System.Windows.Forms.Button();
             this.button32 = new System.Windows.Forms.Button();
             this.button31 = new System.Windows.Forms.Button();
@@ -1394,6 +1395,7 @@
             // 
             this.tabPage3.Controls.Add(this.label15);
             this.tabPage3.Controls.Add(this.label14);
+            this.tabPage3.Controls.Add(this.btnGenerateGrid);
             this.tabPage3.Controls.Add(this.pictureBox4);
             this.tabPage3.Controls.Add(this.button34);
             this.tabPage3.Controls.Add(this.button33);
@@ -1459,6 +1461,18 @@
             this.button34.Text = "Export configuration";
             this.button34.UseVisualStyleBackColor = true;
             this.button34.Click += new System.EventHandler(this.button34_Click);
+            // 
+            // btnGenerateGrid
+            // 
+            this.btnGenerateGrid.Font = new System.Drawing.Font("Times New Roman", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnGenerateGrid.Location = new System.Drawing.Point(1470, 12);
+            this.btnGenerateGrid.Margin = new System.Windows.Forms.Padding(6);
+            this.btnGenerateGrid.Name = "btnGenerateGrid";
+            this.btnGenerateGrid.Size = new System.Drawing.Size(254, 86);
+            this.btnGenerateGrid.TabIndex = 11;
+            this.btnGenerateGrid.Text = "Generate Grid";
+            this.btnGenerateGrid.UseVisualStyleBackColor = true;
+            this.btnGenerateGrid.Click += new System.EventHandler(this.btnGenerateGrid_Click);
             // 
             // button33
             // 
