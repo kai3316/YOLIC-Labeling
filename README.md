@@ -11,19 +11,19 @@ Unlike traditional object detection methods that require scanning the entire ima
 
 ## ✨ Key Features
 
-* **Flexible cell configuration system**
+* **Flexible cell configuration system**  
   Import custom detection areas based on task requirements.
 
-* **Polygon-based annotation**
+* **Polygon-based annotation**  
   Precise object localization within interested cells.
 
-* **Semi-automatic labeling**
+* **Semi-automatic labeling**  
   Integrates deep learning models to accelerate annotation.
 
-* **RGB and RGB-D support**
+* **RGB and RGB-D support**  
   Works with both standard and depth-enhanced images.
 
-* **Customizable granularity**
+* **Customizable granularity**  
   Control the level of detail in object representation.
 
 ---
@@ -68,8 +68,8 @@ If you want to modify or develop the tool further, you can build it from source.
 3. **Right-click the zip file → Select “Properties”.**
 4. In the Properties panel, check **“Unblock”**, then click **Apply**.
 
-> ⚠️ **Why is this necessary?**
-> Windows may block files downloaded from the internet for security reasons.
+> ⚠️ **Why is this necessary?**  
+> Windows may block files downloaded from the internet for security reasons.  
 > If you do not unblock the zip file before extracting it, the project may fail to run properly.
 
 5. Extract the zip file.
@@ -89,9 +89,11 @@ If you want to modify or develop the tool further, you can build it from source.
 
 1. Open the extracted project folder.
 2. Locate the file:
-  ```
-   YOLIC.sln
-   ```
+```
+
+YOLIC.sln
+
+````
 3. Open it using Visual Studio.
 
 ---
@@ -128,44 +130,41 @@ Install via MSI or build from source as described above.
 
 ## 2️⃣ Design Your Own Cell Configuration
 
-You can design your own Interested Cells (COIs) using:
+You can design your own Interested Cells (COIs) directly within the **YOLIC Labeling Tool** using the **Cell Designer Panel**. This feature has been integrated into the software to simplify the configuration process.
 
-* The [Cell Designer Tool](https://github.com/kai3316/Cell-designer)
-* Or manually edit the JSON configuration file
+Alternatively, you can still manually edit the JSON configuration file if preferred.
 
 ### Supported COI Types
 
 * **Rectangle**
-
-  * Requires top-left and bottom-right coordinates
+* Requires top-left and bottom-right coordinates
 * **Polygon**
-
-  * Requires ordered coordinates of all vertices
+* Requires ordered coordinates of all vertices
 
 ### Example Configuration
 
 ```json
 {
-  "Labels": {
-    "LabelList": [
-      "Bump", "Column", "Dent", "Fence",
-      "Creature", "Vehicle", "Wall", "Weed", "ZebraCrossing",
-      "TrafficCone", "TrafficSign"
-    ],
-    "LabelAbbreviation": [
-      "Bp", "Cn", "Dt", "Fe", "Ce",
-      "Ve", "Wl", "Wd", "ZC", "TC", "TS"
-    ],
-    "LabelNumber": 11
-    },
-    "COIs": {
-      "COINumber": 3,
-      "1": ["rectangle", 0.33962, 0.34583, 0.04009, 0.07083],
-      "2": ["rectangle", 0.37971, 0.34583, 0.04009, 0.07083],
-      "3": ["rectangle", 0.71226, 0, 0.07075, 0.125]
-    }
+"Labels": {
+ "LabelList": [
+   "Bump", "Column", "Dent", "Fence",
+   "Creature", "Vehicle", "Wall", "Weed", "ZebraCrossing",
+   "TrafficCone", "TrafficSign"
+ ],
+ "LabelAbbreviation": [
+   "Bp", "Cn", "Dt", "Fe", "Ce",
+   "Ve", "Wl", "Wd", "ZC", "TC", "TS"
+ ],
+ "LabelNumber": 11
+ },
+ "COIs": {
+   "COINumber": 3,
+   "1": ["rectangle", 0.33962, 0.34583, 0.04009, 0.07083],
+   "2": ["rectangle", 0.37971, 0.34583, 0.04009, 0.07083],
+   "3": ["rectangle", 0.71226, 0, 0.07075, 0.125]
+ }
 }
-```
+````
 
 ---
 
@@ -219,3 +218,4 @@ We are continuously improving the YOLIC Labeling Tool and welcome:
 
 Thank you for your interest in YOLIC!
 We hope this tool helps you build efficient and lightweight detection systems 🚀
+
