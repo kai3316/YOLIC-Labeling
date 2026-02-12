@@ -83,8 +83,6 @@ If you want to modify or develop the tool further, you can build it from source.
 
    ✅ **.NET desktop development**
 
-(You can refer to the image below when selecting workloads.)
-
 ---
 
 ### Step 3: Open the Project
